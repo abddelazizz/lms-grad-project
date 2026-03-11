@@ -1,50 +1,98 @@
 import crypto from "crypto";
 import { User } from "../models/index.js";
-import { hashPassword, comparePassword, generateToken, sendVerificationEmail, sendPasswordResetEmail } from "../utilis/index.js";
+import {
+  hashPassword,
+  comparePassword,
+  generateToken,
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  AppError,
+} from "../utilis/index.js";
+
+const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 const signup = async (name, email, password, role) => {
   const existingUser = await User.findOne({ where: { email } });
 
   if (existingUser) {
-    throw new Error("Email already exists");
+    throw new AppError("Email already exists.", 409);
   }
 
   const hashedPassword = await hashPassword(password);
-  const verificationToken = crypto.randomBytes(32).toString("hex");
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = hashToken(rawToken);
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const user = await User.create({
     name,
     email,
     password: hashedPassword,
     role,
-    verification_token: verificationToken,
+    verification_token: hashedToken,
+    verification_token_expires: expires,
   });
 
-  await sendVerificationEmail(email, verificationToken);
+  await sendVerificationEmail(email, rawToken);
 
   return user;
+};
+
+const verifyEmail = async (rawToken) => {
+  const hashedToken = hashToken(rawToken);
+
+  const user = await User.findOne({
+    where: { verification_token: hashedToken },
+  });
+
+  if (!user) {
+    throw new AppError("Invalid or expired verification token.", 400);
+  }
+
+  if (user.verification_token_expires < new Date()) {
+    throw new AppError(
+      "Verification token has expired. Please sign up again.",
+      400
+    );
+  }
+
+  user.is_verified = true;
+  user.email_verified_at = new Date();
+  user.verification_token = null;
+  user.verification_token_expires = null;
+
+  await user.save();
 };
 
 const login = async (email, password) => {
   const user = await User.findOne({ where: { email } });
 
   if (!user) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials.", 401);
   }
 
   if (!user.is_verified) {
-    throw new Error("Please verify your email before logging in");
+    throw new AppError("Please verify your email before logging in.", 403);
   }
 
   const validPassword = await comparePassword(password, user.password);
 
   if (!validPassword) {
-    throw new Error("Invalid credentials");
+    throw new AppError("Invalid credentials.", 401);
   }
 
   const token = generateToken(user);
 
-  const { password: _password, verification_token: _vt, ...safeUser } = user.toJSON();
+  const {
+    password: _password,
+    verification_token: _vt,
+    verification_token_expires: _vte,
+    reset_password_token: _rpt,
+    reset_password_expires: _rpe,
+    ...safeUser
+  } = user.toJSON();
+
   return { user: safeUser, token };
 };
 
@@ -52,31 +100,36 @@ const forgotPassword = async (email) => {
   const user = await User.findOne({ where: { email } });
 
   if (!user) {
-    // Silently return — do not reveal whether the email is registered
     return;
   }
 
-  const resetToken = crypto.randomBytes(32).toString("hex");
-  const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = hashToken(rawToken);
+  const expiry = new Date(Date.now() + 60 * 60 * 1000);
 
-  user.reset_password_token = resetToken;
+  user.reset_password_token = hashedToken;
   user.reset_password_expires = expiry;
   await user.save();
 
-  await sendPasswordResetEmail(email, resetToken);
+  await sendPasswordResetEmail(email, rawToken);
 };
 
-const resetPassword = async (token, newPassword) => {
+const resetPassword = async (rawToken, newPassword) => {
+  const hashedToken = hashToken(rawToken);
+
   const user = await User.findOne({
-    where: { reset_password_token: token },
+    where: { reset_password_token: hashedToken },
   });
 
   if (!user) {
-    throw new Error("Invalid or expired reset token");
+    throw new AppError("Invalid or expired reset token.", 400);
   }
 
   if (user.reset_password_expires < new Date()) {
-    throw new Error("Reset token has expired. Please request a new one");
+    throw new AppError(
+      "Reset token has expired. Please request a new one.",
+      400
+    );
   }
 
   user.password = await hashPassword(newPassword);
@@ -85,4 +138,6 @@ const resetPassword = async (token, newPassword) => {
   await user.save();
 };
 
-export { signup, login, forgotPassword, resetPassword };
+export { signup, verifyEmail, login, forgotPassword, resetPassword };
+
+

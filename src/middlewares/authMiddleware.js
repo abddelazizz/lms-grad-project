@@ -1,12 +1,11 @@
 import jwt from "jsonwebtoken";
+import AppError from "../utilis/AppError.js";
 
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      error: "Access denied. No token provided",
-    });
+    return next(new AppError("Access denied. No token provided.", 401));
   }
 
   const token = authHeader.split(" ")[1];
@@ -16,10 +15,9 @@ const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).json({
-      error: "Invalid or expired token",
-    });
+    next(new AppError("Invalid or expired token.", 401));
   }
 };
 
 export default authenticate;
+

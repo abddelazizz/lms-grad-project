@@ -10,25 +10,6 @@ const User = sequelize.define(
       autoIncrement: true,
     },
 
-    verification_token: {
-      type: DataTypes.STRING,
-    },
-
-    reset_password_token: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-
-    reset_password_expires: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-
-    is_verified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-
     name: {
       type: DataTypes.STRING,
     },
@@ -52,6 +33,36 @@ const User = sequelize.define(
       defaultValue: "student",
     },
 
+    is_verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+
+    email_verified_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    verification_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    verification_token_expires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    reset_password_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    reset_password_expires: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -65,3 +76,4 @@ const User = sequelize.define(
 );
 
 export default User;
+

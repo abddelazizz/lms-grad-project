@@ -1,90 +1,73 @@
 import * as authService from "../services/index.js";
-import { User } from "../models/index.js";
+import catchAsync from "../utilis/catchAsync.js";
+import AppError from "../utilis/AppError.js";
 
-const signup = async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body;
+const signup = catchAsync(async (req, res) => {
+  const { name, email, password, role } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
-    }
+  const user = await authService.signup(name, email, password, role);
 
-    const user = await authService.signup(name, email, password, role);
+  res.status(201).json({
+    success: true,
+    statusCode: 201,
+    message: "User created successfully. Please check your email to verify your account.",
+    user,
+  });
+});
 
-    res.status(201).json({
-      message: "User created successfully",
-      user,
-    });
-  } catch (error) {
-    res.status(400).json({
-      error: error.message,
-    });
+const verifyEmail = catchAsync(async (req, res, next) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return next(new AppError("Verification token is required.", 400));
   }
-};
 
-const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.params;
+  await authService.verifyEmail(token);
 
-    const user = await User.findOne({
-      where: { verification_token: token },
-    });
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Email verified successfully. You can now log in.",
+  });
+});
 
-    if (!user) {
-      return res.status(400).send("Invalid token");
-    }
+const login = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
 
-    user.is_verified = true;
-    user.verification_token = null;
+  const result = await authService.login(email, password);
 
-    await user.save();
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Logged in successfully.",
+    ...result,
+  });
+});
 
-    res.send("Email verified successfully");
-  } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
-  }
-};
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
 
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  await authService.forgotPassword(email);
 
-    const result = await authService.login(email, password);
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "If an account with that email exists, a reset link has been sent.",
+  });
+});
 
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(401).json({
-      error: error.message,
-    });
-  }
-};
+const resetPassword = catchAsync(async (req, res) => {
+  const { token, newPassword } = req.body;
 
-const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
+  await authService.resetPassword(token, newPassword);
 
-    await authService.forgotPassword(email);
-
-    res.status(200).json({
-      message: "If an account with that email exists, a reset link has been sent.",
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const resetPassword = async (req, res) => {
-  try {
-    const { token, newPassword } = req.body;
-
-    await authService.resetPassword(token, newPassword);
-
-    res.status(200).json({ message: "Password reset successfully. You can now log in." });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Password reset successfully. You can now log in.",
+  });
+});
 
 export { signup, login, verifyEmail, forgotPassword, resetPassword };
+
+
