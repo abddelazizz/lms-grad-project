@@ -10,6 +10,12 @@ const User = sequelize.define(
       autoIncrement: true,
     },
 
+    google_id: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: true,
+    },
+
     name: {
       type: DataTypes.STRING,
     },
@@ -25,7 +31,7 @@ const User = sequelize.define(
 
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
 
     role: {
@@ -76,4 +82,3 @@ const User = sequelize.define(
 );
 
 export default User;
-

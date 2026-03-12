@@ -9,8 +9,7 @@ import {
   AppError,
 } from "../utilis/index.js";
 
-const hashToken = (token) =>
-  crypto.createHash("sha256").update(token).digest("hex");
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
 const signup = async (name, email, password, role) => {
   const existingUser = await User.findOne({ where: { email } });
@@ -42,19 +41,14 @@ const signup = async (name, email, password, role) => {
 const verifyEmail = async (rawToken) => {
   const hashedToken = hashToken(rawToken);
 
-  const user = await User.findOne({
-    where: { verification_token: hashedToken },
-  });
+  const user = await User.findOne({ where: { verification_token: hashedToken } });
 
   if (!user) {
     throw new AppError("Invalid or expired verification token.", 400);
   }
 
   if (user.verification_token_expires < new Date()) {
-    throw new AppError(
-      "Verification token has expired. Please sign up again.",
-      400
-    );
+    throw new AppError("Verification token has expired. Please sign up again.", 400);
   }
 
   user.is_verified = true;
@@ -99,9 +93,7 @@ const login = async (email, password) => {
 const forgotPassword = async (email) => {
   const user = await User.findOne({ where: { email } });
 
-  if (!user) {
-    return;
-  }
+  if (!user) return;
 
   const rawToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = hashToken(rawToken);
@@ -117,19 +109,14 @@ const forgotPassword = async (email) => {
 const resetPassword = async (rawToken, newPassword) => {
   const hashedToken = hashToken(rawToken);
 
-  const user = await User.findOne({
-    where: { reset_password_token: hashedToken },
-  });
+  const user = await User.findOne({ where: { reset_password_token: hashedToken } });
 
   if (!user) {
     throw new AppError("Invalid or expired reset token.", 400);
   }
 
   if (user.reset_password_expires < new Date()) {
-    throw new AppError(
-      "Reset token has expired. Please request a new one.",
-      400
-    );
+    throw new AppError("Reset token has expired. Please request a new one.", 400);
   }
 
   user.password = await hashPassword(newPassword);
@@ -138,6 +125,20 @@ const resetPassword = async (rawToken, newPassword) => {
   await user.save();
 };
 
-export { signup, verifyEmail, login, forgotPassword, resetPassword };
+const googleAuth = async (googleId, name, email) => {
+  let user = await User.findOne({ where: { google_id: googleId } });
 
+  if (!user) {
+    user = await User.create({
+      google_id: googleId,
+      name,
+      email,
+      is_verified: true,
+      email_verified_at: new Date(),
+    });
+  }
 
+  return user;
+};
+
+export { signup, verifyEmail, login, forgotPassword, resetPassword, googleAuth };

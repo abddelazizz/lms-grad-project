@@ -1,6 +1,7 @@
 import * as authService from "../services/index.js";
 import catchAsync from "../utilis/catchAsync.js";
 import AppError from "../utilis/AppError.js";
+import { generateToken } from "../utilis/index.js";
 
 const signup = catchAsync(async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -68,6 +69,35 @@ const resetPassword = catchAsync(async (req, res) => {
   });
 });
 
-export { signup, login, verifyEmail, forgotPassword, resetPassword };
+const googleAuthCallback = (req, res, next) => {
+  try {
+    const user = req.user;
 
+    if (!user) {
+      return next(new AppError("Google authentication failed.", 401));
+    }
 
+    const token = generateToken(user);
+
+    const {
+      password: _password,
+      verification_token: _vt,
+      verification_token_expires: _vte,
+      reset_password_token: _rpt,
+      reset_password_expires: _rpe,
+      ...safeUser
+    } = user.toJSON();
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: "Logged in with Google successfully.",
+      token,
+      user: safeUser,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export { signup, login, verifyEmail, forgotPassword, resetPassword, googleAuthCallback };
