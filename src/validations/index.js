@@ -1,1 +1,10 @@
-export { signupSchema, forgotPasswordSchema, resetPasswordSchema } from "./authValidation.js";
+export {
+  signupSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  resendVerificationSchema,
+  createCourseSchema,
+  updateCourseSchema,
+  createInstructorSchema,
+} from "./authValidation.js";

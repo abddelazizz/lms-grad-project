@@ -1,18 +1,29 @@
 import Joi from "joi";
 
+// ─── Auth Schemas ─────────────────────────────────────────────
 const signupSchema = Joi.object({
-  name: Joi.string().alphanum().min(3).max(30).required(),
+  name: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
   password: Joi.string()
-    .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
+    .min(8)
+    .max(72) // bcrypt truncates at 72 bytes
+    .pattern(/[A-Z]/, "uppercase letter")
+    .pattern(/[0-9]/, "number")
+    .pattern(/[^a-zA-Z0-9]/, "special character")
     .required()
     .messages({
-      "string.pattern.base":
-        "Password must be 3–30 characters and contain only letters and numbers",
+      "string.min": "Password must be at least 8 characters",
+      "string.pattern.name": "Password must include at least one {#name}",
     }),
   role: Joi.string()
-    .valid("student", "instructor", "admin", "parent")
+    .valid("student", "instructor")
     .default("student"),
+  // ✅ admin/parent cannot be self-registered — removed from valid list
+});
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
 });
 
 const forgotPasswordSchema = Joi.object({
@@ -22,12 +33,51 @@ const forgotPasswordSchema = Joi.object({
 const resetPasswordSchema = Joi.object({
   token: Joi.string().required(),
   newPassword: Joi.string()
-    .pattern(new RegExp("^[a-zA-Z0-9]{3,30}$"))
-    .required()
-    .messages({
-      "string.pattern.base":
-        "Password must be 3–30 characters and contain only letters and numbers",
-    }),
+    .min(8)
+    .max(72)
+    .pattern(/[A-Z]/, "uppercase letter")
+    .pattern(/[0-9]/, "number")
+    .pattern(/[^a-zA-Z0-9]/, "special character")
+    .required(),
 });
 
-export { signupSchema, forgotPasswordSchema, resetPasswordSchema };
+const resendVerificationSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+// ─── Course Schemas ───────────────────────────────────────────
+const createCourseSchema = Joi.object({
+  title: Joi.string().min(5).max(150).required(),
+  description: Joi.string().max(5000).optional(),
+  price: Joi.number().min(0).precision(2).default(0),
+  level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
+  category_id: Joi.number().integer().optional(),
+  thumbnail_url: Joi.string().uri().optional(),
+});
+
+const updateCourseSchema = Joi.object({
+  title: Joi.string().min(5).max(150).optional(),
+  description: Joi.string().max(5000).optional(),
+  price: Joi.number().min(0).precision(2).optional(),
+  level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
+  category_id: Joi.number().integer().optional(),
+  thumbnail_url: Joi.string().uri().optional(),
+}).min(1); // must provide at least one field to update
+
+// ─── Admin Schemas ────────────────────────────────────────────
+const createInstructorSchema = Joi.object({
+  name: Joi.string().min(2).max(50).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(72).required(),
+});
+
+export {
+  signupSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  resendVerificationSchema,
+  createCourseSchema,
+  updateCourseSchema,
+  createInstructorSchema,
+};

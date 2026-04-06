@@ -1,10 +1,10 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/index.js";
 
-const Enrollment = sequelize.define(
-  "Enrollment",
+const Review = sequelize.define(
+  "Review",
   {
-    enrollment_id: {
+    review_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -25,24 +25,28 @@ const Enrollment = sequelize.define(
         key: "course_id",
       },
     },
-    enrolled_at: {
+    // Star rating 1–5
+    rating: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      validate: {
+        min: 1,
+        max: 5,
+      },
+    },
+    comment: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
-    status: {
-      type: DataTypes.ENUM("active", "completed", "dropped"),
-      defaultValue: "active",
-    },
-    // 🆕 Cached overall progress (0.00 – 100.00)
-    progress_percentage: {
-      type: DataTypes.DECIMAL(5, 2),
-      defaultValue: 0.0,
-    },
   },
   {
-    tableName: "enrollments",
+    tableName: "reviews",
     timestamps: false,
-    // Ensure a student can only enroll once per course
+    // A student can only review a course once
     indexes: [
       {
         unique: true,
@@ -52,4 +56,4 @@ const Enrollment = sequelize.define(
   }
 );
 
-export default Enrollment;
+export default Review;

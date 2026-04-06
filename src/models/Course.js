@@ -21,26 +21,52 @@ const Course = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'instructors',
-        key: 'user_id',
+        model: "instructors",
+        key: "user_id",
       },
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),
-      defaultValue: 0.00,
+      defaultValue: 0.0,
     },
-    is_published: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    status: {
+      type: DataTypes.ENUM("draft", "published", "archived"),
+      defaultValue: "draft",
+    },
+    level: {
+      type: DataTypes.ENUM("beginner", "intermediate", "advanced"),
+      allowNull: true,
+    },
+    thumbnail_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
-    }
+    },
+    // ✅ Soft-delete: paranoid adds deleted_at column managed by Sequelize
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "courses",
     timestamps: false,
+    // ✅ paranoid: true makes destroy() set deleted_at instead of hard deleting
+    paranoid: true,
+    deletedAt: "deleted_at",
+    // ✅ Indexes for high-frequency query patterns
+    indexes: [
+      { fields: ["instructor_id"] },
+      { fields: ["status"] },
+      { fields: ["instructor_id", "status"] },
+    ],
   }
 );
 

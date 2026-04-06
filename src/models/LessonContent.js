@@ -37,6 +37,17 @@ const LessonContent = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    // 🆕 Lesson duration in seconds (used to compute total course time)
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+    },
+    // 🆕 Whether non-enrolled users can view this lesson as a free preview
+    is_free_preview: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: "lesson_contents",

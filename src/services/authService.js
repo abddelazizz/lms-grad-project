@@ -8,6 +8,7 @@ import {
   sendPasswordResetEmail,
   AppError,
 } from "../utilis/index.js";
+import { securityLog, auditLog } from "../utilis/logger.js";
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
@@ -63,16 +64,21 @@ const login = async (email, password) => {
   const user = await User.findOne({ where: { email } });
 
   if (!user) {
+    // 🔐 Security log: failed login attempt (user not found)
+    securityLog("FAILED_LOGIN_USER_NOT_FOUND", { email });
     throw new AppError("Invalid credentials.", 401);
   }
 
   if (!user.is_verified) {
+    securityLog("FAILED_LOGIN_UNVERIFIED", { email, user_id: user.user_id });
     throw new AppError("Please verify your email before logging in.", 403);
   }
 
   const validPassword = await comparePassword(password, user.password);
 
   if (!validPassword) {
+    // 🔐 Security log: failed login attempt (wrong password)
+    securityLog("FAILED_LOGIN_WRONG_PASSWORD", { email, user_id: user.user_id });
     throw new AppError("Invalid credentials.", 401);
   }
 
@@ -93,7 +99,7 @@ const login = async (email, password) => {
 const forgotPassword = async (email) => {
   const user = await User.findOne({ where: { email } });
 
-  if (!user) return;
+  if (!user) return; // silent: don't reveal if email exists
 
   const rawToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = hashToken(rawToken);
@@ -123,6 +129,9 @@ const resetPassword = async (rawToken, newPassword) => {
   user.reset_password_token = null;
   user.reset_password_expires = null;
   await user.save();
+
+  // 📋 Audit log: password changed
+  auditLog("PASSWORD_RESET", user.user_id, "user", user.user_id);
 };
 
 const googleAuth = async (googleId, name, email) => {
