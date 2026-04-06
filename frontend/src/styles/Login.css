@@ -1,0 +1,69 @@
+.login-page-container {
+  background-color: #F7F7F8;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+.login-form-card {
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.03);
+}
+
+.btn-login-submit {
+  background-color: #385b73 !important;
+  color: white !important;
+  border: none !important;
+  transition: background-color 0.3s ease;
+}
+
+.btn-login-submit:hover {
+  background-color: #2c4a5e !important;
+  color: white !important;
+}
+
+.login-input-field {
+  background-color: #FCFCFD !important;
+  border: 1px solid #F1F1F3 !important;
+  color: #262626 !important;
+}
+
+.login-input-field:focus {
+  border-color: #FF9800 !important;
+  box-shadow: none;
+  background-color: #FFFFFF !important;
+}
+
+.login-input-field::placeholder {
+  color: #ababab;
+  font-size: 0.85rem;
+}
+
+.btn-social-login {
+  background-color: #FFFFFF;
+  color: #262626;
+  transition: background-color 0.2s ease;
+}
+
+.btn-social-login:hover {
+  background-color: #F7F7F8;
+}
+
+.form-check-input:checked {
+  background-color: #FF9800;
+  border-color: #FF9800;
+}
+
+/* تصغير إضافي */
+.fs-7 {
+  font-size: 0.9rem !important;
+}
+
+.x-small {
+  font-size: 0.75rem !important;
+}
+
+.small-check {
+  width: 1em;
+  height: 1em;
+  margin-top: 0;
+}
