@@ -6,5 +6,11 @@ export {
   resendVerificationSchema,
   createCourseSchema,
   updateCourseSchema,
-  createInstructorSchema,
+  createInstructorSchema as createInstructorCourseSchema,
 } from "./authValidation.js";
+
+export {
+  createInstructorSchema,
+  createStudentSchema,
+  paginationSchema,
+} from "./adminValidators.js";
