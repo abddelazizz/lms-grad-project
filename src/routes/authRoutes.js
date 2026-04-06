@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { signup, login, verifyEmail, forgotPassword, resetPassword, googleAuthCallback } from "../handler/index.js";
+import { signup, login, verifyEmail, forgotPassword, resetPassword, googleAuthCallback } from "../handlers/index.js";
 import { validate } from "../middlewares/index.js";
 import { signupSchema, forgotPasswordSchema, resetPasswordSchema } from "../validations/index.js";
 

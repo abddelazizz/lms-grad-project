@@ -1,5 +1,5 @@
 import express from "express";
-import { checkHandler } from "../handler/index.js";
+import { checkHandler } from "../handlers/index.js";
 
 const router = express.Router();
 
