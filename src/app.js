@@ -15,14 +15,9 @@ const app = express();
 configurePassport();
 
 // ─── Security Headers ─────────────────────────────────────────
-// Helmet sets a suite of HTTP security headers, including
-// X-Content-Type-Options, X-Frame-Options, and Referrer-Policy.
-// This shuts down a broad class of browser-based attacks.
 app.use(helmet());
 
 // ─── CORS ─────────────────────────────────────────────────────
-// Only allow requests from the known frontend origin.
-// In production replace with your FRONTEND_URL env var.
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
   methods: ["GET", "POST", "PATCH", "DELETE"],

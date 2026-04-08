@@ -8,6 +8,8 @@ import LessonContent from "./LessonContent.js";
 import Enrollment from "./Enrollment.js";
 import LessonProgress from "./LessonProgress.js";
 import Review from "./Review.js";
+import Instructor from "./Instructor.js";
+import Student from "./Student.js";
 
 // ─── Course Hierarchy ────────────────────────────────────────
 // User (instructor) → Course → Section → Lesson
@@ -53,4 +55,6 @@ export {
   Enrollment,
   LessonProgress,
   Review,
+  Instructor,
+  Student,
 };
