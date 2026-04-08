@@ -1,11 +1,18 @@
 import winston from "winston";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const logsDir = path.join(__dirname, "../../logs");
+
+// ─── Ensure logs directory exists ─────────────────────────────
+// Winston will crash on startup if this directory is missing
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
