@@ -12,7 +12,14 @@ import logger from "./utilis/logger.js";
 const app = express();
 
 // ─── Passport ─────────────────────────────────────────────────
-configurePassport();
+try {
+  configurePassport();
+  logger.info("[APP] Passport configured successfully.");
+} catch (err) {
+  logger.error("[APP] Failed to configure Passport — check your Google OAuth environment variables.");
+  logger.error(err.message);
+  process.exit(1);
+}
 
 // ─── Security Headers ─────────────────────────────────────────
 app.use(helmet());

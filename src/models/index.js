@@ -11,6 +11,13 @@ import Review from "./Review.js";
 import Instructor from "./Instructor.js";
 import Student from "./Student.js";
 
+// ─── User ↔ Instructor / Student profiles ────────────────────
+User.hasOne(Instructor, { foreignKey: "user_id", as: "Instructor" });
+Instructor.belongsTo(User, { foreignKey: "user_id" });
+
+User.hasOne(Student, { foreignKey: "user_id", as: "Student" });
+Student.belongsTo(User, { foreignKey: "user_id" });
+
 // ─── Course Hierarchy ────────────────────────────────────────
 // User (instructor) → Course → Section → Lesson
 User.hasMany(Course, { foreignKey: "instructor_id", as: "taught_courses" });

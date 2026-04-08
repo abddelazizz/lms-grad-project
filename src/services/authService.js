@@ -150,4 +150,24 @@ const googleAuth = async (googleId, name, email) => {
   return user;
 };
 
-export { signup, verifyEmail, login, forgotPassword, resetPassword, googleAuth };
+const resendVerification = async (email) => {
+  const user = await User.findOne({ where: { email } });
+
+  if (!user) return; // silent: don't reveal if email exists
+
+  if (user.is_verified) {
+    throw new AppError("This email is already verified.", 400);
+  }
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = hashToken(rawToken);
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  user.verification_token = hashedToken;
+  user.verification_token_expires = expires;
+  await user.save();
+
+  await sendVerificationEmail(email, rawToken);
+};
+
+export { signup, verifyEmail, login, forgotPassword, resetPassword, googleAuth, resendVerification };
