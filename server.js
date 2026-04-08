@@ -5,7 +5,7 @@ import { sequelize } from "./src/config/index.js";
 const PORT = process.env.PORT || 5000;
 
 process.on("uncaughtException", (err) => {
-  console.error(err.name, err.message);
+  console.error("Uncaught Exception:", err);
   process.exit(1);
 });
 
@@ -29,7 +29,7 @@ async function startServer() {
 }
 
 process.on("unhandledRejection", (err) => {
-  console.error(err.name, err.message);
+  console.error("Unhandled Rejection:", err);
   if (server) {
     server.close(() => process.exit(1));
   } else {

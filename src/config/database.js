@@ -9,6 +9,12 @@ const sequelize = new Sequelize(
     port: 3306,
     dialect: "mysql",
     logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000 // Close idle connections after 10 seconds to prevent MySQL timeout drops
+    }
   }
 );
 
