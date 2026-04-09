@@ -92,7 +92,7 @@ describe("authService.signup()", () => {
 
   it("should throw 409 if email already exists", async () => {
     mockUserFindOne.mockResolvedValue({ user_id: 1 });
-    await expect(signup("Test", "existing@test.com", "Pass1!", "student"))
+    await expect(signup({ name: "Test", email: "existing@test.com", password: "Pass1!", role: "student" }))
       .rejects.toMatchObject({ statusCode: 409 });
   });
 
@@ -100,7 +100,7 @@ describe("authService.signup()", () => {
     mockUserFindOne.mockResolvedValue(null);
     mockUserCreate.mockResolvedValue({ user_id: 2, email: "new@test.com" });
 
-    const result = await signup("New User", "new@test.com", "Pass1!", "student");
+    const result = await signup({ name: "New User", email: "new@test.com", password: "Pass1!", role: "student" });
     expect(mockUserCreate).toHaveBeenCalledTimes(1);
     expect(mockSendVerificationEmail).toHaveBeenCalledTimes(1);
     expect(result).toHaveProperty("user_id", 2);

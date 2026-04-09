@@ -1,6 +1,7 @@
 import Course from "../models/Course.js";
 import CourseSection from "../models/CourseSection.js";
 import LessonContent from "../models/LessonContent.js";
+import Enrollment from "../models/Enrollment.js";
 import AppError from "../utilis/AppError.js";
 
 export const createCourse = async (courseData, instructorId) => {
@@ -31,6 +32,26 @@ export const getCoursesByInstructor = async (instructorId) => {
     order: [["created_at", "DESC"]],
   });
   return courses;
+};
+
+export const getEnrolledCourses = async (studentId) => {
+  const enrollments = await Enrollment.findAll({
+    where: { student_id: studentId },
+    include: [
+      {
+        model: Course,
+        as: "course",
+        attributes: ["course_id", "title", "thumbnail_url", "level"],
+      },
+    ],
+    order: [["enrolled_at", "DESC"]],
+  });
+  return enrollments.map((e) => ({
+    ...e.course.toJSON(),
+    status: e.status,
+    progress_percentage: e.progress_percentage,
+    enrolled_at: e.enrolled_at,
+  }));
 };
 
 export const updateCourse = async (courseId, instructorId, role, updateData) => {

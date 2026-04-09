@@ -72,8 +72,8 @@ const Navbar = () => {
                   title="Dashboard"
                 >
                   <img 
-                    src={user?.picture || `https://i.pravatar.cc/150?u=${user?.user_id || 'guest'}`} 
-                    alt="Profile" 
+                    src={user?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} 
+                    alt="Current User" 
                     className="w-100 h-100 object-fit-cover"
                   />
                 </Link>

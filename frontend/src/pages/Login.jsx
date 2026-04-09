@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { authService, API_BASE } from '../services/apiService';
 import '../styles/Login.css';
@@ -7,6 +7,21 @@ import '../styles/Login.css';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('verified') === 'true') {
+      toast.success('Email verified successfully! You can now log in.', { duration: 4000 });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get('error') === 'invalid_or_expired_token') {
+      toast.error('Verification link is invalid or expired. Please request a new one.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (params.get('error') === 'missing_token') {
+      toast.error('Verification link is missing or corrupted.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

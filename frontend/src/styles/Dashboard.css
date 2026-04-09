@@ -15,6 +15,25 @@
   color: #1a1d20;
 }
 
+/* Admin Specific Styling */
+.admin-input {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease-in-out;
+}
+
+.admin-input:focus {
+  background-color: #fff;
+  border-color: #385b73;
+  box-shadow: 0 0 0 4px rgba(56, 91, 115, 0.1);
+}
+
+.bg-soft-primary { background-color: rgba(56, 91, 115, 0.1); }
+.bg-soft-success { background-color: rgba(40, 167, 69, 0.1); }
+.bg-soft-danger { background-color: rgba(220, 53, 69, 0.1); }
+
+.admin-table-row-tint { background-color: #fcfcfc; }
+
 .dashboard-page {
   background-color: #f7f9fb;
   min-height: 100vh;

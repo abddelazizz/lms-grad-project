@@ -4,9 +4,9 @@ import AppError from "../utilis/AppError.js";
 // generateToken is generated in the service layer now
 
 const signup = catchAsync(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, username, email, password, role, picture } = req.body;
 
-  const user = await authService.signup(name, email, password, role);
+  const user = await authService.signup({ name, username, email, password, role, picture });
 
   res.status(201).json({
     success: true,
@@ -16,21 +16,22 @@ const signup = catchAsync(async (req, res) => {
   });
 });
 
-const verifyEmail = catchAsync(async (req, res, next) => {
+const verifyEmail = async (req, res, next) => {
   const { token } = req.query;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
   if (!token) {
-    return next(new AppError("Verification token is required.", 400));
+    return res.redirect(`${frontendUrl}/login?error=missing_token`);
   }
 
-  await authService.verifyEmail(token);
-
-  res.status(200).json({
-    success: true,
-    statusCode: 200,
-    message: "Email verified successfully. You can now log in.",
-  });
-});
+  try {
+    await authService.verifyEmail(token);
+    return res.redirect(`${frontendUrl}/login?verified=true`);
+  } catch (err) {
+    // Redirect to login with error parameter so frontend can render an elegant toast
+    return res.redirect(`${frontendUrl}/login?error=invalid_or_expired_token`);
+  }
+};
 
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
@@ -112,4 +113,3 @@ const googleAuthCallback = (req, res, next) => {
 };
 
 export { signup, login, verifyEmail, forgotPassword, verifyResetOTP, resetPassword, resendVerification, googleAuthCallback };
-

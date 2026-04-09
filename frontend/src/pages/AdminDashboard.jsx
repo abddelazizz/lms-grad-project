@@ -11,6 +11,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [stats, setStats] = useState({ totalUsers: 0, totalInstructors: 0, totalStudents: 0, totalCourses: 0, totalRevenue: '0.00' });
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' });
 
   // Determination of view based on path
@@ -20,17 +22,42 @@ const AdminDashboard = () => {
   const isStudentsList = path.includes('students');
 
   useEffect(() => {
-    if (isTeachersList) fetchTeachers();
-    if (isStudentsList) fetchStudents();
-  }, [path]);
+    const delayDebounceFn = setTimeout(() => {
+      if (isTeachersList) fetchTeachers();
+      else if (isStudentsList) fetchStudents();
+      else if (!isAddTeacher && !isAddStudent) {
+         fetchStats();
+         fetchTeachers();
+         fetchStudents();
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [path, searchQuery]);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const res = await adminService.getStats();
+      setStats(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchTeachers = async () => {
     try {
       setLoading(true);
       const res = await adminService.getInstructors();
-      setTeachers(res.data.data.instructors || []);
+      console.log('RAW TEACHERS RES:', res.data);
+      // Defensively parse paginated or direct array responses
+      const payload = res.data?.data?.data || res.data?.data || res.data;
+      setTeachers(Array.isArray(payload) ? payload : []);
     } catch (err) {
-      console.error(err);
+      console.error('FAILED TO FETCH TEACHERS:', err);
+      setTeachers([]);
     } finally {
       setLoading(false);
     }
@@ -40,9 +67,13 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       const res = await adminService.getStudents();
-      setStudents(res.data.data.students || []);
+      console.log('RAW STUDENTS RES:', res.data);
+      // Defensively parse paginated or direct array responses
+      const payload = res.data?.data?.data || res.data?.data || res.data;
+      setStudents(Array.isArray(payload) ? payload : []);
     } catch (err) {
-      console.error(err);
+      console.error('FAILED TO FETCH STUDENTS:', err);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -126,105 +157,160 @@ const AdminDashboard = () => {
             {/* Conditional Sub-header and Form/Table */}
             {isAddTeacher && (
               <div className="admin-form-container bg-white p-5 rounded-4 shadow-sm border mt-5">
-                <h2 className="fw-bold mb-5">Add Teachers</h2>
+                <div className="d-flex align-items-center justify-content-between mb-5">
+                  <h2 className="fw-bold m-0">Create New Teacher</h2>
+                  <span className="badge bg-soft-primary text-primary px-3 py-2 rounded-pill">Instructor Access</span>
+                </div>
                 <div className="row g-4">
                   <div className="col-12">
-                    <label className="small text-muted mb-2">Full Name</label>
-                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="form-control bg-light-gray" placeholder="e.g. Kristin Watson" />
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">FULL NAME</label>
+                      <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="form-control admin-input py-2 px-3" placeholder="e.g. Dr. Kristin Watson" />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="small text-muted mb-2">Email address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-control bg-light-gray" placeholder="michelle.rivera@example.com" />
-                  </div>
-                  <div className="col-md-3">
-                    <label className="small text-muted mb-2">Class</label>
-                    <select name="class" value={formData.class} onChange={handleInputChange} className="form-select bg-light-gray">
-                      <option value="">Select Class</option>
-                      <option value="J SS 2">J SS 2</option>
-                      <option value="JSS 3">JSS 3</option>
-                      <option value="SS 3">SS 3</option>
-                    </select>
-                  </div>
-                  <div className="col-md-3">
-                    <label className="small text-muted mb-2">Gender</label>
-                    <select name="gender" value={formData.gender} onChange={handleInputChange} className="form-select bg-light-gray">
-                      <option value="">Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">EMAIL ADDRESS</label>
+                      <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-control admin-input py-2 px-3" placeholder="michelle.rivera@example.com" />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="small text-muted mb-2">Password</label>
-                    <input type="password" name="password" value={formData.password} onChange={handleInputChange} className="form-control bg-light-gray" />
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">PASSWORD</label>
+                      <input type="password" name="password" value={formData.password} onChange={handleInputChange} className="form-control admin-input py-2 px-3" />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="small text-muted mb-2">Phone number</label>
-                    <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="form-control bg-light-gray" />
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">SUBJECT / SPECIALIZATION</label>
+                      <input type="text" name="subject" value={formData.subject} onChange={handleInputChange} className="form-control admin-input py-2 px-3" placeholder="e.g. Mathematics" />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="small text-muted mb-2">Subject</label>
-                    <select name="subject" value={formData.subject} onChange={handleInputChange} className="form-select bg-light-gray">
-                      <option value="">Select Subject</option>
-                      <option value="Chemistry">Chemistry</option>
-                      <option value="French">French</option>
-                      <option value="Maths">Maths</option>
-                    </select>
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">PHONE NUMBER</label>
+                      <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="form-control admin-input py-2 px-3" />
+                    </div>
                   </div>
                 </div>
                 <div className="mt-5 d-flex align-items-center gap-4">
-                   <div className="text-secondary" style={{ cursor: 'pointer' }} onClick={() => setFormData({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' })}>
-                     <i className="fas fa-undo me-2"></i> Reset Form
-                   </div>
-                   <button className="btn btn-primary-custom px-5 py-2 fw-bold rounded-3" onClick={handleAddTeacher} disabled={loading}>
-                     {loading ? 'Adding...' : 'Add Teacher'}
+                   <button className="btn btn-primary px-5 py-2 fw-bold rounded-3 hstack gap-2" onClick={handleAddTeacher} disabled={loading}>
+                     {loading && <span className="spinner-border spinner-border-sm"></span>}
+                     <span>Add Teacher Account</span>
                    </button>
+                   <button className="btn btn-link text-muted text-decoration-none" onClick={() => setFormData({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' })}>
+                     Reset Form
+                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* Overview Stats - Shown if no sub-page active */}
+            {!isAddTeacher && !isAddStudent && !isTeachersList && !isStudentsList && (
+              <div className="admin-overview mt-5">
+                <h2 className="fw-bold mb-5">Admin Overview</h2>
+                <div className="row g-4 mb-5">
+                   {[
+                     { label: 'Total Teachers', count: stats.totalInstructors, icon: 'fa-chalkboard-teacher', color: '#385b73' },
+                     { label: 'Total Students', count: stats.totalStudents, icon: 'fa-user-graduate', color: '#7793a8' },
+                     { label: 'Total Courses', count: stats.totalCourses, icon: 'fa-book', color: '#a0b3c1' },
+                     { label: 'Total Revenue', count: `$${stats.totalRevenue}`, icon: 'fa-wallet', color: '#2c4a5e' },
+                   ].map((item, i) => (
+                     <div key={i} className="col-md-3">
+                        <div className="bg-white p-4 rounded-4 shadow-sm border h-100 d-flex flex-column align-items-center justify-content-center text-center">
+                           <div className="rounded-circle mb-3 d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px', backgroundColor: `${item.color}15`, color: item.color }}>
+                              <i className={`fas ${item.icon} fa-lg`}></i>
+                           </div>
+                           <h3 className="h2 fw-bold mb-1" style={{ color: '#1a1d20' }}>{item.count}</h3>
+                           <p className="text-muted small mb-0 fw-medium">{item.label}</p>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+
+                <div className="bg-white p-5 rounded-4 shadow-sm border mb-4">
+                   <h4 className="fw-bold mb-4">Platform Performance</h4>
+                   <p className="text-muted">The platform is currently hosting <strong>{stats.totalCourses}</strong> courses with a graduation/enrollment rate of <strong>{stats.stats?.verificationRate}%</strong>. Monitor student intake and teacher additions from the side menu.</p>
+                </div>
+                
+                <div className="row g-4">
+                  <div className="col-md-6">
+                    <div className="bg-white p-4 rounded-4 shadow-sm border h-100">
+                      <h5 className="fw-bold mb-4">Recently Added Teachers</h5>
+                      {teachers.slice(0, 3).map((u, i) => (
+                        <div key={i} className="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                          <img src={u.picture || u.User?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} className="rounded-circle" width="40" height="40" alt="profile"/>
+                          <div>
+                            <div className="fw-bold fs-6">{u.name || u.User?.name}</div>
+                            <div className="text-muted small">{u.instructorProfile?.specialization || u.Instructor?.specialization || 'General'}</div>
+                          </div>
+                        </div>
+                      ))}
+                      {!teachers.length && <div className="text-muted small">No teachers found.</div>}
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="bg-white p-4 rounded-4 shadow-sm border h-100">
+                      <h5 className="fw-bold mb-4">Recently Enrolled Students</h5>
+                      {students.slice(0, 3).map((u, i) => (
+                        <div key={i} className="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                          <img src={u.picture || u.User?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} className="rounded-circle" width="40" height="40" alt="profile"/>
+                          <div>
+                            <div className="fw-bold fs-6">{u.name || u.User?.name}</div>
+                            <div className="text-muted small">Level: {u.studentProfile?.grade_level || u.Student?.grade_level || 'N/A'}</div>
+                          </div>
+                        </div>
+                      ))}
+                      {!students.length && <div className="text-muted small">No students found.</div>}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {isAddStudent && (
               <div className="admin-form-container bg-white p-5 rounded-4 shadow-sm border mt-5">
-                <h2 className="fw-bold mb-5">Add Students</h2>
+                <div className="d-flex align-items-center justify-content-between mb-5">
+                  <h2 className="fw-bold m-0">Enroll New Student</h2>
+                  <span className="badge bg-soft-success text-success px-3 py-2 rounded-pill">Student Access</span>
+                </div>
                 <div className="row g-4">
-                  <div className="col-md-6">
-                    <label className="small text-muted mb-2">Name</label>
-                    <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="form-control bg-light-gray" />
+                  <div className="col-md-8">
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">STUDENT NAME</label>
+                      <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="form-control admin-input py-2 px-3" />
+                    </div>
                   </div>
-                  <div className="col-md-3">
-                    <label className="small text-muted mb-2">Class</label>
-                    <select name="class" value={formData.class} onChange={handleInputChange} className="form-select bg-light-gray">
-                      <option value="">Select Class</option>
-                      <option value="J SS 2">J SS 2</option>
-                      <option value="JSS 3">JSS 3</option>
-                    </select>
-                  </div>
-                  <div className="col-md-3">
-                    <label className="small text-muted mb-2">Gender</label>
-                    <select name="gender" value={formData.gender} onChange={handleInputChange} className="form-select bg-light-gray">
-                      <option value="">Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
+                  <div className="col-md-4">
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">GRADE LEVEL</label>
+                      <select name="class" value={formData.class} onChange={handleInputChange} className="form-select admin-input py-2 px-3">
+                        <option value="">Select Grade</option>
+                        <option value="J SS 2">J SS 2</option>
+                        <option value="JSS 3">JSS 3</option>
+                      </select>
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="small text-muted mb-2">Email address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-control bg-light-gray" />
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">EMAIL ADDRESS</label>
+                      <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="form-control admin-input py-2 px-3" />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <label className="small text-muted mb-2">Phone number</label>
-                    <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="form-control bg-light-gray" />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="small text-muted mb-2">Password</label>
-                    <input type="password" name="password" value={formData.password} onChange={handleInputChange} className="form-control bg-light-gray" />
+                    <div className="form-group">
+                      <label className="text-secondary small fw-bold mb-2">PASSWORD</label>
+                      <input type="password" name="password" value={formData.password} onChange={handleInputChange} className="form-control admin-input py-2 px-3" />
+                    </div>
                   </div>
                 </div>
                 <div className="mt-5 d-flex align-items-center gap-4">
-                   <div className="text-secondary" style={{ cursor: 'pointer' }} onClick={() => setFormData({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' })}>
-                     <i className="fas fa-undo me-2"></i> Reset Form
-                   </div>
-                   <button className="btn btn-primary-custom px-5 py-2 fw-bold rounded-3" onClick={handleAddStudent} disabled={loading}>
-                     {loading ? 'Adding...' : 'Add student'}
+                   <button className="btn btn-success px-5 py-2 fw-bold rounded-3 hstack gap-2 text-white" onClick={handleAddStudent} disabled={loading}>
+                     {loading && <span className="spinner-border spinner-border-sm"></span>}
+                     <span>Enroll Student</span>
+                   </button>
+                   <button className="btn btn-link text-muted text-decoration-none" onClick={() => setFormData({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' })}>
+                     Cancel
                    </button>
                 </div>
               </div>
@@ -234,48 +320,80 @@ const AdminDashboard = () => {
               <div className="admin-list-container">
                  <div className="search-bar-wrapper mb-5 mx-auto" style={{ maxWidth: '800px' }}>
                     <i className="fas fa-search search-icon"></i>
-                    <input type="text" className="search-input" placeholder={`Search for a ${isTeachersList ? 'teacher' : 'student'} by name or email`} />
+                    <input 
+                      type="text" 
+                      className="search-input" 
+                      placeholder={`Search for a ${isTeachersList ? 'teacher' : 'student'} by name or email`} 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                  </div>
 
                  <div className="bg-white rounded-4 shadow-sm border overflow-hidden p-4">
                     {loading ? (
                       <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>
                     ) : (
-                      <table className="table table-borderless align-middle mb-0">
+                      <table className="table table-hover align-middle mb-0" style={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
                         <thead>
-                          <tr className="text-muted" style={{ fontSize: '13px' }}>
-                            <th className="fw-bold">Name</th>
-                            <th className="fw-bold">{isTeachersList ? 'Specialization' : 'Email'}</th>
-                            <th className="fw-bold">Level</th>
-                            <th className="fw-bold">Phone</th>
-                            <th className="fw-bold">Actions</th>
+                          <tr className="text-secondary text-uppercase border-bottom-0" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
+                            <th className="fw-bold px-4 border-0 pb-3">{isTeachersList ? 'Teacher Details' : 'Student Details'}</th>
+                            <th className="fw-bold px-4 border-0 pb-3">{isTeachersList ? 'Specialization' : 'Grade Level'}</th>
+                            <th className="fw-bold px-4 border-0 pb-3">Phone Number</th>
+                            <th className="fw-bold px-4 border-0 pb-3 text-end">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {(isTeachersList ? teachers : students).map((user, i) => (
-                            <tr key={user.user_id || i} className={i % 2 === 1 ? 'admin-table-row-tint' : ''} style={{ fontSize: '12px' }}>
-                              <td className="py-3">
-                                <div className="d-flex align-items-center gap-2">
-                                    <img src={user.User?.picture || 'https://i.pravatar.cc/150'} className="rounded-circle" width="32" height="32" alt={user.name} />
-                                    <span className="fw-bold">{user.name || user.User?.name}</span>
-                                </div>
-                              </td>
-                              <td>{isTeachersList ? user.specialization : user.User?.email}</td>
-                              <td>{user.grade_level || 'N/A'}</td>
-                              <td>{user.phone_number || 'N/A'}</td>
-                              <td>
-                                 <button 
-                                   className="btn btn-sm text-danger"
-                                   onClick={() => isTeachersList ? handleDeleteTeacher(user.id) : handleDeleteStudent(user.id)}
-                                 >
-                                   <i className="fas fa-trash"></i>
-                                 </button>
-                              </td>
-                            </tr>
-                          ))}
-                          {(isTeachersList ? teachers : students).length === 0 && (
-                            <tr><td colSpan="5" className="text-center p-5 text-muted">No records found.</td></tr>
-                          )}
+                           {(isTeachersList ? teachers : students).map((user, i) => {
+                             const displayName = user.name || user.User?.name;
+                             const displayEmail = user.email || user.User?.email;
+                             const displayPicture = user.picture || user.User?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+
+                             return (
+                               <tr key={user.user_id || user.id || i} className="bg-white shadow-sm" style={{ transition: 'all 0.2s ease', borderRadius: '12px' }}>
+                                 <td className="py-3 px-4" style={{ borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderLeft: '1px solid #f1f3f5' }}>
+                                   <div className="d-flex align-items-center gap-3">
+                                       <img src={displayPicture} className="rounded-circle shadow-sm" width="42" height="42" alt={displayName} style={{ objectFit: 'cover' }} />
+                                       <div className="d-flex flex-column">
+                                          <span className="fw-bold text-dark fs-6">{displayName}</span>
+                                          <span className="text-secondary mt-1" style={{ fontSize: '12px' }}>{displayEmail}</span>
+                                       </div>
+                                   </div>
+                                 </td>
+                                 <td className="py-3 px-4 text-secondary fw-medium" style={{ borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5' }}>
+                                   {isTeachersList 
+                                      ? (user.instructorProfile?.specialization || user.Instructor?.specialization || 'General') 
+                                      : <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold border border-primary-subtle">{user.studentProfile?.grade_level || user.Student?.grade_level || user.grade_level || 'N/A'}</span>
+                                   }
+                                 </td>
+                                 <td className="py-3 px-4 text-secondary fw-medium" style={{ borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5' }}>
+                                   {user.phone_number || user.User?.phone_number || <span className="text-muted fst-italic">Not provided</span>}
+                                 </td>
+                                 <td className="py-3 px-4 text-end" style={{ borderTopRightRadius: '12px', borderBottomRightRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderRight: '1px solid #f1f3f5' }}>
+                                    <div className="d-flex gap-2 justify-content-end">
+                                       <button className="btn btn-sm btn-action text-primary bg-primary bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all" style={{ fontSize: '13px' }} title="Edit">
+                                          <i className="fas fa-edit me-1"></i> Edit
+                                       </button>
+                                       <button 
+                                         className="btn btn-sm btn-action text-danger bg-danger bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all" 
+                                         style={{ fontSize: '13px' }}
+                                         onClick={() => isTeachersList ? handleDeleteTeacher(user.user_id || user.id) : handleDeleteStudent(user.user_id || user.id)}
+                                         title="Remove"
+                                       >
+                                         <i className="fas fa-trash me-1"></i> Remove
+                                       </button>
+                                    </div>
+                                 </td>
+                               </tr>
+                             )
+                           })}
+                           {(isTeachersList ? teachers : students).length === 0 && (
+                             <tr>
+                               <td colSpan="4" className="text-center p-5 text-muted border border-light rounded-4 bg-light">
+                                 <i className="fas fa-box-open fs-2 mb-3 text-secondary opacity-50 d-block"></i>
+                                 No records found.
+                               </td>
+                             </tr>
+                           )}
                         </tbody>
                       </table>
                     )}

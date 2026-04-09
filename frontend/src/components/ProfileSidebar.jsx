@@ -16,7 +16,7 @@ const ProfileSidebar = () => {
           <i className="fas fa-ellipsis-v text-muted" style={{ cursor: 'pointer' }}></i>
         </div>
         <div className="profile-avatar-large mx-auto mb-3 shadow-sm" style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#000', overflow: 'hidden' }}>
-          <img src={user?.picture || 'https://i.pravatar.cc/150'} alt="Profile" className="w-100 h-100 object-fit-cover" />
+          <img src={user?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} alt="Profile" className="w-100 h-100 object-fit-cover" />
         </div>
         <h5 className="fw-bold mb-1">Good Morning</h5>
         <p className="text-muted mb-3" style={{ fontSize: '11px', lineHeight: '1.4' }}>Continue Your Journey And Achieve Your Target</p>
@@ -35,39 +35,41 @@ const ProfileSidebar = () => {
       </div>
 
       {/* Dynamic Students/Mentor list based on role */}
-      <div className="mb-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h6 className="fw-bold mb-0" style={{ fontSize: '13px' }}>
-            {role === 'instructor' ? 'Your Students' : 'Your Mentor'}
-          </h6>
-          <i className="fas fa-plus-circle text-muted" style={{ cursor: 'pointer', fontSize: '14px' }}></i>
-        </div>
-        <div className="d-flex flex-column gap-3">
-          {role === 'instructor' ? (
-            [1, 2].map((_, i) => (
-              <div key={i} className="d-flex align-items-center justify-content-between">
+      {role !== 'admin' && (
+        <div className="mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h6 className="fw-bold mb-0" style={{ fontSize: '13px' }}>
+              {role === 'instructor' ? 'Your Students' : 'Your Mentor'}
+            </h6>
+            <i className="fas fa-plus-circle text-muted" style={{ cursor: 'pointer', fontSize: '14px' }}></i>
+          </div>
+          <div className="d-flex flex-column gap-3">
+            {role === 'instructor' ? (
+              [1, 2].map((_, i) => (
+                <div key={i} className="d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center gap-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="User" className="rounded-circle" style={{ width: '32px', height: '32px' }} />
+                    <div className="fw-bold" style={{ fontSize: '11px' }}>Student {i + 1}</div>
+                  </div>
+                  <button className="btn btn-sm text-white px-3 fw-bold" style={{ backgroundColor: '#52758e', fontSize: '9px', borderRadius: '6px' }}>Contact</button>
+                </div>
+              ))
+            ) : (
+              <div className="d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center gap-2">
-                  <img src={`https://i.pravatar.cc/150?u=${i + 10}`} alt="User" className="rounded-circle" style={{ width: '32px', height: '32px' }} />
-                  <div className="fw-bold" style={{ fontSize: '11px' }}>Student {i + 1}</div>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png" alt="Mentor" className="rounded-circle" style={{ width: '32px', height: '32px' }} />
+                  <div>
+                    <div className="fw-bold" style={{ fontSize: '11px' }}>Software Developer</div>
+                    <div className="text-muted" style={{ fontSize: '9px' }}>Senior Mentor</div>
+                  </div>
                 </div>
                 <button className="btn btn-sm text-white px-3 fw-bold" style={{ backgroundColor: '#52758e', fontSize: '9px', borderRadius: '6px' }}>Contact</button>
               </div>
-            ))
-          ) : (
-            <div className="d-flex align-items-center justify-content-between">
-              <div className="d-flex align-items-center gap-2">
-                <img src="https://i.pravatar.cc/150?u=mentor1" alt="Mentor" className="rounded-circle" style={{ width: '32px', height: '32px' }} />
-                <div>
-                  <div className="fw-bold" style={{ fontSize: '11px' }}>Software Developer</div>
-                  <div className="text-muted" style={{ fontSize: '9px' }}>Senior Mentor</div>
-                </div>
-              </div>
-              <button className="btn btn-sm text-white px-3 fw-bold" style={{ backgroundColor: '#52758e', fontSize: '9px', borderRadius: '6px' }}>Contact</button>
-            </div>
-          )}
+            )}
+          </div>
+          <a href="#" className="btn-see-all-full d-block text-center mt-3 text-white py-2 rounded-3 text-decoration-none shadow-sm" style={{ backgroundColor: '#31506a', fontSize: '12px' }}>See All</a>
         </div>
-        <a href="#" className="btn-see-all-full d-block text-center mt-3 text-white py-2 rounded-3 text-decoration-none shadow-sm" style={{ backgroundColor: '#31506a', fontSize: '12px' }}>See All</a>
-      </div>
+      )}
     </aside>
   );
 };

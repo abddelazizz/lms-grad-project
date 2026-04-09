@@ -29,11 +29,12 @@ export const courseService = {
 
 export const authService = {
   login: (credentials) => api.post('/auth/login', credentials),
-  signup: (userData) => api.post('/auth/register', userData),
+  signup: (userData) => api.post('/auth/signup', userData),          // was /auth/register — 404 fix
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data) => api.post('/auth/reset-password', data),
   resendVerification: (email) => api.post('/auth/resend-verification', { email }),
-  verifyOTP: (otp) => api.post('/auth/verify-otp', { otp }),
+  // verifyOTP removed — email verification is link-based (/auth/verify-email?token=...)
+  // only the forgot-password OTP flow uses verifyResetOTP below
   verifyResetOTP: (data) => api.post('/auth/verify-reset-otp', data),
 };
 

@@ -32,6 +32,12 @@ const Settings = () => {
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
+    role: '',
+    // Instructor specific
+    bio: '',
+    specialization: '',
+    // Student specific
+    grade_level: '',
   });
 
   // Fetch real profile data from the backend on mount
@@ -42,6 +48,18 @@ const Settings = () => {
         const userData = response.data.data;
         if (userData) {
           const nameParts = (userData.name || '').split(' ');
+          
+          let bio = '';
+          let specialization = '';
+          let grade_level = '';
+
+          if (userData.role === 'instructor' && userData.instructorProfile) {
+             bio = userData.instructorProfile.bio || '';
+             specialization = userData.instructorProfile.specialization || '';
+          } else if (userData.role === 'student' && userData.studentProfile) {
+             grade_level = userData.studentProfile.grade_level || '';
+          }
+
           setFormData(prev => ({
             ...prev,
             firstName: nameParts[0] || '',
@@ -49,7 +67,12 @@ const Settings = () => {
             email: userData.email || '',
             userName: userData.username || '',
             phone: userData.phone_number || '',
+            role: userData.role || '',
+            bio,
+            specialization,
+            grade_level
           }));
+          
           if (userData.picture) {
             setAvatarPreview(userData.picture);
           }
@@ -117,17 +140,42 @@ const Settings = () => {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,
         }),
+        // Send role specific data
+        ...(formData.role === 'instructor' && {
+           bio: formData.bio,
+           specialization: formData.specialization
+        }),
+        ...(formData.role === 'student' && {
+           grade_level: formData.grade_level
+        }),
+        // If they cleared the photo visually and have no file to upload, delete from DB
+        ...((!avatarPreview && !avatarFile) && {
+           picture: null
+        }),
       };
 
-      await studentService.updateProfile(updatePayload);
+      const response = await studentService.updateProfile(updatePayload);
+
+      if (response?.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
 
       if (avatarFile) {
         const photoForm = new FormData();
         photoForm.append('profile_picture', avatarFile);
-        await studentService.updatePhoto(photoForm);
+        const photoResponse = await studentService.updatePhoto(photoForm);
+        
+        if (photoResponse?.data?.token) {
+          localStorage.setItem('token', photoResponse.data.token);
+        }
       }
 
       toast.success('Profile updated successfully!');
+
+      // Force a reload to reflect new token across all Navbars/Sidebars
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
       setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update profile. Please try again.');
@@ -140,7 +188,7 @@ const Settings = () => {
     <div className="dashboard-page">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="dashboard-layout">
-        <Sidebar activePath="/settings" />
+        <Sidebar activePath="/dashboard/settings" />
 
         <div className="settings-main-content flex-grow-1 p-4">
           <div className="settings-content-wrapper pt-5 mt-4 mx-auto">
@@ -150,12 +198,19 @@ const Settings = () => {
               <span className="settings-breadcrumb-item">Setting</span>
               <i className="fas fa-chevron-right settings-breadcrumb-arrow"></i>
               <i className="fas fa-chevron-right settings-breadcrumb-arrow"></i>
-              <span className="settings-breadcrumb-item">User Profile</span>
+              <span className="settings-breadcrumb-item text-capitalize">{formData.role || 'User'} Profile</span>
             </div>
 
-            <div className="settings-card">
+            <div className="settings-card shadow-sm border-0 rounded-4">
 
-              <h3 className="settings-title">User Profile</h3>
+              <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                 <h3 className="settings-title m-0">Account Details</h3>
+                 {formData.role && (
+                    <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill text-capitalize fw-bold border border-primary-subtle">
+                       {formData.role} Account
+                    </span>
+                 )}
+              </div>
 
               {/* Profile Photo Section */}
               <div className="settings-photo-section">
@@ -210,17 +265,9 @@ const Settings = () => {
                   <input type="text" name="lastName" className="settings-input" placeholder="eg. Mohamed" value={formData.lastName} onChange={handleChange} />
                 </div>
 
-                <div className="settings-form-group settings-form-full">
+                <div className="settings-form-group">
                   <label className="settings-label">User Name</label>
                   <input type="text" name="userName" className="settings-input" placeholder="eg. alaa.mohamed" value={formData.userName} onChange={handleChange} />
-                </div>
-
-                <div className="settings-form-group">
-                  <label className="settings-label">Email Address</label>
-                  <div className="settings-input-icon-wrapper">
-                    <i className="fas fa-envelope settings-input-icon"></i>
-                    <input type="email" name="email" className="settings-input settings-input-with-icon" value={formData.email} onChange={handleChange} />
-                  </div>
                 </div>
                 <div className="settings-form-group">
                   <label className="settings-label">Phone Number</label>
@@ -228,6 +275,49 @@ const Settings = () => {
                     <i className="fas fa-mobile-alt settings-input-icon"></i>
                     <input type="tel" name="phone" className="settings-input settings-input-with-icon" value={formData.phone} onChange={handleChange} />
                   </div>
+                </div>
+
+                <div className="settings-form-group settings-form-full">
+                  <label className="settings-label">Email Address</label>
+                  <div className="settings-input-icon-wrapper">
+                    <i className="fas fa-envelope settings-input-icon"></i>
+                    <input type="email" name="email" className="settings-input settings-input-with-icon bg-light" value={formData.email} onChange={handleChange} disabled />
+                  </div>
+                  <small className="text-muted mt-1 d-block"><i className="fas fa-info-circle me-1"></i> Email cannot be changed</small>
+                </div>
+
+                {/* Role Specific Fields */}
+                {formData.role === 'instructor' && (
+                  <>
+                    <div className="settings-form-group settings-form-full mt-3">
+                      <h5 className="fw-bold mb-3 border-top pt-4">Professional Details</h5>
+                      <label className="settings-label">Specialization</label>
+                      <input type="text" name="specialization" className="settings-input" placeholder="e.g. Mathematics, Programming" value={formData.specialization} onChange={handleChange} />
+                    </div>
+                    <div className="settings-form-group settings-form-full">
+                      <label className="settings-label">Short Bio</label>
+                      <textarea name="bio" className="settings-input" rows="3" placeholder="Tell us about your teaching experience..." value={formData.bio} onChange={handleChange}></textarea>
+                    </div>
+                  </>
+                )}
+
+                {formData.role === 'student' && (
+                  <>
+                    <div className="settings-form-group settings-form-full mt-3">
+                      <h5 className="fw-bold mb-3 border-top pt-4">Academic Details</h5>
+                      <label className="settings-label">Grade Level</label>
+                      <select name="grade_level" className="settings-input form-select" value={formData.grade_level} onChange={handleChange}>
+                         <option value="">Select Level</option>
+                         <option value="J SS 2">J SS 2</option>
+                         <option value="JSS 3">JSS 3</option>
+                         <option value="SSS 1">SSS 1</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                <div className="settings-form-group settings-form-full mt-3">
+                  <h5 className="fw-bold mb-3 border-top pt-4">Security</h5>
                 </div>
 
                 <div className="settings-form-group">
@@ -238,6 +328,7 @@ const Settings = () => {
                     <i className={`fas ${showCurrentPass ? 'fa-eye-slash' : 'fa-eye'} settings-input-icon-right`} onClick={() => setShowCurrentPass(!showCurrentPass)}></i>
                   </div>
                 </div>
+                
                 <div className="settings-form-group">
                   <label className="settings-label">New Password</label>
                   <div className="settings-input-icon-wrapper">
@@ -259,7 +350,7 @@ const Settings = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="settings-action-buttons">
+              <div className="settings-action-buttons mt-5 pt-3 border-top">
                 <button className="btn-settings-cancel" onClick={handleCancel}>Cancel</button>
                 <button className="btn-settings-save" onClick={handleSave} disabled={loading}>
                   {loading

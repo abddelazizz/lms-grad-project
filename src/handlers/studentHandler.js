@@ -1,8 +1,10 @@
 import { AppError, catchAsync } from "../utilis/index.js";
 import { updateProfilePicture, getStudentProfile, updateStudentProfile } from "../services/index.js";
+import { generateToken } from "../utilis/index.js";
 
 export const getProfile = catchAsync(async (req, res, next) => {
-  const profile = await getStudentProfile(req.user.user_id);
+  const userId = req.user?.id || req.user?.user_id;
+  const profile = await getStudentProfile(userId);
 
   res.status(200).json({
     success: true,
@@ -11,12 +13,15 @@ export const getProfile = catchAsync(async (req, res, next) => {
 });
 
 export const updateProfile = catchAsync(async (req, res, next) => {
-  const updatedUser = await updateStudentProfile(req.user.user_id, req.body);
+  const userId = req.user?.id || req.user?.user_id;
+  const updatedUser = await updateStudentProfile(userId, req.body);
+  const token = generateToken(updatedUser);
 
   res.status(200).json({
     success: true,
     message: "Profile updated successfully.",
     data: updatedUser,
+    token, // Send new token reflecting changes
   });
 });
 
@@ -26,13 +31,16 @@ export const uploadProfilePicture = catchAsync(async (req, res, next) => {
   }
 
   const cloudImageUrl = req.file.path;
-  const userId = req.user?.user_id || req.params.id; // prefer authenticated user id
+  const userId = req.user?.id || req.user?.user_id || req.params.id;
 
-  await updateProfilePicture(userId, cloudImageUrl);
+  const updatedUser = await updateProfilePicture(userId, cloudImageUrl);
+  const token = generateToken(updatedUser);
 
   res.status(200).json({
     success: true,
     message: "Profile picture uploaded successfully.",
     profile_picture: cloudImageUrl,
+    data: updatedUser,
+    token, // Send new token reflecting the new picture
   });
 });

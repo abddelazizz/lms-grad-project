@@ -17,11 +17,12 @@ const router = express.Router();
 router.get("/", getAllCourses);
 
 // ─── Student ──────────────────────────────────────────────────
-// GET /api/courses/my-courses — list enrolled courses (placeholder)
-router.get("/my-courses", authenticate, restrictTo("student"), getMyCourses);
+// GET /api/courses/my-courses — list enrolled courses (student) or created courses (instructor)
+router.get("/my-courses", authenticate, restrictTo("student", "instructor"), getMyCourses);
 
-// GET /api/courses/:id/details — get sections and lessons (accessible by all students/auth users)
+// GET /api/courses/:id/details or /api/courses/:id — get sections and lessons
 router.get("/:id/details", authenticate, getCourseDetails);
+router.get("/:id", authenticate, getCourseDetails);
 
 // ─── Instructor / Admin ───────────────────────────────────────
 // POST /api/courses — create course (validates body via Joi)

@@ -3,6 +3,14 @@ import Joi from "joi";
 // ─── Auth Schemas ─────────────────────────────────────────────
 const signupSchema = Joi.object({
   name: Joi.string().min(2).max(50).required(),
+  username: Joi.string()
+    .min(3)
+    .max(30)
+    .pattern(/^[a-zA-Z0-9._-]+$/)
+    .optional()
+    .messages({
+      "string.pattern.base": "Username can only contain letters, numbers, dot (.), underscore (_), and dash (-).",
+    }),
   email: Joi.string().email().required(),
   password: Joi.string()
     .min(8)
@@ -18,6 +26,7 @@ const signupSchema = Joi.object({
   role: Joi.string()
     .valid("student", "instructor")
     .default("student"),
+  picture: Joi.string().uri().optional(),
   // ✅ admin/parent cannot be self-registered — removed from valid list
 });
 
@@ -72,6 +81,13 @@ const createInstructorSchema = Joi.object({
   password: Joi.string().min(8).max(72).required(),
 });
 
+const updateProfileSchema = Joi.object({
+  name: Joi.string().min(2).max(50).optional(),
+  username: Joi.string().min(3).max(30).pattern(/^[a-zA-Z0-9._-]+$/).optional(),
+  phone_number: Joi.string().min(10).max(15).pattern(/^[0-9]+$/).optional(),
+  grade_level: Joi.string().optional(),
+});
+
 export {
   signupSchema,
   loginSchema,
@@ -81,4 +97,5 @@ export {
   createCourseSchema,
   updateCourseSchema,
   createInstructorSchema,
+  updateProfileSchema,
 };

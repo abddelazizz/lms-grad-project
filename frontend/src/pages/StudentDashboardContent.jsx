@@ -12,7 +12,7 @@ const StudentDashboardContent = () => {
       author: "Kristin Watson",
       progress: 45,
       image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
-      avatar: "https://i.pravatar.cc/150?u=kw1"
+      avatar: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
     }
   ];
 
@@ -27,7 +27,7 @@ const StudentDashboardContent = () => {
             author: c.Instructor ? c.Instructor.name : "Instructor",
             progress: 0, 
             image: c.thumbnail_url || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800",
-            avatar: "https://i.pravatar.cc/150?u=" + c.course_id
+            avatar: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
           }));
           setLiveCourses(formattedLiveCourses);
         } else {

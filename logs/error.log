@@ -1,0 +1,30 @@
+2026-04-09 08:30:54 [ERROR]: Error
+    at Query.run (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)
+    at /home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+    at async User.findAll (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1140:21)
+    at async User.findOne (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1240:12)
+    at async googleAuth (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/services/authService.js:177:14)
+    at async Strategy._verify (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/config/passport.js:25:24)
+2026-04-09 09:09:26 [ERROR]: Error
+    at Query.run (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)
+    at /home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+    at async User.findAll (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1140:21)
+    at async User.findOne (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1240:12)
+    at async googleAuth (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/services/authService.js:193:14)
+    at async Strategy._verify (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/config/passport.js:25:24)
+2026-04-09 11:35:10 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"aboodymohamed538@gmail.com","user_id":12}
+2026-04-09 11:35:12 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"aboodymohamed538@gmail.com","user_id":12}
+2026-04-09 12:06:22 [ERROR]: Error
+    at Query.run (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\dialects\mysql\query.js:52:25)
+    at L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async User.findAll (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\model.js:1140:21)
+    at async User.findOne (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\model.js:1240:12)
+    at async googleAuth (file:///L:/EvolveSight/lms-grad-project-master/src/services/authService.js:193:14)
+    at async Strategy._verify (file:///L:/EvolveSight/lms-grad-project-master/src/config/passport.js:34:24)
+2026-04-09 12:10:26 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"pubg.kr.refa3i@gmail.com","user_id":9}

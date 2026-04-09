@@ -34,9 +34,19 @@ export const getAllCourses = catchAsync(async (req, res) => {
   });
 });
 
-// GET /api/courses/my-courses — instructor's own courses
+// GET /api/courses/my-courses — list own courses (enrolled if student, created if instructor)
 export const getMyCourses = catchAsync(async (req, res) => {
-  const courses = await courseService.getCoursesByInstructor(req.user.user_id);
+  const { user_id, role } = req.user;
+  let courses;
+
+  if (role === "student") {
+    courses = await courseService.getEnrolledCourses(user_id);
+  } else if (role === "instructor") {
+    courses = await courseService.getCoursesByInstructor(user_id);
+  } else {
+    courses = [];
+  }
+
   res.status(200).json({ status: "success", results: courses.length, data: { courses } });
 });
 

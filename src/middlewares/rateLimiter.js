@@ -14,11 +14,11 @@ export const globalLimiter = rateLimit({
 });
 
 // ─── Auth Route Limiter (Strict) ─────────────────────────────
-// Applied to /api/auth: 5 requests per 15 minutes per IP
-// Protects against credential stuffing and brute force
+// Production: 5 requests per 15 min per IP (brute-force / credential-stuffing guard)
+// Development/Test: 50 requests per 15 min so debugging doesn't get blocked
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: process.env.NODE_ENV === "production" ? 5 : 50,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, next) => {

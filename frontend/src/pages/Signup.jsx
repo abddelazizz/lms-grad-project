@@ -7,6 +7,7 @@ import '../styles/Signup.css';
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -34,8 +35,14 @@ const Signup = () => {
     
     try {
       // Send only necessary data to the backend
-      const { name, email, password } = formData;
-      const response = await authService.signup({ name, email, password });
+      const { name, username, email, password } = formData;
+      const payload = {
+        name,
+        email,
+        password,
+        ...(username ? { username } : {}),
+      };
+      const response = await authService.signup(payload);
       toast.success(response.data.message);
       
       setTimeout(() => {
@@ -88,6 +95,18 @@ const Signup = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required 
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label fw-bold text-dark fs-7">User Name (Optional)</label>
+              <input 
+                type="text" 
+                name="username"
+                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7" 
+                placeholder="e.g. alaa.mohamed"
+                value={formData.username}
+                onChange={handleChange}
               />
             </div>
 

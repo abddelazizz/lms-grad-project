@@ -41,30 +41,30 @@ const Sidebar = () => {
             </Link>
           </li>
 
-          {role === 'admin' ? (
-          <>
-            <li className={`nav-item ${location.pathname === '/admin/add-teacher' ? 'active' : ''}`}>
-              <Link to="/admin/add-teacher" className="nav-link d-flex align-items-center gap-3">
-                <i className="fas fa-user-plus px-2"></i> Add Teacher
-              </Link>
-            </li>
-            <li className={`nav-item ${location.pathname === '/admin/add-student' ? 'active' : ''}`}>
-              <Link to="/admin/add-student" className="nav-link d-flex align-items-center gap-3">
-                <i className="fas fa-plus-circle px-2"></i> Add Student
-              </Link>
-            </li>
-            <li className={`nav-item ${location.pathname === '/admin/teachers' ? 'active' : ''}`}>
-              <Link to="/admin/teachers" className="nav-link d-flex align-items-center gap-3">
-                <i className="fas fa-chalkboard-teacher px-2"></i> Teachers
-              </Link>
-            </li>
-            <li className={`nav-item ${location.pathname === '/admin/students' ? 'active' : ''}`}>
-              <Link to="/admin/students" className="nav-link d-flex align-items-center gap-3">
-                <i className="fas fa-user-graduate px-2"></i> Students
-              </Link>
-            </li>
-          </>
-        ) : role === 'instructor' ? (
+          {role?.toLowerCase() === 'admin' ? (
+            <>
+              <li>
+                <Link to="/admin/add-teacher" className={`nav-menu-item ${getActiveState('/admin/add-teacher')}`}>
+                  <i className="fas fa-user-plus"></i> <span>Add Teacher</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/add-student" className={`nav-menu-item ${getActiveState('/admin/add-student')}`}>
+                  <i className="fas fa-plus-circle"></i> <span>Add Student</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/teachers" className={`nav-menu-item ${getActiveState('/admin/teachers')}`}>
+                  <i className="fas fa-chalkboard-teacher"></i> <span>Teachers</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/students" className={`nav-menu-item ${getActiveState('/admin/students')}`}>
+                  <i className="fas fa-user-graduate"></i> <span>Students</span>
+                </Link>
+              </li>
+            </>
+          ) : role?.toLowerCase() === 'instructor' ? (
             <li>
               <div 
                 className={`nav-menu-item d-flex justify-content-between align-items-center ${isFolderOpen ? 'active' : ''}`}
@@ -116,6 +116,7 @@ const Sidebar = () => {
               </li>
             </>
           )}
+
         </ul>
       </div>
 

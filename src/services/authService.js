@@ -9,14 +9,19 @@ import {
   AppError,
 } from "../utilis/index.js";
 import { securityLog, auditLog } from "../utilis/logger.js";
+import { buildBaseUsername, ensureUniqueUsername, defaultProfilePictureUrl, sanitizeUsername } from "../utilis/userDefaults.js";
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
-const signup = async (name, email, password, role) => {
+const signup = async ({ name, username, email, password, role, picture }) => {
   const existingUser = await User.findOne({ where: { email } });
 
   if (existingUser) {
-    throw new AppError("Email already exists.", 409);
+    // Differentiate so the frontend can show the "resend verification" button
+    if (existingUser.is_verified) {
+      throw new AppError("Email already exists.", 409);
+    }
+    throw new AppError("Email already registered but not verified.", 409);
   }
 
   const hashedPassword = await hashPassword(password);
@@ -25,9 +30,24 @@ const signup = async (name, email, password, role) => {
   const hashedToken = hashToken(rawToken);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+  const desiredBaseUsername = buildBaseUsername({ username, email, name });
+
+  // If the user explicitly provided a username, enforce uniqueness with a clear error.
+  if (sanitizeUsername(username)) {
+    const foundUsername = await User.findOne({ where: { username: desiredBaseUsername } });
+    if (foundUsername) {
+      throw new AppError("Username already exists.", 409);
+    }
+  }
+
+  const finalUsername = await ensureUniqueUsername(desiredBaseUsername);
+  const finalPicture = picture?.trim?.() ? picture : defaultProfilePictureUrl(email);
+
   const user = await User.create({
+    username: finalUsername,
     name,
     email,
+    picture: finalPicture,
     password: hashedPassword,
     role,
     verification_token: hashedToken,
@@ -146,11 +166,34 @@ const resetPassword = async (email, otp, newPassword) => {
   auditLog("PASSWORD_RESET", user.user_id, "user", user.user_id);
 };
 
+const resendVerification = async (email) => {
+  const user = await User.findOne({ where: { email } });
+
+  // Silent: don't reveal whether the account exists
+  if (!user) return;
+
+  if (user.is_verified) {
+    throw new AppError("Email is already verified. You can log in.", 400);
+  }
+
+  // Issue a fresh 24-hour verification token
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = hashToken(rawToken);
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  user.verification_token = hashedToken;
+  user.verification_token_expires = expires;
+  await user.save();
+
+  await sendVerificationEmail(email, rawToken);
+};
+
 const googleAuth = async (googleId, name, email, picture) => {
   // Case 1: User already signed in with Google before
   let user = await User.findOne({ where: { google_id: googleId } });
   if (user) {
     if (picture) await user.update({ picture }); // Update picture if it changed
+    if (!user.picture) await user.update({ picture: defaultProfilePictureUrl(email) });
     const token = generateToken(user);
     return { user, token };
   }
@@ -160,7 +203,7 @@ const googleAuth = async (googleId, name, email, picture) => {
   if (user) {
     await user.update({
       google_id: googleId,
-      picture: picture || user.picture,
+      picture: picture || user.picture || defaultProfilePictureUrl(email),
       is_verified: true,
       email_verified_at: user.email_verified_at || new Date(),
     });
@@ -169,11 +212,16 @@ const googleAuth = async (googleId, name, email, picture) => {
   }
 
   // Case 3: Brand new user — create account
+  const baseUsername = buildBaseUsername({ email, name });
+  const finalUsername = await ensureUniqueUsername(baseUsername);
+  const finalPicture = picture || defaultProfilePictureUrl(email);
+
   user = await User.create({
     google_id: googleId,
+    username: finalUsername,
     name,
     email,
-    picture,
+    picture: finalPicture,
     is_verified: true,
     email_verified_at: new Date(),
     role: 'student',
@@ -183,4 +231,4 @@ const googleAuth = async (googleId, name, email, picture) => {
   return { user, token };
 };
 
-export { signup, verifyEmail, login, forgotPassword, verifyResetOTP, resetPassword, googleAuth };
+export { signup, verifyEmail, login, forgotPassword, verifyResetOTP, resetPassword, resendVerification, googleAuth };

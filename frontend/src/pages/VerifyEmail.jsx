@@ -1,90 +1,128 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { authService } from '../services/apiService';
-import '../styles/AuthPages.css';
+import '../styles/Login.css'; 
 
 const VerifyEmail = () => {
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const inputRefs = useRef([]);
 
-  const isFromForgotPassword = location.state?.from === 'forgot-password';
+  const handleChange = (e, index) => {
+    const value = e.target.value;
+    if (isNaN(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Auto-focus next input
+    if (value !== '' && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    // Auto-focus prev input on backspace
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6).replace(/[^0-9]/g, '');
+    if (pastedData.length > 0) {
+      const newOtp = [...otp];
+      for (let i = 0; i < pastedData.length; i++) {
+        newOtp[i] = pastedData[i];
+      }
+      setOtp(newOtp);
+      // Focus the next empty block or the last block
+      const nextEmptyIndex = pastedData.length < 6 ? pastedData.length : 5;
+      inputRefs.current[nextEmptyIndex].focus();
+    }
+  };
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    const otpValue = otp.join('');
+    if (otpValue.length < 6) {
+       return toast.error("Please enter the complete 6-digit OTP.");
+    }
+
     setLoading(true);
-    setError('');
 
     try {
-      if (isFromForgotPassword) {
-        await authService.verifyResetOTP({ 
-          email: location.state?.email, 
-          otp 
+      await authService.verifyResetOTP({
+        email: location.state?.email,
+        otp: otpValue,
+      });
+
+      toast.success('Verification successful!');
+      setTimeout(() => {
+        navigate('/reset-password', {
+          state: {
+            verified: true,
+            email: location.state?.email,
+            otp: otpValue,
+          },
         });
-        
-        toast.success('Verification successful!');
-        setTimeout(() => {
-          navigate('/reset-password', { 
-            state: { 
-              verified: true, 
-              email: location.state?.email, 
-              otp 
-            } 
-          });
-        }, 1500);
-      } else {
-        await authService.verifyOTP(otp);
-        toast.success('Verification successful!');
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
-      }
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Verification failed. Please check your code.');
+      toast.error(err.response?.data?.message || 'Verification failed. Please check your code.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page-container">
+    <div className="login-page-container py-4 py-md-5">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="auth-logo-top">
-        <img src="/images/logo.png" alt="Recode" height="80" />
-      </div>
 
-      <div className="auth-card">
-        <h1 className="auth-title">Enter OTP</h1>
-        <p className="auth-subtitle">
-          A verification code has been sent to your email. Please enter it below.
-        </p>
-
-        <form className="auth-form" onSubmit={handleVerify}>
-          <div className="auth-form-group">
-            <label className="auth-label">OTP Code</label>
-            <input 
-              type="text" 
-              className="auth-input" 
-              placeholder="Enter your 6-digit code" 
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
+      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
+        <div className="login-form-card bg-white p-4 p-md-5 rounded-4 border border-light-subtle shadow-soft w-100" style={{maxWidth: '480px'}}>
+          <div className="text-center mb-4 mb-md-5">
+            <h2 className="fw-bold text-dark mb-2 h3">Enter OTP</h2>
+            <p className="text-secondary fs-7">
+              A verification code has been sent to <span className="fw-bold text-dark">{location.state?.email || 'your email'}</span>. Please enter it below.
+            </p>
           </div>
 
-          {error && <p className="text-danger small mb-3">{error}</p>}
+          <form onSubmit={handleVerify}>
+            <div className="mb-4 d-flex justify-content-between gap-2">
+              {otp.map((data, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength="1"
+                  className="form-control text-center py-3 rounded-3 fw-bold fs-5"
+                  style={{ width: '50px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6' }}
+                  value={data}
+                  onChange={(e) => handleChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  onPaste={handlePaste}
+                  ref={(el) => inputRefs.current[index] = el}
+                  required
+                />
+              ))}
+            </div>
 
-          <button type="submit" className="btn-auth-submit" disabled={loading}>
-            {loading ? 'Verifying...' : 'Verify Code'}
-          </button>
-        </form>
+            <button type="submit" className="btn btn-login-submit w-100 py-2 fw-bold rounded-2 mb-4 fs-7" disabled={loading}>
+              {loading ? <span className="spinner-border spinner-border-sm me-2"></span> : 'Verify Code'}
+            </button>
 
-        <div className="auth-footer-link">
-          OR <br /><br />
-          Don't receive the email? <Link to="#">resend code <i className="fas fa-external-link-alt"></i></Link>
+            <div className="text-center">
+               <span className="text-secondary fs-7 px-2">OR</span>
+            </div>
+
+            <div className="text-center mt-4">
+              <p className="text-dark mb-0 fs-7">Don't receive the email? <Link to="#" className="text-dark fw-bold text-decoration-none ms-1">Resend code</Link></p>
+            </div>
+          </form>
         </div>
       </div>
     </div>

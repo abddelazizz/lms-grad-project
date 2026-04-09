@@ -1,8 +1,9 @@
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
-import { User, Instructor, Student } from "../models/index.js";
+import { User, Instructor, Student, Course, Enrollment } from "../models/index.js";
 import AppError from "../utilis/AppError.js";
 import { auditLog } from "../utilis/logger.js";
+import { buildBaseUsername, ensureUniqueUsername, defaultProfilePictureUrl } from "../utilis/userDefaults.js";
 
 const SALT_ROUNDS = 12;
 
@@ -29,10 +30,14 @@ export const createInstructor = async (name, email, password, bio, specializatio
   }
 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  const finalUsername = await ensureUniqueUsername(buildBaseUsername({ email, name }));
+  const finalPicture = defaultProfilePictureUrl(email);
 
   const user = await User.create({
+    username: finalUsername,
     name,
     email,
+    picture: finalPicture,
     password: hashedPassword,
     role: "instructor",
     is_verified: true,
@@ -53,11 +58,11 @@ export const getAllInstructors = async (page, limit, search) => {
 
   const { count, rows } = await User.findAndCountAll({
     where: { role: "instructor", ...searchWhere },
-    include: [{ model: Instructor, as: "Instructor", attributes: ["bio", "specialization"] }],
+    include: [{ model: Instructor, as: "instructorProfile", attributes: ["bio", "specialization"] }],
     attributes: { exclude: ["password", "verification_token", "verification_token_expires", "reset_password_token", "reset_password_expires"] },
     limit,
     offset,
-    order: [["createdAt", "DESC"]],
+    order: [["created_at", "DESC"]],
   });
 
   return {
@@ -73,7 +78,7 @@ export const getAllInstructors = async (page, limit, search) => {
 export const getInstructorById = async (id) => {
   const user = await User.findOne({
     where: { user_id: id, role: "instructor" },
-    include: [{ model: Instructor, as: "Instructor", attributes: ["bio", "specialization"] }],
+    include: [{ model: Instructor, as: "instructorProfile", attributes: ["bio", "specialization"] }],
     attributes: { exclude: ["password", "verification_token", "verification_token_expires", "reset_password_token", "reset_password_expires"] },
   });
 
@@ -110,10 +115,14 @@ export const createStudent = async (name, email, password, gradeLevel, parentId)
   }
 
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  const finalUsername = await ensureUniqueUsername(buildBaseUsername({ email, name }));
+  const finalPicture = defaultProfilePictureUrl(email);
 
   const user = await User.create({
+    username: finalUsername,
     name,
     email,
+    picture: finalPicture,
     password: hashedPassword,
     role: "student",
     is_verified: true,
@@ -138,11 +147,11 @@ export const getAllStudents = async (page, limit, search) => {
 
   const { count, rows } = await User.findAndCountAll({
     where: { role: "student", ...searchWhere },
-    include: [{ model: Student, as: "Student", attributes: ["grade_level", "parent_id"] }],
+    include: [{ model: Student, as: "studentProfile", attributes: ["grade_level", "parent_id"] }],
     attributes: { exclude: ["password", "verification_token", "verification_token_expires", "reset_password_token", "reset_password_expires"] },
     limit,
     offset,
-    order: [["createdAt", "DESC"]],
+    order: [["created_at", "DESC"]],
   });
 
   return {
@@ -158,7 +167,7 @@ export const getAllStudents = async (page, limit, search) => {
 export const getStudentById = async (id) => {
   const user = await User.findOne({
     where: { user_id: id, role: "student" },
-    include: [{ model: Student, as: "Student", attributes: ["grade_level", "parent_id"] }],
+    include: [{ model: Student, as: "studentProfile", attributes: ["grade_level", "parent_id"] }],
     attributes: { exclude: ["password", "verification_token", "verification_token_expires", "reset_password_token", "reset_password_expires"] },
   });
 
@@ -189,25 +198,36 @@ export const removeStudent = async (id) => {
 
 // getAdminDashboardStats — GET /api/admin/dashboard/stats
 export const getAdminDashboardStats = async () => {
-  const [totalUsers, totalInstructors, totalStudents, verifiedUsers] = await Promise.all([
+  const [totalUsers, totalInstructors, totalStudents, verifiedUsers, totalCourses, enrollments] = await Promise.all([
     User.count(),
     User.count({ where: { role: "instructor" } }),
     User.count({ where: { role: "student" } }),
     User.count({ where: { is_verified: true } }),
+    Course.count(),
+    Enrollment.findAll({
+      attributes: ['status'],
+      include: [{ model: Course, as: 'course', attributes: ['price'] }]
+    })
   ]);
 
-  const unverifiedUsers = totalUsers - verifiedUsers;
+  const verifiedCount = verifiedUsers;
+  const unverifiedUsers = totalUsers - verifiedCount;
+  
+  // Calculate total revenue from enrollments
+  const totalRevenue = enrollments.reduce((sum, e) => sum + parseFloat(e.course.price || 0), 0);
 
   return {
     totalUsers,
     totalInstructors,
     totalStudents,
-    verifiedUsers,
+    totalCourses,
+    totalRevenue: totalRevenue.toFixed(2),
+    verifiedUsers: verifiedCount,
     unverifiedUsers,
     stats: {
       instructorPercentage: totalUsers ? ((totalInstructors / totalUsers) * 100).toFixed(2) : "0.00",
       studentPercentage: totalUsers ? ((totalStudents / totalUsers) * 100).toFixed(2) : "0.00",
-      verificationRate: totalUsers ? ((verifiedUsers / totalUsers) * 100).toFixed(2) : "0.00",
+      verificationRate: totalUsers ? ((verifiedCount / totalUsers) * 100).toFixed(2) : "0.00",
     },
   };
 };

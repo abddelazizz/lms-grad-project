@@ -15,7 +15,7 @@ const User = sequelize.define(
       unique: true,
       allowNull: true,
     },
-    
+
     username: {
       type: DataTypes.STRING,
       unique: true,
@@ -29,6 +29,7 @@ const User = sequelize.define(
     picture: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: "https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff",
     },
 
     email: {
@@ -94,7 +95,7 @@ const User = sequelize.define(
   {
     tableName: "users",
     timestamps: false,
-  }
+  },
 );
 
 export default User;
