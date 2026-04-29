@@ -2,17 +2,14 @@ import * as courseService from "../services/courseService.js";
 import AppError from "../utilis/AppError.js";
 import catchAsync from "../utilis/catchAsync.js";
 
-// POST /api/courses — instructor creates a new course
+// POST /api/courses — instructor creates a new draft course
 export const createCourse = catchAsync(async (req, res) => {
-  const { title, description, price, level, category_id, thumbnail_url } = req.body;
+  const { title, category_id } = req.body;
 
-  if (!title) {
-    throw new AppError("Title is required", 400);
-  }
-
-  const course = await courseService.createCourse({
-    title, description, price, level, category_id, thumbnail_url
-  }, req.user.user_id);
+  const course = await courseService.createCourse(
+    { title, category_id },
+    req.user.user_id
+  );
 
   res.status(201).json({ status: "success", data: { course } });
 });
@@ -50,19 +47,15 @@ export const getMyCourses = catchAsync(async (req, res) => {
   res.status(200).json({ status: "success", results: courses.length, data: { courses } });
 });
 
-// PATCH /api/courses/:id — update a course (ownership enforced)
+// PATCH /api/courses/:id — update course metadata (description, level, price, etc.)
 export const updateCourse = catchAsync(async (req, res) => {
-  const { title, description, price, level, thumbnail_url, category_id } = req.body;
-
-  if (price !== undefined && price < 0) {
-    throw new AppError("Price cannot be negative", 400);
-  }
+  const { title, description, price, level, category_id } = req.body;
 
   const course = await courseService.updateCourse(
-    req.params.id, 
-    req.user.user_id, 
-    req.user.role, 
-    { title, description, price, level, thumbnail_url, category_id }
+    req.params.id,
+    req.user.user_id,
+    req.user.role,
+    { title, description, price, level, category_id }
   );
 
   res.status(200).json({ status: "success", data: { course } });

@@ -72,8 +72,8 @@ const Navbar = () => {
                   title="Dashboard"
                 >
                   <img 
-                    src={user?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} 
-                    alt="Current User" 
+                    src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=e0e7ff&color=31506a`} 
+                    alt="Profile" 
                     className="w-100 h-100 object-fit-cover"
                   />
                 </Link>

@@ -14,3 +14,9 @@ export {
   createStudentSchema,
   paginationSchema,
 } from "./adminValidators.js";
+
+export {
+  createSectionSchema,
+  createLessonSchema,
+  updateProgressSchema,
+} from "./courseValidation.js";

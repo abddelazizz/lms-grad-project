@@ -7,5 +7,10 @@ export {
     contactService, 
     instructorService, 
     assignmentService, 
-    quizService 
+    quizService,
+    chatService,
+    inboxService,
+    lessonService,
+    sectionService,
+    enrollmentService
 } from "./apiService.js";

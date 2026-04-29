@@ -4,30 +4,7 @@ import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import '../styles/Dashboard.css';
 
-// Dummy assignments data — replace with real API later
-const dummyAssignments = [
-  {
-    id: 1,
-    title: 'UI UX Assignment One',
-    course: 'UI/UX Design',
-    dueDate: '2026-05-01',
-    status: 'pending',
-  },
-  {
-    id: 2,
-    title: 'React Components Assignment',
-    course: 'Frontend Development',
-    dueDate: '2026-05-10',
-    status: 'pending',
-  },
-  {
-    id: 3,
-    title: 'Database Design Task',
-    course: 'Backend Development',
-    dueDate: '2026-04-28',
-    status: 'submitted',
-  },
-];
+import { assignmentService } from '../services';
 
 const statusColors = {
   pending: { bg: '#fff8e1', color: '#f59e0b', label: 'Pending' },
@@ -37,7 +14,23 @@ const statusColors = {
 
 const Assignments = () => {
   const navigate = useNavigate();
-  const [assignments] = useState(dummyAssignments);
+  const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      try {
+        const response = await assignmentService.getAssignments();
+        // Assuming response.data.data holds the array
+        setAssignments(response.data?.data || []);
+      } catch (error) {
+        console.error("Failed to fetch assignments", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAssignments();
+  }, []);
 
   return (
     <div className="dashboard-page">
@@ -59,7 +52,16 @@ const Assignments = () => {
 
             {/* Assignments List */}
             <div className="d-flex flex-column gap-3">
-              {assignments.map((assignment) => {
+              {loading ? (
+                <div className="text-center p-5 text-muted">
+                  <div className="spinner-border spinner-border-sm me-2"></div> Loading assignments...
+                </div>
+              ) : assignments.length === 0 ? (
+                <div className="text-center p-5 text-muted border rounded-4 bg-white shadow-sm">
+                  <i className="fas fa-folder-open mb-3 fs-2" style={{ color: '#ccc' }}></i>
+                  <p>No assignments found.</p>
+                </div>
+              ) : assignments.map((assignment) => {
                 const statusStyle = statusColors[assignment.status] || statusColors.pending;
                 return (
                   <div

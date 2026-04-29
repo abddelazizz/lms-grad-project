@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { assignmentService } from '../services';
 import toast, { Toaster } from 'react-hot-toast';
@@ -11,7 +11,25 @@ const Assignment = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [assignmentData, setAssignmentData] = useState(null);
+  const [fetching, setFetching] = useState(true);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchAssignment = async () => {
+      try {
+        if (id) {
+          const response = await assignmentService.getAssignment(id);
+          setAssignmentData(response.data?.data || null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch assignment details", error);
+      } finally {
+        setFetching(false);
+      }
+    };
+    fetchAssignment();
+  }, [id]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -54,23 +72,23 @@ const Assignment = () => {
             <div className="d-flex align-items-center gap-2 mb-4" style={{ color: '#555', fontSize: '14px' }}>
               <span style={{ cursor: 'pointer' }} onClick={() => navigate('/dashboard/assignments')}>Assignment</span>
               <i className="fas fa-angles-right" style={{ fontSize: '10px', color: '#31506a' }}></i>
-              <span className="fw-bold" style={{ color: '#1a1d20' }}>Assignment one</span>
+              <span className="fw-bold" style={{ color: '#1a1d20' }}>{assignmentData?.title || 'Assignment Details'}</span>
             </div>
 
             <div className="bg-white p-5 rounded-4 shadow-sm border" style={{ maxWidth: '850px' }}>
               
               {/* Assignment Title */}
-              <h2 className="fw-bold mb-4" style={{ color: '#1a1d20', fontSize: '26px' }}>UI UX Assignment One</h2>
+              <h2 className="fw-bold mb-4" style={{ color: '#1a1d20', fontSize: '26px' }}>{assignmentData?.title || 'Assignment'}</h2>
 
               {/* Meta Info */}
               <div className="d-flex gap-4 mb-5">
                 <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
                   <i className="far fa-calendar-alt"></i>
-                  <span>00 / 00 / 0000</span>
+                  <span>{assignmentData?.dueDate ? new Date(assignmentData.dueDate).toLocaleDateString('en-GB') : 'No due date'}</span>
                 </div>
                 <div className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: '14px' }}>
                   <i className="far fa-clock"></i>
-                  <span>00 : 00</span>
+                  <span>{assignmentData?.duration || 'Self-paced'}</span>
                 </div>
               </div>
 

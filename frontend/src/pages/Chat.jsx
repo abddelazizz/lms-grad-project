@@ -3,16 +3,44 @@ import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import '../styles/Dashboard.css';
 
+import { chatService } from '../services';
+
 const Chat = () => {
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const dummyMessages = [
-    { id: 1, type: 'received', text: 'How can I help you today?', avatar: true },
-    { id: 2, type: 'sent' },
-    { id: 3, type: 'received', text: 'Let me know!', avatar: true },
-    { id: 4, type: 'sent' },
-    { id: 5, type: 'received', text: 'Feel free to ask questions.', avatar: true },
-  ];
+  // Initial fetch and polling
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await chatService.getMessages();
+        setMessages(response.data?.data || []);
+      } catch (error) {
+        console.error("Failed to fetch chat messages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+    try {
+      // Optimistically add to UI
+      const newMessage = { id: Date.now(), type: 'sent', text: message };
+      setMessages((prev) => [...prev, newMessage]);
+      setMessage('');
+      
+      await chatService.sendMessage({ text: newMessage.text });
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+  };
 
   return (
     <div className="dashboard-page">
@@ -46,23 +74,37 @@ const Chat = () => {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-grow-1 p-4" style={{ minHeight: '350px', backgroundColor: '#fafbfc' }}>
-                <div className="d-flex flex-column gap-3">
-                  {dummyMessages.map((msg) => (
-                    <div key={msg.id} className={`d-flex align-items-end gap-2 ${msg.type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`}>
-                      {msg.type === 'received' && (
-                        <div className="rounded-circle" style={{ width: '36px', height: '36px', backgroundColor: '#e8dcfa', flexShrink: 0 }}></div>
-                      )}
-                      {msg.type === 'received' ? (
-                        <div style={{ maxWidth: '55%', height: '14px', backgroundColor: '#e5e7eb', borderRadius: '12px', padding: '22px 16px', display: 'flex', alignItems: 'center' }}>
-                          <span style={{ fontSize: '13px', color: '#555' }}>{msg.text}</span>
-                        </div>
-                      ) : (
-                        <div style={{ width: '120px', height: '36px', backgroundColor: '#31506a', borderRadius: '12px', opacity: 0.85 }}></div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+              <div className="flex-grow-1 p-4" style={{ minHeight: '350px', backgroundColor: '#fafbfc', overflowY: 'auto' }}>
+                {loading && messages.length === 0 ? (
+                  <div className="d-flex justify-content-center align-items-center h-100">
+                    <div className="spinner-border text-primary" role="status"></div>
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="text-center text-muted h-100 d-flex flex-column justify-content-center">
+                    <p>No messages yet. Start a conversation!</p>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-column gap-3">
+                    {messages.map((msg) => (
+                      <div key={msg.id} className={`d-flex align-items-end gap-2 ${msg.type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`}>
+                        {msg.type === 'received' && (
+                          <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: '36px', height: '36px', backgroundColor: '#e8dcfa', flexShrink: 0 }}>
+                            <i className="fas fa-user text-primary" style={{ fontSize: '14px' }}></i>
+                          </div>
+                        )}
+                        {msg.type === 'received' ? (
+                          <div style={{ maxWidth: '65%', backgroundColor: '#e5e7eb', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#555', wordBreak: 'break-word' }}>{msg.text || '...'}</span>
+                          </div>
+                        ) : (
+                          <div style={{ maxWidth: '65%', backgroundColor: '#31506a', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                            <span style={{ fontSize: '13px', color: '#fff', wordBreak: 'break-word' }}>{msg.text || '...'}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Input Area */}
@@ -71,10 +113,14 @@ const Chat = () => {
                   type="text"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
                   placeholder="Ask your question..."
                   style={{ border: 'none', outline: 'none', flex: 1, fontSize: '14px', color: '#555', backgroundColor: 'transparent' }}
                 />
-                <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#31506a', fontSize: '18px' }}>
+                <button 
+                  onClick={handleSendMessage}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#31506a', fontSize: '18px' }}
+                >
                   <i className="fas fa-paper-plane"></i>
                 </button>
               </div>

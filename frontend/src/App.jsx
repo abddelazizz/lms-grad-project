@@ -24,6 +24,8 @@ import Chat from './pages/Chat';
 import Settings from './pages/Settings';
 import CoursePlayer from './pages/CoursePlayer';
 import InstructorUpload from './pages/InstructorUpload';
+import QuizGenerator from './pages/QuizGenerator';
+import CourseBuilder from './pages/CourseBuilder';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -62,10 +64,11 @@ function App() {
           <Route path="/courses/:courseId/learn/lesson/:lessonId" element={<CoursePlayer />} />
           
           {/* Instructor Routes */}
+          <Route path="/instructor/course-builder" element={<CourseBuilder />} />
           <Route path="/instructor/upload-video" element={<InstructorUpload />} />
           <Route path="/instructor/upload-pdf" element={<InstructorUpload />} />
           <Route path="/instructor/upload-assignment" element={<InstructorUpload />} />
-          <Route path="/instructor/quiz-generator" element={<InstructorUpload />} /> {/* Reusing for now */}
+          <Route path="/instructor/quiz-generator" element={<QuizGenerator />} />
           
           {/* Admin Routes */}
           <Route path="/admin/add-teacher" element={<Dashboard />} />

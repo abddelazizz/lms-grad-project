@@ -136,21 +136,21 @@ const Contact = () => {
               <div className="info-icon-wrapper">
                 <i className="fas fa-envelope"></i>
               </div>
-              <span className="info-text">hello@skillbridge.com</span>
+              <span className="info-text">hello@recodeacademy.com</span>
             </div>
             
             <div className="info-card">
               <div className="info-icon-wrapper">
                 <i className="fas fa-phone-alt"></i>
               </div>
-              <span className="info-text">+91 91813 23 2309</span>
+              <span className="info-text">+20 100 123 4567</span>
             </div>
 
             <div className="info-card">
               <div className="info-icon-wrapper">
                 <i className="fas fa-map-marker-alt"></i>
               </div>
-              <span className="info-text">Somewhere in the World</span>
+              <span className="info-text">Cairo, Egypt</span>
             </div>
 
             <div className="info-card social-profiles-card text-center">

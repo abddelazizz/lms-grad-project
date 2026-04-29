@@ -25,6 +25,13 @@ export const courseService = {
   getAllCourses: (page = 1, limit = 10) => api.get(`/courses?page=${page}&limit=${limit}`),
   getCourseDetails: (id) => api.get(`/courses/${id}`),
   getMyCourses: () => api.get('/courses/my-courses'),
+  createCourse: (data) => api.post('/courses', data),
+  updateCourse: (id, data) => api.patch(`/courses/${id}`, data),
+  deleteCourse: (id) => api.delete(`/courses/${id}`),
+  publishCourse: (id) => api.patch(`/courses/${id}/publish`),
+  uploadCourseThumbnail: (id, formData) => api.patch(`/courses/${id}/thumbnail`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
 };
 
 export const authService = {
@@ -42,9 +49,11 @@ export const API_BASE = BASE_URL;
 
 export const adminService = {
   getInstructors: () => api.get('/admin/instructors'),
+  getInstructor: (id) => api.get(`/admin/instructors/${id}`),
   addInstructor: (data) => api.post('/admin/instructors', data),
   removeInstructor: (id) => api.delete(`/admin/instructors/${id}`),
   getStudents: () => api.get('/admin/students'),
+  getStudent: (id) => api.get(`/admin/students/${id}`),
   addStudent: (data) => api.post('/admin/students', data),
   removeStudent: (id) => api.delete(`/admin/students/${id}`),
   getStats: () => api.get('/admin/dashboard/stats'),
@@ -54,6 +63,9 @@ export const studentService = {
   getProfile: () => api.get('/students/profile'),
   updateProfile: (data) => api.patch('/students/profile', data),
   updatePhoto: (formData) => api.patch('/students/profile/photo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  updateProfilePictureById: (id, formData) => api.patch(`/students/${id}/profile-picture`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
 };
@@ -68,6 +80,7 @@ export const instructorService = {
 };
 
 export const assignmentService = {
+  getAssignments: () => api.get('/assignments'),
   uploadAssignment: (contentId, file) => {
     const formData = new FormData();
     formData.append("assignment_file", file);
@@ -80,6 +93,34 @@ export const assignmentService = {
 export const quizService = {
   getQuiz: (id) => api.get(`/quizzes/${id}`),
   submitQuiz: (id, data) => api.post(`/quizzes/${id}/submit`, data),
+  generateQuiz: (data) => api.post('/quizzes/generate', data),
+};
+
+export const chatService = {
+  getMessages: () => api.get('/chat'),
+  sendMessage: (data) => api.post('/chat', data),
+};
+
+export const inboxService = {
+  getMessages: () => api.get('/inbox'),
+};
+
+export const lessonService = {
+  createLesson: (sectionId, formData) => api.post(`/sections/${sectionId}/lessons`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  updateLesson: (id, data) => api.patch(`/lessons/${id}`, data),
+  deleteLesson: (id) => api.delete(`/lessons/${id}`),
+};
+
+export const sectionService = {
+  createSection: (courseId, data) => api.post(`/courses/${courseId}/sections`, data),
+};
+
+export const enrollmentService = {
+  enroll: (courseId) => api.post(`/enrollments`, { course_id: courseId }),
+  getEnrollments: () => api.get('/enrollments'),
+  updateEnrollment: (id, data) => api.patch(`/enrollments/${id}`, data),
 };
 
 export default api;

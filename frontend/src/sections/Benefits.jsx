@@ -16,7 +16,7 @@ const Benefits = () => {
         <div className="d-flex justify-content-between align-items-start mb-2 pb-2">
           <div className="benefits-header-text pe-4">
             <h2 className="display-6 fw-bold mb-3 text-dark">Benefits</h2>
-            <p className="text-secondary mb-0 fs-5 lh-lg benefits-desc">Lorem ipsum dolor sit amet consectetur. Tempus tincidunt etiam eget elit id imperdiet et. Cras eu sit dignissim lorem nibh et. Ac cum eget habitasse in velit fringilla feugiat senectus in.</p>
+            <p className="text-secondary mb-0 fs-5 lh-lg benefits-desc">Discover the advantages of learning with Recode Academy. Our platform is designed to provide you with a seamless and rewarding educational experience tailored to your growth.</p>
           </div>
           <a href="#" className="btn bg-white border border-light-subtle text-dark px-4 py-2 fw-medium rounded-2">View All</a>
         </div>

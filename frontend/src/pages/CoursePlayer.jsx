@@ -6,6 +6,53 @@ import api from '../services/apiService';
 import toast, { Toaster } from 'react-hot-toast';
 import '../styles/CoursePlayer.css';
 
+const formatDuration = (duration) => {
+  if (duration === null || duration === undefined || duration === '') return null;
+  if (typeof duration === 'string' && duration.includes(':')) return duration;
+
+  const totalSeconds = Number(duration);
+  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return null;
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+
+  if (hours > 0) {
+    return [hours, minutes, seconds].map((unit) => String(unit).padStart(2, '0')).join(':');
+  }
+
+  return [minutes, seconds].map((unit) => String(unit).padStart(2, '0')).join(':');
+};
+
+const groupSectionLessons = (sections = []) =>
+  sections.map((section) => {
+    const lessons = [...(section.lessons || [])].sort(
+      (a, b) => (a.position_order || 0) - (b.position_order || 0)
+    );
+    const attachmentsByParent = lessons.reduce((acc, lesson) => {
+      if (!lesson.parent_content_id) return acc;
+      const key = String(lesson.parent_content_id);
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(lesson);
+      return acc;
+    }, {});
+
+    return {
+      ...section,
+      lessonGroups: lessons
+        .filter((lesson) => !lesson.parent_content_id)
+        .map((lesson) => ({
+          lesson,
+          attachments: attachmentsByParent[String(lesson.content_id)] || [],
+        })),
+    };
+  });
+
+const flattenGroupedLessons = (sections = []) =>
+  sections.flatMap((section) =>
+    (section.lessonGroups || []).flatMap(({ lesson, attachments }) => [lesson, ...attachments])
+  );
+
 const CoursePlayer = () => {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
@@ -22,67 +69,18 @@ const CoursePlayer = () => {
   const fetchCourseDetails = async () => {
     try {
       setLoading(true);
-      
-      // Handle dummy courses for placeholders
-      if (String(courseId).startsWith('d')) {
-        const dummyData = {
-          course_id: courseId,
-          title: "Advanced Web Design Mastery",
-          sections: [
-            {
-              section_id: 's1',
-              title: 'Getting Started',
-              lessons: [
-                { 
-                  content_id: 'l1', 
-                  title: 'Introduction to the Course', 
-                  duration: '05:20', 
-                  position_order: 1,
-                  video_url: 'https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4' // More stable sample video
-                },
-                { 
-                  content_id: 'l2', 
-                  title: 'Setting Up Your Environment', 
-                  duration: '12:45', 
-                  position_order: 2,
-                  video_url: 'https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4'
-                }
-              ]
-            },
-            {
-              section_id: 's2',
-              title: 'Core Design Principles',
-              lessons: [
-                { content_id: 'l3', title: 'Typography & Visual Hierarchy', duration: '18:10', position_order: 3, video_url: 'https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4' },
-                { content_id: 'l4', title: 'Color Theory in Practice', duration: '24:00', position_order: 4, video_url: 'https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4' }
-              ]
-            }
-          ],
-          assignments: [
-            { id: 1, title: 'Design Your First Wireframe', dueDate: 'Tomorrow', status: 'Pending' },
-            { id: 2, title: 'Color Theory Quiz', dueDate: 'Next Week', status: 'Not Started' }
-          ],
-          isEnrolled: (String(courseId) === '1' || String(courseId) === 'd1') // Only d1 or 1 is free/enrolled by default
-        };
-        setCourse(dummyData);
-        setSections(dummyData.sections);
-        const firstLesson = dummyData.sections[0].lessons[0];
-        setCurrentLesson(firstLesson);
-        setLoading(false);
-        return;
-      }
-
       const res = await api.get(`/courses/${courseId}/details`);
       const courseData = res.data.data.course;
       setCourse(courseData);
       
       const allSections = courseData.sections || [];
-      setSections(allSections);
+      const groupedSections = groupSectionLessons(allSections);
+      setSections(groupedSections);
       
       // Auto-select first lesson or matching lessonId
       let lessonToSelect = null;
-      if (allSections.length > 0) {
-        const flattenedLessons = allSections.flatMap(s => s.lessons);
+      if (groupedSections.length > 0) {
+        const flattenedLessons = flattenGroupedLessons(groupedSections);
         if (lessonId) {
           lessonToSelect = flattenedLessons.find(l => String(l.content_id) === String(lessonId));
         }
@@ -92,7 +90,7 @@ const CoursePlayer = () => {
       
     } catch (err) {
       console.error('API Error:', err);
-      toast.error('Could not load real data, showing demo content.');
+      toast.error('Failed to load course details.');
     } finally {
       setLoading(false);
     }
@@ -103,9 +101,8 @@ const CoursePlayer = () => {
     navigate(`/courses/${courseId}/learn/lesson/${lesson.content_id}`);
   };
 
-  // Logic: Only the VERY first course is free for demo. Others show Lock.
   const isEnrolled = course?.isEnrolled;
-  const isFreeCourse = String(courseId) === '1' || String(courseId) === 'd1'; 
+  const isFreeCourse = String(courseId) === '1'; 
   const showLock = !isFreeCourse && !isEnrolled;
 
   if (loading) {
@@ -128,10 +125,9 @@ const CoursePlayer = () => {
               <div className="video-wrapper position-relative bg-dark" style={{ aspectRatio: '16/9' }}>
                 {showLock ? (
                   <>
-                    <img 
-                      src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200" 
-                      alt="Locked Content" 
-                      className="w-100 h-100 object-fit-cover opacity-25"
+                    <div 
+                      className="w-100 h-100"
+                      style={{ background: 'linear-gradient(135deg, #1a2a3a 0%, #2d4a61 100%)' }}
                     />
                     <div className="position-absolute top-50 start-50 translate-middle text-center w-100 p-4 fade-in">
                        <i className="fas fa-lock text-white fa-3x mb-3"></i>
@@ -150,8 +146,21 @@ const CoursePlayer = () => {
                       className="w-100 h-100" 
                       controls 
                       autoPlay={false}
-                      poster="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200"
                     ></video>
+                  ) : currentLesson?.file_url ? (
+                    <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white p-5 text-center">
+                        <i className="fas fa-file-pdf fa-4x mb-4 opacity-50"></i>
+                        <h3 className="mb-3">{currentLesson.title}</h3>
+                        <p className="opacity-75 mb-4">Open this resource in a new tab to view or download it.</p>
+                        <a
+                          href={currentLesson.file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-primary-custom px-4 py-2 fw-bold rounded-pill shadow"
+                        >
+                          Open Resource
+                        </a>
+                    </div>
                   ) : (
                     <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white p-5 text-center">
                         <i className="fas fa-file-alt fa-4x mb-4 opacity-50"></i>
@@ -168,7 +177,7 @@ const CoursePlayer = () => {
                 </h4>
                 {currentLesson && (
                     <div className="text-muted small bg-light px-3 py-2 rounded-pill border">
-                        <i className="far fa-clock me-2"></i>{currentLesson.duration}
+                        <i className="far fa-clock me-2"></i>{formatDuration(currentLesson.duration) || 'N/A'}
                     </div>
                 )}
               </div>
@@ -221,31 +230,59 @@ const CoursePlayer = () => {
                   <div key={section.section_id} className="section-group">
                     <div className="fw-bold small text-secondary mb-2 text-uppercase" style={{ fontSize: '11px' }}>{section.title}</div>
                     <div className="vstack gap-1">
-                      {section.lessons?.map((lesson) => (
-                        <div 
-                          key={lesson.content_id} 
-                          onClick={() => !showLock ? handleLessonClick(lesson) : toast.error('Please enroll to unlock this lesson')}
-                          className={`p-3 rounded-3 d-flex align-items-center gap-3 transition-all ${showLock ? 'opacity-75 grayscale cursor-not-allowed' : (currentLesson?.content_id === lesson.content_id ? 'bg-primary-subtle border-start border-primary border-4 cursor-pointer' : 'hover-bg-light cursor-pointer')}`}
-                        >
-                          <div className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
-                               style={{ 
-                                 width: '24px', height: '24px', 
-                                 border: '2px solid #dee2e6',
-                                 backgroundColor: (!showLock && currentLesson?.content_id === lesson.content_id) ? '#31506a' : 'transparent'
-                               }}>
-                            {showLock ? (
-                                <i className="fas fa-lock text-muted" style={{ fontSize: '10px' }}></i>
-                            ) : (
-                                currentLesson?.content_id === lesson.content_id ? <div className="rounded-circle bg-white" style={{ width: '6px', height: '6px' }}></div> : null
-                            )}
-                          </div>
-                          <div className="flex-grow-1">
-                            <div className={`small fw-bold ${(!showLock && currentLesson?.content_id === lesson.content_id) ? 'text-primary' : 'text-dark'}`}>
-                                {lesson.position_order}. {lesson.title}
-                                {showLock && <i className="fas fa-lock ms-2 opacity-50" style={{ fontSize: '10px' }}></i>}
+                      {section.lessonGroups?.map(({ lesson, attachments }) => (
+                        <div key={lesson.content_id} className="vstack gap-1">
+                          <div 
+                            onClick={() => !showLock ? handleLessonClick(lesson) : toast.error('Please enroll to unlock this lesson')}
+                            className={`p-3 rounded-3 d-flex align-items-center gap-3 transition-all ${showLock ? 'opacity-75 grayscale cursor-not-allowed' : (currentLesson?.content_id === lesson.content_id ? 'bg-primary-subtle border-start border-primary border-4 cursor-pointer' : 'hover-bg-light cursor-pointer')}`}
+                          >
+                            <div className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
+                                 style={{ 
+                                   width: '24px', height: '24px', 
+                                   border: '2px solid #dee2e6',
+                                   backgroundColor: (!showLock && currentLesson?.content_id === lesson.content_id) ? '#31506a' : 'transparent'
+                                 }}>
+                              {showLock ? (
+                                  <i className="fas fa-lock text-muted" style={{ fontSize: '10px' }}></i>
+                              ) : (
+                                  currentLesson?.content_id === lesson.content_id ? <div className="rounded-circle bg-white" style={{ width: '6px', height: '6px' }}></div> : null
+                              )}
                             </div>
-                            <div className="text-muted" style={{ fontSize: '11px' }}>({lesson.duration})</div>
+                            <div className="flex-grow-1">
+                              <div className={`small fw-bold ${(!showLock && currentLesson?.content_id === lesson.content_id) ? 'text-primary' : 'text-dark'}`}>
+                                  {lesson.position_order}. {lesson.title}
+                                  {showLock && <i className="fas fa-lock ms-2 opacity-50" style={{ fontSize: '10px' }}></i>}
+                              </div>
+                              <div className="text-muted" style={{ fontSize: '11px' }}>{formatDuration(lesson.duration) || lesson.content_type}</div>
+                            </div>
                           </div>
+
+                          {attachments.map((attachment) => (
+                            <div
+                              key={attachment.content_id}
+                              onClick={() => !showLock ? handleLessonClick(attachment) : toast.error('Please enroll to unlock this lesson')}
+                              className={`ms-4 p-3 rounded-3 d-flex align-items-center gap-3 transition-all ${showLock ? 'opacity-75 grayscale cursor-not-allowed' : (currentLesson?.content_id === attachment.content_id ? 'bg-primary-subtle border-start border-primary border-4 cursor-pointer' : 'hover-bg-light cursor-pointer')}`}
+                            >
+                              <div
+                                className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 bg-light"
+                                style={{ width: '24px', height: '24px' }}
+                              >
+                                <i
+                                  className={`fas ${attachment.content_type === 'pdf_assignment' ? 'fa-file-signature' : 'fa-file-pdf'} text-muted`}
+                                  style={{ fontSize: '10px' }}
+                                ></i>
+                              </div>
+                              <div className="flex-grow-1">
+                                <div className={`small fw-bold ${(!showLock && currentLesson?.content_id === attachment.content_id) ? 'text-primary' : 'text-dark'}`}>
+                                  {attachment.position_order}. {attachment.title}
+                                  {showLock && <i className="fas fa-lock ms-2 opacity-50" style={{ fontSize: '10px' }}></i>}
+                                </div>
+                                <div className="text-muted text-uppercase" style={{ fontSize: '11px' }}>
+                                  {attachment.content_type === 'pdf_assignment' ? 'Assignment Resource' : 'Lecture Resource'}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>

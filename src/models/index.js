@@ -24,6 +24,15 @@ CourseSection.belongsTo(Course, { foreignKey: "course_id" });
 
 CourseSection.hasMany(LessonContent, { foreignKey: "section_id", as: "lessons", onDelete: "CASCADE" });
 LessonContent.belongsTo(CourseSection, { foreignKey: "section_id" });
+LessonContent.hasMany(LessonContent, {
+  foreignKey: "parent_content_id",
+  as: "attachments",
+  onDelete: "CASCADE",
+});
+LessonContent.belongsTo(LessonContent, {
+  foreignKey: "parent_content_id",
+  as: "parentLesson",
+});
 
 // ─── Enrollments ─────────────────────────────────────────────
 // User (student) ←M:N→ Course  (junction: Enrollment)

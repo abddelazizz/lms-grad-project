@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
-import { adminService } from '../services/apiService';
+import { adminService, studentService } from '../services/apiService';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
@@ -14,6 +14,11 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({ totalUsers: 0, totalInstructors: 0, totalStudents: 0, totalCourses: 0, totalRevenue: '0.00' });
   const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' });
+  
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   // Determination of view based on path
   const isAddTeacher = path.includes('add-teacher');
@@ -146,6 +151,36 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleViewDetails = async (id, isTeacher) => {
+    setModalLoading(true);
+    setShowModal(true);
+    setSelectedUser({ isTeacher });
+    setSelectedFile(null);
+    try {
+      const res = isTeacher ? await adminService.getInstructor(id) : await adminService.getStudent(id);
+      setSelectedUser({ ...(res.data?.data || res.data), isTeacher, _id: id });
+    } catch (err) {
+      console.error(err);
+      setSelectedUser({ error: "Failed to load details" });
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleUpdatePicture = async (id) => {
+    if (!selectedFile) return alert("Select a file first.");
+    try {
+      const form = new FormData();
+      form.append("profile_picture", selectedFile);
+      await studentService.updateProfilePictureById(id, form);
+      alert("Profile picture updated!");
+      fetchStudents();
+      setShowModal(false);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update picture.");
+    }
+  };
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-layout">
@@ -239,7 +274,7 @@ const AdminDashboard = () => {
                       <h5 className="fw-bold mb-4">Recently Added Teachers</h5>
                       {teachers.slice(0, 3).map((u, i) => (
                         <div key={i} className="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
-                          <img src={u.picture || u.User?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} className="rounded-circle" width="40" height="40" alt="profile"/>
+                          <img src={u.picture || u.User?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || u.User?.name || 'User')}&background=e0e7ff&color=31506a`} className="rounded-circle" width="40" height="40" alt="profile"/>
                           <div>
                             <div className="fw-bold fs-6">{u.name || u.User?.name}</div>
                             <div className="text-muted small">{u.instructorProfile?.specialization || u.Instructor?.specialization || 'General'}</div>
@@ -254,7 +289,7 @@ const AdminDashboard = () => {
                       <h5 className="fw-bold mb-4">Recently Enrolled Students</h5>
                       {students.slice(0, 3).map((u, i) => (
                         <div key={i} className="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
-                          <img src={u.picture || u.User?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'} className="rounded-circle" width="40" height="40" alt="profile"/>
+                          <img src={u.picture || u.User?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || u.User?.name || 'User')}&background=e0e7ff&color=31506a`} className="rounded-circle" width="40" height="40" alt="profile"/>
                           <div>
                             <div className="fw-bold fs-6">{u.name || u.User?.name}</div>
                             <div className="text-muted small">Level: {u.studentProfile?.grade_level || u.Student?.grade_level || 'N/A'}</div>
@@ -346,7 +381,7 @@ const AdminDashboard = () => {
                            {(isTeachersList ? teachers : students).map((user, i) => {
                              const displayName = user.name || user.User?.name;
                              const displayEmail = user.email || user.User?.email;
-                             const displayPicture = user.picture || user.User?.picture || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png';
+                             const displayPicture = user.picture || user.User?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.User?.name || 'User')}&background=e0e7ff&color=31506a`;
 
                              return (
                                <tr key={user.user_id || user.id || i} className="bg-white shadow-sm" style={{ transition: 'all 0.2s ease', borderRadius: '12px' }}>
@@ -370,8 +405,13 @@ const AdminDashboard = () => {
                                  </td>
                                  <td className="py-3 px-4 text-end" style={{ borderTopRightRadius: '12px', borderBottomRightRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderRight: '1px solid #f1f3f5' }}>
                                     <div className="d-flex gap-2 justify-content-end">
-                                       <button className="btn btn-sm btn-action text-primary bg-primary bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all" style={{ fontSize: '13px' }} title="Edit">
-                                          <i className="fas fa-edit me-1"></i> Edit
+                                       <button 
+                                          className="btn btn-sm btn-action text-primary bg-primary bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all" 
+                                          style={{ fontSize: '13px' }} 
+                                          title="View"
+                                          onClick={() => handleViewDetails(user.user_id || user.id, isTeachersList)}
+                                       >
+                                          <i className="fas fa-eye me-1"></i> View Details
                                        </button>
                                        <button 
                                          className="btn btn-sm btn-action text-danger bg-danger bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all" 
@@ -403,6 +443,52 @@ const AdminDashboard = () => {
 
           </div>
         </main>
+
+        {showModal && (
+          <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content border-0 rounded-4 shadow">
+                <div className="modal-header border-0 pb-0">
+                  <h5 className="modal-title fw-bold">User Details</h5>
+                  <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                </div>
+                <div className="modal-body pt-4">
+                  {modalLoading ? (
+                    <div className="text-center py-4"><div className="spinner-border text-primary"></div></div>
+                  ) : selectedUser?.error ? (
+                    <div className="alert alert-danger">{selectedUser.error}</div>
+                  ) : selectedUser ? (
+                    <div className="vstack gap-3">
+                      <div className="text-center mb-3">
+                        <img src={selectedUser.picture || selectedUser.User?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.name || selectedUser.User?.name || 'User')}&background=e0e7ff&color=31506a`} className="rounded-circle shadow-sm" width="80" height="80" alt="profile" style={{ objectFit: 'cover' }} />
+                      </div>
+                      <div className="d-flex justify-content-between border-bottom pb-2">
+                        <span className="text-muted">Name</span>
+                        <span className="fw-bold">{selectedUser.name || selectedUser.User?.name}</span>
+                      </div>
+                      <div className="d-flex justify-content-between border-bottom pb-2">
+                        <span className="text-muted">Email</span>
+                        <span className="fw-bold">{selectedUser.email || selectedUser.User?.email}</span>
+                      </div>
+                      <div className="d-flex justify-content-between border-bottom pb-2">
+                        <span className="text-muted">Role</span>
+                        <span className="fw-bold">{selectedUser.isTeacher ? 'Instructor' : 'Student'}</span>
+                      </div>
+                      
+                      {!selectedUser.isTeacher && selectedUser._id && (
+                        <div className="mt-3">
+                          <label className="fw-bold mb-2 small text-secondary">Update Profile Picture</label>
+                          <input type="file" className="form-control mb-2" onChange={(e) => setSelectedFile(e.target.files[0])} />
+                          <button className="btn btn-sm btn-primary w-100 fw-bold py-2" onClick={() => handleUpdatePicture(selectedUser._id)}>Upload Picture</button>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <ProfileSidebar />
       </div>

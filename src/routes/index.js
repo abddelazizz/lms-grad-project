@@ -7,3 +7,6 @@ export { default as testRoutes } from "./testRoutes.js";
 export { default as contactRoutes } from "./contactRoutes.js";
 export { default as quizRoutes } from "./quizRoutes.js";
 export { default as assignmentRoutes } from "./assignmentRoutes.js";
+export { default as sectionRoutes } from "./sectionRoutes.js";
+export { default as lessonRoutes } from "./lessonRoutes.js";
+export { default as enrollmentRoutes } from "./enrollmentRoutes.js";

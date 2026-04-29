@@ -28,3 +28,23 @@
     at async googleAuth (file:///L:/EvolveSight/lms-grad-project-master/src/services/authService.js:193:14)
     at async Strategy._verify (file:///L:/EvolveSight/lms-grad-project-master/src/config/passport.js:34:24)
 2026-04-09 12:10:26 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"pubg.kr.refa3i@gmail.com","user_id":9}
+2026-04-28 01:37:05 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:37:46 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:37:50 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:37:54 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:38:00 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:38:04 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:38:09 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:15 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:19 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:23 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:28 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:35 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:38 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:41 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:39:06 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:50:42 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:51:58 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 02:56:43 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"aboodymo@gmail.com","user_id":26}
+2026-04-29 04:27:35 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"ebrahimelrefaei22@gmail.com"}
+2026-04-29 04:27:36 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"ebrahimelrefaei22@gmail.com"}

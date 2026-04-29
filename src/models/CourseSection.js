@@ -21,10 +21,18 @@ const CourseSection = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "course_sections",
-    timestamps: false,
+    timestamps: true,
+    createdAt: false,
+    updatedAt: false,
+    paranoid: true,
+    deletedAt: "deleted_at",
   }
 );
 

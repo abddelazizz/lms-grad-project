@@ -4,9 +4,18 @@ import AppError from "../utilis/AppError.js";
 // generateToken is generated in the service layer now
 
 const signup = catchAsync(async (req, res) => {
-  const { name, username, email, password, role, picture } = req.body;
+  const { name, username, email, password, role, picture, gradeLevel, parentId } = req.body;
 
-  const user = await authService.signup({ name, username, email, password, role, picture });
+  const user = await authService.signup({
+    name,
+    username,
+    email,
+    password,
+    role,
+    picture,
+    gradeLevel,
+    parentId,
+  });
 
   res.status(201).json({
     success: true,

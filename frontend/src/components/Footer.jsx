@@ -13,13 +13,13 @@ const Footer = () => {
             </div>
             <div className="d-flex flex-column gap-4 text-dark fw-medium">
               <p className="mb-0 d-flex align-items-center gap-3">
-                <i className="fa-solid fa-envelope fs-5"></i> hello@skillbridge.com
+                <i className="fa-solid fa-envelope fs-5"></i> hello@recodeacademy.com
               </p>
               <p className="mb-0 d-flex align-items-center gap-3">
-                <i className="fa-solid fa-phone fs-5"></i> +91 91813 23 2309
+                <i className="fa-solid fa-phone fs-5"></i> +20 100 123 4567
               </p>
               <p className="mb-0 d-flex align-items-center gap-3">
-                <i className="fa-solid fa-location-dot fs-5"></i> Somewhere in the World
+                <i className="fa-solid fa-location-dot fs-5"></i> Cairo, Egypt
               </p>
             </div>
           </div>

@@ -27,6 +27,8 @@ const signupSchema = Joi.object({
     .valid("student", "instructor")
     .default("student"),
   picture: Joi.string().uri().optional(),
+  gradeLevel: Joi.string().max(50).optional().allow("", null),
+  parentId: Joi.number().integer().positive().optional().allow(null),
   // ✅ admin/parent cannot be self-registered — removed from valid list
 });
 
@@ -58,11 +60,7 @@ const resendVerificationSchema = Joi.object({
 // ─── Course Schemas ───────────────────────────────────────────
 const createCourseSchema = Joi.object({
   title: Joi.string().min(5).max(150).required(),
-  description: Joi.string().max(5000).optional(),
-  price: Joi.number().min(0).precision(2).default(0),
-  level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
   category_id: Joi.number().integer().optional(),
-  thumbnail_url: Joi.string().uri().optional(),
 });
 
 const updateCourseSchema = Joi.object({
@@ -71,7 +69,6 @@ const updateCourseSchema = Joi.object({
   price: Joi.number().min(0).precision(2).optional(),
   level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
   category_id: Joi.number().integer().optional(),
-  thumbnail_url: Joi.string().uri().optional(),
 }).min(1); // must provide at least one field to update
 
 // ─── Admin Schemas ────────────────────────────────────────────

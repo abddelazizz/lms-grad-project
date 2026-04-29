@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
 import { User, Instructor, Student, Course, Enrollment } from "../models/index.js";
+import { sequelize } from "../config/index.js";
 import AppError from "../utilis/AppError.js";
 import { auditLog } from "../utilis/logger.js";
 import { buildBaseUsername, ensureUniqueUsername, defaultProfilePictureUrl } from "../utilis/userDefaults.js";
@@ -17,6 +18,78 @@ const buildSearchWhere = (search) =>
         ],
       }
     : {};
+
+const sanitizeStudentProfileData = ({ gradeLevel, parentId }) => ({
+  grade_level: gradeLevel || null,
+  parent_id: parentId || null,
+});
+
+export const ensureStudentProfile = async (userId, { gradeLevel = null, parentId = null } = {}, transaction = null) => {
+  const existingProfile = await Student.findByPk(userId, { transaction });
+
+  if (existingProfile) {
+    return existingProfile;
+  }
+
+  return Student.create(
+    {
+      user_id: userId,
+      ...sanitizeStudentProfileData({ gradeLevel, parentId }),
+    },
+    { transaction }
+  );
+};
+
+export const createStudentAccount = async ({
+  name,
+  email,
+  password,
+  username = null,
+  picture = null,
+  gradeLevel = null,
+  parentId = null,
+  isVerified = true,
+  verificationToken = null,
+  verificationTokenExpires = null,
+  emailVerifiedAt = null,
+  googleId = null,
+}) => {
+  const existingUser = await User.findOne({ where: { email } });
+  if (existingUser) {
+    throw new AppError("A user with this email already exists", 409);
+  }
+
+  return sequelize.transaction(async (transaction) => {
+    const hashedPassword = password ? await bcrypt.hash(password, SALT_ROUNDS) : null;
+    const finalUsername = await ensureUniqueUsername(buildBaseUsername({ username, email, name }));
+    const finalPicture = picture || defaultProfilePictureUrl(email);
+
+    const user = await User.create(
+      {
+        google_id: googleId,
+        username: finalUsername,
+        name,
+        email,
+        picture: finalPicture,
+        password: hashedPassword,
+        role: "student",
+        is_verified: isVerified,
+        verification_token: verificationToken,
+        verification_token_expires: verificationTokenExpires,
+        email_verified_at: emailVerifiedAt,
+      },
+      { transaction }
+    );
+
+    const studentProfile = await ensureStudentProfile(
+      user.user_id,
+      { gradeLevel, parentId },
+      transaction
+    );
+
+    return { user, studentProfile };
+  });
+};
 
 // ═══════════════════════════════════════════════════════════════
 // INSTRUCTOR MANAGEMENT
@@ -109,35 +182,26 @@ export const removeInstructor = async (id) => {
 
 // createStudent — POST /api/admin/students
 export const createStudent = async (name, email, password, gradeLevel, parentId) => {
-  const existingUser = await User.findOne({ where: { email } });
-  if (existingUser) {
-    throw new AppError("A user with this email already exists", 409);
-  }
-
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-  const finalUsername = await ensureUniqueUsername(buildBaseUsername({ email, name }));
-  const finalPicture = defaultProfilePictureUrl(email);
-
-  const user = await User.create({
-    username: finalUsername,
+  const { user, studentProfile } = await createStudentAccount({
     name,
     email,
-    picture: finalPicture,
-    password: hashedPassword,
-    role: "student",
-    is_verified: true,
-  });
-
-  await Student.create({
-    user_id: user.user_id,
-    grade_level: gradeLevel,
-    parent_id: parentId || null,
+    password,
+    gradeLevel,
+    parentId,
+    isVerified: true,
+    emailVerifiedAt: new Date(),
   });
 
   auditLog("CREATE_STUDENT", "admin", "user", user.user_id, { email });
 
   const { password: _, ...userData } = user.toJSON();
-  return { ...userData, grade_level: gradeLevel, parent_id: parentId || null };
+  return {
+    ...userData,
+    studentProfile: {
+      grade_level: studentProfile.grade_level,
+      parent_id: studentProfile.parent_id,
+    },
+  };
 };
 
 // getAllStudents — GET /api/admin/students

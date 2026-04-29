@@ -7,12 +7,19 @@ import { jest } from "@jest/globals";
 // ─── Mock DB models before importing service ──────────────────
 const mockUserFindOne = jest.fn();
 const mockUserCreate = jest.fn();
+const mockCreateStudentAccount = jest.fn();
+const mockEnsureStudentProfile = jest.fn();
 
 jest.unstable_mockModule("../../src/models/index.js", () => ({
   User: {
     findOne: mockUserFindOne,
     create: mockUserCreate,
   },
+}));
+
+jest.unstable_mockModule("../../src/services/adminService.js", () => ({
+  createStudentAccount: mockCreateStudentAccount,
+  ensureStudentProfile: mockEnsureStudentProfile,
 }));
 
 // ─── Mock Email sending ───────────────────────────────────────
@@ -98,11 +105,45 @@ describe("authService.signup()", () => {
 
   it("should create user and send verification email on success", async () => {
     mockUserFindOne.mockResolvedValue(null);
-    mockUserCreate.mockResolvedValue({ user_id: 2, email: "new@test.com" });
+    mockCreateStudentAccount.mockResolvedValue({
+      user: { user_id: 2, email: "new@test.com" },
+      studentProfile: { user_id: 2, grade_level: "Grade 10", parent_id: null },
+    });
 
-    const result = await signup({ name: "New User", email: "new@test.com", password: "Pass1!", role: "student" });
-    expect(mockUserCreate).toHaveBeenCalledTimes(1);
+    const result = await signup({
+      name: "New User",
+      email: "new@test.com",
+      password: "Pass1!",
+      role: "student",
+      gradeLevel: "Grade 10",
+    });
+    expect(mockCreateStudentAccount).toHaveBeenCalledTimes(1);
+    expect(mockCreateStudentAccount).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "New User",
+        email: "new@test.com",
+        password: "Pass1!",
+        gradeLevel: "Grade 10",
+        isVerified: false,
+      })
+    );
     expect(mockSendVerificationEmail).toHaveBeenCalledTimes(1);
     expect(result).toHaveProperty("user_id", 2);
+  });
+
+  it("should create only a user row for instructor signup", async () => {
+    mockUserFindOne.mockResolvedValue(null);
+    mockUserCreate.mockResolvedValue({ user_id: 3, email: "teacher@test.com" });
+
+    const result = await signup({
+      name: "Teacher",
+      email: "teacher@test.com",
+      password: "Pass1!",
+      role: "instructor",
+    });
+
+    expect(mockCreateStudentAccount).not.toHaveBeenCalled();
+    expect(mockUserCreate).toHaveBeenCalledTimes(1);
+    expect(result).toHaveProperty("user_id", 3);
   });
 });

@@ -13,12 +13,22 @@ const LessonContent = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    parent_content_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "lesson_contents",
+        key: "content_id",
+      },
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     content_type: {
-      type: DataTypes.ENUM("video", "text", "file", "assignment_prompt"),
+      type: DataTypes.ENUM("video", "pdf_lecture", "pdf_assignment"),
       allowNull: false,
     },
     position_order: {
@@ -33,25 +43,35 @@ const LessonContent = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    text_content: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    // 🆕 Lesson duration in seconds (used to compute total course time)
+    // Lesson duration in seconds (populated by Cloudinary for videos)
     duration: {
       type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0,
     },
-    // 🆕 Whether non-enrolled users can view this lesson as a free preview
+    // Whether non-enrolled users can view this lesson as a free preview
     is_free_preview: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    // Cloudinary public ID for asset management (delete old files)
+    cloudinary_public_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    // Soft-delete support
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "lesson_contents",
-    timestamps: false,
+    timestamps: true,
+    createdAt: false,
+    updatedAt: false,
+    paranoid: true,
+    deletedAt: "deleted_at",
   }
 );
 

@@ -41,6 +41,10 @@ const Course = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    cloudinary_thumbnail_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     category_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -57,7 +61,9 @@ const Course = sequelize.define(
   },
   {
     tableName: "courses",
-    timestamps: false,
+    timestamps: true,
+    createdAt: false,
+    updatedAt: false,
     // ✅ paranoid: true makes destroy() set deleted_at instead of hard deleting
     paranoid: true,
     deletedAt: "deleted_at",

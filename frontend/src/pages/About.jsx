@@ -45,7 +45,12 @@ const About = () => {
         <div className="container-custom py-4">
           <div className="row align-items-center">
             <div className="col-lg-6 mb-4 mb-lg-0">
-              <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800" alt="Team" className="img-fluid rounded-5 shadow" />
+              <div className="d-flex align-items-center justify-content-center rounded-5 shadow" style={{ height: '350px', background: 'linear-gradient(135deg, #31506a 0%, #52758e 100%)' }}>
+                <div className="text-center text-white">
+                  <i className="fas fa-users fa-4x mb-3 opacity-75"></i>
+                  <h4 className="fw-bold">Our Team</h4>
+                </div>
+              </div>
             </div>
             <div className="col-lg-6 ps-lg-5">
               <h2 className="fw-bold mb-4">Why Choose Recode Academy?</h2>

@@ -3,11 +3,26 @@ import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import '../styles/Dashboard.css';
 
+import { inboxService } from '../services';
+
 const Inbox = () => {
   const [activeTab, setActiveTab] = useState('All');
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy messages to render skeleton list
-  const messages = [1, 2, 3];
+  useEffect(() => {
+    const fetchInbox = async () => {
+      try {
+        const response = await inboxService.getMessages();
+        setMessages(response.data?.data || []);
+      } catch (error) {
+        console.error("Failed to fetch inbox messages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInbox();
+  }, []);
 
   return (
     <div className="dashboard-page">
@@ -51,21 +66,47 @@ const Inbox = () => {
                 ))}
               </div>
 
-              {/* Message Shadows / Skeletons */}
-              <div className="inbox-messages-list">
-                {messages.map((msg, index) => (
-                  <div key={index} className="d-flex align-items-start p-4" style={{ borderBottom: '1px solid #f8f9fa' }}>
-                    <div className="rounded-circle me-3" style={{ width: '40px', height: '40px', backgroundColor: '#f2f4f7' }}></div>
-                    <div className="w-100">
-                      <div className="d-flex justify-content-between mb-2">
-                        <div style={{ width: '25%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px' }}></div>
-                        <div style={{ width: '15%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px' }}></div>
+              {/* Message Shadows / List */}
+              <div className="inbox-messages-list" style={{ flexGrow: 1, overflowY: 'auto', maxHeight: '450px' }}>
+                {loading ? (
+                  // Loading skeletons
+                  [1, 2, 3].map((_, index) => (
+                    <div key={index} className="d-flex align-items-start p-4" style={{ borderBottom: '1px solid #f8f9fa' }}>
+                      <div className="rounded-circle me-3 placeholder-glow" style={{ width: '40px', height: '40px', backgroundColor: '#f2f4f7' }}></div>
+                      <div className="w-100 placeholder-glow">
+                        <div className="d-flex justify-content-between mb-2">
+                          <div style={{ width: '25%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px' }}></div>
+                          <div style={{ width: '15%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px' }}></div>
+                        </div>
+                        <div style={{ width: '80%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px', marginBottom: '8px' }}></div>
+                        <div style={{ width: '60%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px' }}></div>
                       </div>
-                      <div style={{ width: '80%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px', marginBottom: '8px' }}></div>
-                      <div style={{ width: '60%', height: '12px', backgroundColor: '#f2f4f7', borderRadius: '10px' }}></div>
                     </div>
+                  ))
+                ) : messages.length === 0 ? (
+                  <div className="text-center p-5 text-muted d-flex flex-column justify-content-center align-items-center h-100">
+                    <i className="fas fa-inbox mb-3 fs-2" style={{ color: '#ccc' }}></i>
+                    <p>Your inbox is empty.</p>
                   </div>
-                ))}
+                ) : (
+                  messages.map((msg, index) => (
+                    <div key={msg.id || index} className="d-flex align-items-start p-4" style={{ borderBottom: '1px solid #f8f9fa', cursor: 'pointer' }}>
+                      <div className="rounded-circle d-flex justify-content-center align-items-center me-3 text-white fw-bold" style={{ width: '40px', height: '40px', backgroundColor: '#6c5ce7' }}>
+                        {(msg.senderName || 'U')[0].toUpperCase()}
+                      </div>
+                      <div className="w-100">
+                        <div className="d-flex justify-content-between mb-1">
+                          <strong style={{ fontSize: '14px', color: '#333' }}>{msg.senderName || 'Unknown User'}</strong>
+                          <span style={{ fontSize: '12px', color: '#9fa2a6' }}>{msg.date || 'Just now'}</span>
+                        </div>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: '#555', marginBottom: '4px' }}>{msg.subject || 'No Subject'}</div>
+                        <div style={{ fontSize: '13px', color: '#777', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {msg.content || msg.text || 'No content preview available.'}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
 
               {/* Footer text */}

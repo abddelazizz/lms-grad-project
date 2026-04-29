@@ -6,9 +6,11 @@ import AppError from "../utilis/AppError.js";
 
 export const createCourse = async (courseData, instructorId) => {
   const course = await Course.create({
-    ...courseData,
+    title: courseData.title,
+    category_id: courseData.category_id || null,
     instructor_id: instructorId,
     status: "draft",
+    price: 0.00,
   });
   return course;
 };
@@ -65,7 +67,13 @@ export const updateCourse = async (courseId, instructorId, role, updateData) => 
     throw new AppError("You are not allowed to modify this course", 403);
   }
 
-  await course.update(updateData);
+  // Filter out undefined values so we only update provided fields
+  const cleanData = {};
+  for (const [key, value] of Object.entries(updateData)) {
+    if (value !== undefined) cleanData[key] = value;
+  }
+
+  await course.update(cleanData);
   return course;
 };
 
@@ -82,13 +90,29 @@ export const publishCourse = async (courseId, instructorId, role) => {
     throw new AppError("You are not allowed to publish this course", 403);
   }
 
+  // ─── Publishing Gate: validation checklist ───────────────────
+  const missingRequirements = [];
+
+  if (!course.description) {
+    missingRequirements.push("Course description is required.");
+  }
+  if (!course.thumbnail_url) {
+    missingRequirements.push("Course thumbnail is required.");
+  }
   if (!course.sections || course.sections.length === 0) {
-    throw new AppError("A course must have at least one section before publishing", 422);
+    missingRequirements.push("At least one section is required.");
   }
 
-  const hasLesson = course.sections.some((s) => s.lessons && s.lessons.length > 0);
-  if (!hasLesson) {
-    throw new AppError("Each section must have at least one lesson before publishing", 422);
+  const hasLesson = course.sections?.some((s) => s.lessons && s.lessons.length > 0);
+  if (course.sections?.length > 0 && !hasLesson) {
+    missingRequirements.push("At least one lesson is required within the sections.");
+  }
+
+  if (missingRequirements.length > 0) {
+    throw new AppError(
+      JSON.stringify({ missing: missingRequirements }),
+      400
+    );
   }
 
   await course.update({ status: "published" });
@@ -121,11 +145,14 @@ export const getCourseDetails = async (courseId, userId = null, role = null) => 
             as: "lessons",
             attributes: [
               "content_id",
+              "parent_content_id",
               "title",
               "content_type",
               "duration",
               "is_free_preview",
               "position_order",
+              "video_url",
+              "file_url",
             ],
           },
         ],
@@ -157,6 +184,11 @@ export const getCourseDetails = async (courseId, userId = null, role = null) => 
   // Convert to JSON and add extra fields
   const courseData = course.toJSON();
   courseData.isEnrolled = isEnrolled;
+
+  courseData.sections = (courseData.sections || []).map((section) => ({
+    ...section,
+    lessons: (section.lessons || []).sort((a, b) => a.position_order - b.position_order),
+  }));
 
   return courseData;
 };

@@ -10,10 +10,11 @@ import {
 } from "../utilis/index.js";
 import { securityLog, auditLog } from "../utilis/logger.js";
 import { buildBaseUsername, ensureUniqueUsername, defaultProfilePictureUrl, sanitizeUsername } from "../utilis/userDefaults.js";
+import { createStudentAccount, ensureStudentProfile } from "./adminService.js";
 
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
-const signup = async ({ name, username, email, password, role, picture }) => {
+const signup = async ({ name, username, email, password, role, picture, gradeLevel, parentId }) => {
   const existingUser = await User.findOne({ where: { email } });
 
   if (existingUser) {
@@ -24,35 +25,51 @@ const signup = async ({ name, username, email, password, role, picture }) => {
     throw new AppError("Email already registered but not verified.", 409);
   }
 
-  const hashedPassword = await hashPassword(password);
-
   const rawToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = hashToken(rawToken);
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  const desiredBaseUsername = buildBaseUsername({ username, email, name });
+  let user;
 
-  // If the user explicitly provided a username, enforce uniqueness with a clear error.
-  if (sanitizeUsername(username)) {
-    const foundUsername = await User.findOne({ where: { username: desiredBaseUsername } });
-    if (foundUsername) {
-      throw new AppError("Username already exists.", 409);
+  if (role === "student") {
+    ({ user } = await createStudentAccount({
+      name,
+      username,
+      email,
+      password,
+      picture: picture?.trim?.() ? picture : null,
+      gradeLevel,
+      parentId,
+      isVerified: false,
+      verificationToken: hashedToken,
+      verificationTokenExpires: expires,
+    }));
+  } else {
+    const hashedPassword = await hashPassword(password);
+    const desiredBaseUsername = buildBaseUsername({ username, email, name });
+
+    // If the user explicitly provided a username, enforce uniqueness with a clear error.
+    if (sanitizeUsername(username)) {
+      const foundUsername = await User.findOne({ where: { username: desiredBaseUsername } });
+      if (foundUsername) {
+        throw new AppError("Username already exists.", 409);
+      }
     }
+
+    const finalUsername = await ensureUniqueUsername(desiredBaseUsername);
+    const finalPicture = picture?.trim?.() ? picture : defaultProfilePictureUrl(email);
+
+    user = await User.create({
+      username: finalUsername,
+      name,
+      email,
+      picture: finalPicture,
+      password: hashedPassword,
+      role,
+      verification_token: hashedToken,
+      verification_token_expires: expires,
+    });
   }
-
-  const finalUsername = await ensureUniqueUsername(desiredBaseUsername);
-  const finalPicture = picture?.trim?.() ? picture : defaultProfilePictureUrl(email);
-
-  const user = await User.create({
-    username: finalUsername,
-    name,
-    email,
-    picture: finalPicture,
-    password: hashedPassword,
-    role,
-    verification_token: hashedToken,
-    verification_token_expires: expires,
-  });
 
   await sendVerificationEmail(email, rawToken);
 
@@ -194,6 +211,9 @@ const googleAuth = async (googleId, name, email, picture) => {
   if (user) {
     if (picture) await user.update({ picture }); // Update picture if it changed
     if (!user.picture) await user.update({ picture: defaultProfilePictureUrl(email) });
+    if (user.role === "student") {
+      await ensureStudentProfile(user.user_id);
+    }
     const token = generateToken(user);
     return { user, token };
   }
@@ -207,25 +227,22 @@ const googleAuth = async (googleId, name, email, picture) => {
       is_verified: true,
       email_verified_at: user.email_verified_at || new Date(),
     });
+    if (user.role === "student") {
+      await ensureStudentProfile(user.user_id);
+    }
     const token = generateToken(user);
     return { user, token };
   }
 
   // Case 3: Brand new user — create account
-  const baseUsername = buildBaseUsername({ email, name });
-  const finalUsername = await ensureUniqueUsername(baseUsername);
-  const finalPicture = picture || defaultProfilePictureUrl(email);
-
-  user = await User.create({
-    google_id: googleId,
-    username: finalUsername,
+  ({ user } = await createStudentAccount({
     name,
     email,
-    picture: finalPicture,
-    is_verified: true,
-    email_verified_at: new Date(),
-    role: 'student',
-  });
+    picture: picture || null,
+    googleId,
+    isVerified: true,
+    emailVerifiedAt: new Date(),
+  }));
 
   const token = generateToken(user);
   return { user, token };

@@ -4,3 +4,6 @@ export { getProfile, updateProfile, uploadProfilePicture } from "./studentHandle
 export { createCourse, getAllCourses, getMyCourses, updateCourse, deleteCourse, publishCourse } from "./courseHandler.js";
 export { createInstructor, getAllInstructors, getInstructorById, removeInstructor, createStudent, getAllStudents, getStudentById, removeStudent, getAdminDashboardStats } from "./adminHandler.js";
 export { getDashboardStats, getCourseDetails } from "./instructorHandler.js";
+export { createSection } from "./sectionHandler.js";
+export { uploadThumbnail, createUnifiedLesson, deleteLesson } from "./lessonHandler.js";
+export { enrollStudent, watchLesson, updateProgress } from "./enrollmentHandler.js";
