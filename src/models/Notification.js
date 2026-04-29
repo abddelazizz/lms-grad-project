@@ -42,7 +42,6 @@ const Notification = sequelize.define(
     tableName: "notifications",
     timestamps: false,
   }
-  }
 );
 
 export default Notification;
