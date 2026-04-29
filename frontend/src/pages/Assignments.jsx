@@ -14,15 +14,15 @@ const statusColors = {
 
 const Assignments = () => {
   const navigate = useNavigate();
-  const [assignments, setAssignments] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAssignments = async () => {
       try {
         const response = await assignmentService.getAssignments();
-        // Assuming response.data.data holds the array
-        setAssignments(response.data?.data || []);
+        // The backend returns { status: "success", data: { notifications: [] } }
+        setNotifications(response.data?.data?.notifications || []);
       } catch (error) {
         console.error("Failed to fetch assignments", error);
       } finally {
@@ -46,7 +46,7 @@ const Assignments = () => {
                 My Assignments
               </h4>
               <span className="text-muted" style={{ fontSize: '13px' }}>
-                {assignments.length} assignment{assignments.length !== 1 ? 's' : ''} total
+                {notifications.length} assignment{notifications.length !== 1 ? 's' : ''} total
               </span>
             </div>
 
@@ -61,12 +61,14 @@ const Assignments = () => {
                   <i className="fas fa-folder-open mb-3 fs-2" style={{ color: '#ccc' }}></i>
                   <p>No assignments found.</p>
                 </div>
-              ) : assignments.map((assignment) => {
-                const statusStyle = statusColors[assignment.status] || statusColors.pending;
+              ) : notifications.map((n) => {
+                const assignment = n.submission;
+                const lesson = assignment?.lessonContent;
+                const statusStyle = statusColors[assignment?.status] || statusColors.pending;
+                
                 return (
                   <div
-                    key={assignment.id}
-                    onClick={() => navigate(`/dashboard/assignment/${assignment.id}`)}
+                    key={n.notification_id}
                     style={{
                       backgroundColor: '#fff',
                       border: '1px solid #f1f1f3',
@@ -87,7 +89,6 @@ const Assignments = () => {
                   >
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center gap-3">
-                        {/* Icon */}
                         <div style={{
                           width: '46px',
                           height: '46px',
@@ -101,29 +102,26 @@ const Assignments = () => {
                           <i className="fas fa-file-alt" style={{ color: '#31506a', fontSize: '18px' }}></i>
                         </div>
 
-                        {/* Info */}
                         <div>
                           <div style={{ fontWeight: '600', fontSize: '15px', color: '#1a1d20' }}>
-                            {assignment.title}
+                            {lesson?.title || 'Assignment'}
                           </div>
                           <div style={{ fontSize: '13px', color: '#888', marginTop: '3px' }}>
-                            <i className="fas fa-book me-1"></i>
-                            {assignment.course}
+                            <i className="fas fa-check-circle me-1"></i>
+                            Grade: {assignment?.grade ? `${assignment.grade}%` : 'Not Graded'}
                           </div>
                         </div>
                       </div>
 
-                      {/* Right side */}
                       <div className="d-flex align-items-center gap-4">
                         <div className="text-end">
-                          <div style={{ fontSize: '12px', color: '#aaa' }}>Due Date</div>
+                          <div style={{ fontSize: '12px', color: '#aaa' }}>Submitted At</div>
                           <div style={{ fontSize: '13px', fontWeight: '600', color: '#555' }}>
                             <i className="fas fa-calendar me-1"></i>
-                            {new Date(assignment.dueDate).toLocaleDateString('en-GB')}
+                            {new Date(assignment?.submitted_at).toLocaleDateString()}
                           </div>
                         </div>
 
-                        {/* Status Badge */}
                         <span style={{
                           backgroundColor: statusStyle.bg,
                           color: statusStyle.color,
@@ -134,9 +132,6 @@ const Assignments = () => {
                         }}>
                           {statusStyle.label}
                         </span>
-
-                        {/* Arrow */}
-                        <i className="fas fa-chevron-right" style={{ color: '#ccc', fontSize: '13px' }}></i>
                       </div>
                     </div>
                   </div>

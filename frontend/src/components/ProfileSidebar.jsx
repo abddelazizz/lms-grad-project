@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { getUserRole, getUserInfo } from '../utils/auth';
+import { notificationService } from '../services/apiService';
 
 const ProfileSidebar = () => {
   const role = getUserRole();
   const user = getUserInfo();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await notificationService.getUnreadCount();
+        setUnreadCount(res.data?.data?.unread_count || 0);
+      } catch (err) {
+        console.error("Failed to fetch notifications count", err);
+      }
+    };
+    fetchUnread();
+    // Poll every 30 seconds for new alerts
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <aside className="sidebar-right-profile">
@@ -20,8 +37,13 @@ const ProfileSidebar = () => {
         </div>
         <h5 className="fw-bold mb-1">Good Morning</h5>
         <p className="text-muted mb-3" style={{ fontSize: '11px', lineHeight: '1.4' }}>Continue Your Journey And Achieve Your Target</p>
-        <button className="btn btn-outline-secondary rounded-circle p-2 border-light-subtle shadow-sm" style={{ width: '40px', height: '40px' }}>
+        <button className="btn btn-outline-secondary rounded-circle p-0 border-light-subtle shadow-sm position-relative" style={{ width: '40px', height: '40px' }}>
           <i className="far fa-bell"></i>
+          {unreadCount > 0 && (
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '10px' }}>
+              {unreadCount}
+            </span>
+          )}
         </button>
       </div>
 

@@ -15,9 +15,11 @@ const CourseDetails = () => {
   const handleEnroll = async () => {
     setEnrolling(true);
     try {
+      // Backend expects POST /api/courses/:id/enroll
       await enrollmentService.enroll(id);
       toast.success("Successfully enrolled in the course!");
-      // Optionally navigate to dashboard or reload
+      // Optionally navigate to dashboard
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to enroll in the course.");

@@ -14,6 +14,7 @@ import Quiz from "./Quiz.js";
 import QuizAttempt from "./QuizAttempt.js";
 import AssignmentSubmission from "./AssignmentSubmission.js";
 import Notification from "./Notification.js";
+import ChatMessage from "./ChatMessage.js";
 
 // ─── Course Hierarchy ────────────────────────────────────────
 // User (instructor) → Course → Section → Lesson
@@ -80,6 +81,11 @@ Notification.belongsTo(AssignmentSubmission, { foreignKey: "reference_id", as: "
 User.hasMany(Notification, { foreignKey: "user_id", as: "notifications" });
 AssignmentSubmission.hasMany(Notification, { foreignKey: "reference_id", as: "notifications" });
 
+// ─── Chat Messages ───────────────────────────────────────────
+User.hasMany(ChatMessage, { foreignKey: "sender_id", as: "sentMessages" });
+User.hasMany(ChatMessage, { foreignKey: "receiver_id", as: "receivedMessages" });
+ChatMessage.belongsTo(User, { foreignKey: "sender_id", as: "sender" });
+ChatMessage.belongsTo(User, { foreignKey: "receiver_id", as: "receiver" });
 // ─── Exports ─────────────────────────────────────────────────
 export {
   User,
@@ -95,4 +101,5 @@ export {
   QuizAttempt,
   AssignmentSubmission,
   Notification,
+  ChatMessage,
 };

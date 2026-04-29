@@ -80,7 +80,8 @@ export const instructorService = {
 };
 
 export const assignmentService = {
-  getAssignments: () => api.get('/assignments'),
+  // Now student sees their reviews in assignments list
+  getAssignments: () => api.get('/students/inbox/reviews'), 
   uploadAssignment: (contentId, file) => {
     const formData = new FormData();
     formData.append("assignment_file", file);
@@ -88,6 +89,8 @@ export const assignmentService = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
+  reviewSubmission: (submissionId, data) => api.patch(`/assignments/submissions/${submissionId}/review`, data),
+  deleteSubmission: (submissionId) => api.delete(`/assignments/submissions/${submissionId}`),
 };
 
 export const quizService = {
@@ -97,12 +100,18 @@ export const quizService = {
 };
 
 export const chatService = {
-  getMessages: () => api.get('/chat'),
-  sendMessage: (data) => api.post('/chat', data),
+  getContacts: () => api.get('/chat/contacts'),
+  getHistory: (otherUserId) => api.get(`/chat/history/${otherUserId}`),
 };
 
 export const inboxService = {
-  getMessages: () => api.get('/inbox'),
+  getInstructorInbox: () => api.get('/instructor/inbox/assignments'),
+  getStudentInbox: () => api.get('/students/inbox/reviews'),
+};
+
+export const notificationService = {
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
 };
 
 export const lessonService = {
@@ -118,7 +127,8 @@ export const sectionService = {
 };
 
 export const enrollmentService = {
-  enroll: (courseId) => api.post(`/enrollments`, { course_id: courseId }),
+  // Corrected to match backend: POST /api/courses/:id/enroll
+  enroll: (courseId) => api.post(`/courses/${courseId}/enroll`),
   getEnrollments: () => api.get('/enrollments'),
   updateEnrollment: (id, data) => api.patch(`/enrollments/${id}`, data),
 };

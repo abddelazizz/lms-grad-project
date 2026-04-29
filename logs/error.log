@@ -52,3 +52,11 @@
 2026-04-29 16:42:24 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
 2026-04-29 16:45:04 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
 2026-04-29 16:57:09 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"abdinst@test.com","user_id":29}
+<<<<<<< HEAD
+=======
+2026-04-29 22:09:08 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"final@example.com"}
+2026-04-29 22:14:48 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
+2026-04-29 22:16:46 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
+2026-04-29 22:17:55 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v3@example.com","user_id":5}
+2026-04-29 22:19:40 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
+>>>>>>> 0668d76 (feat: complete real-time chat system, enrollment fixes, and notification engine integration)
