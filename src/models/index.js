@@ -13,6 +13,7 @@ import Student from "./Student.js";
 import Quiz from "./Quiz.js";
 import QuizAttempt from "./QuizAttempt.js";
 import AssignmentSubmission from "./AssignmentSubmission.js";
+import Notification from "./Notification.js";
 
 // ─── Course Hierarchy ────────────────────────────────────────
 // User (instructor) → Course → Section → Lesson
@@ -65,6 +66,20 @@ Student.belongsTo(User, { foreignKey: "user_id", as: "user" });
 User.hasOne(Instructor, { foreignKey: "user_id", as: "instructorProfile" });
 Instructor.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
+// ─── Assignment Submissions ─────────────────────────────────
+// Submission belongs to a Student (User) and a LessonContent
+AssignmentSubmission.belongsTo(User, { foreignKey: "student_id", as: "student" });
+AssignmentSubmission.belongsTo(LessonContent, { foreignKey: "content_id", as: "lessonContent" });
+User.hasMany(AssignmentSubmission, { foreignKey: "student_id", as: "submissions" });
+LessonContent.hasMany(AssignmentSubmission, { foreignKey: "content_id", as: "submissions" });
+
+// ─── Notifications (Inbox Engine) ────────────────────────────
+// Notification belongs to a recipient (User) and references a Submission
+Notification.belongsTo(User, { foreignKey: "user_id", as: "recipient" });
+Notification.belongsTo(AssignmentSubmission, { foreignKey: "reference_id", as: "submission" });
+User.hasMany(Notification, { foreignKey: "user_id", as: "notifications" });
+AssignmentSubmission.hasMany(Notification, { foreignKey: "reference_id", as: "notifications" });
+
 // ─── Exports ─────────────────────────────────────────────────
 export {
   User,
@@ -79,4 +94,5 @@ export {
   Quiz,
   QuizAttempt,
   AssignmentSubmission,
+  Notification,
 };

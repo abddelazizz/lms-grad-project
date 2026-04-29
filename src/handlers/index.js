@@ -7,3 +7,5 @@ export { getDashboardStats, getCourseDetails } from "./instructorHandler.js";
 export { createSection } from "./sectionHandler.js";
 export { uploadThumbnail, createUnifiedLesson, deleteLesson } from "./lessonHandler.js";
 export { enrollStudent, watchLesson, updateProgress } from "./enrollmentHandler.js";
+export { submitAssignment, getInstructorInbox, reviewSubmission, getStudentInbox, deleteSubmission } from "./assignmentHandler.js";
+export { markAsRead, getUnreadCount } from "./notificationHandler.js";

@@ -20,7 +20,12 @@ const Student = sequelize.define(
     parent_id: {
       type: DataTypes.INTEGER, // If we want parents linked, this might be optional for now
       allowNull: true,
-    }
+    },
+    total_points: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   },
   {
     tableName: "students",

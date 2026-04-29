@@ -10,3 +10,5 @@ export { default as assignmentRoutes } from "./assignmentRoutes.js";
 export { default as sectionRoutes } from "./sectionRoutes.js";
 export { default as lessonRoutes } from "./lessonRoutes.js";
 export { default as enrollmentRoutes } from "./enrollmentRoutes.js";
+export { default as notificationRoutes } from "./notificationRoutes.js";
+

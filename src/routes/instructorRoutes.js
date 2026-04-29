@@ -1,6 +1,7 @@
 import express from "express";
 import { authenticate, restrictTo } from "../middlewares/index.js";
 import { getDashboardStats, getCourseDetails } from "../handlers/index.js";
+import { getInstructorInbox } from "../handlers/assignmentHandler.js";
 
 const router = express.Router();
 
@@ -13,4 +14,8 @@ router.get("/dashboard-stats", getDashboardStats);
 // GET /api/instructor/courses/:id/details
 router.get("/courses/:id/details", getCourseDetails);
 
+// GET /api/instructor/inbox/assignments — the instructor inbox feed
+router.get("/inbox/assignments", getInstructorInbox);
+
 export default router;
+
