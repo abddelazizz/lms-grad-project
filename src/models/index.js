@@ -14,6 +14,7 @@ import Quiz from "./Quiz.js";
 import QuizAttempt from "./QuizAttempt.js";
 import AssignmentSubmission from "./AssignmentSubmission.js";
 import Notification from "./Notification.js";
+import Conversation from "./Conversation.js";
 import ChatMessage from "./ChatMessage.js";
 
 // ─── Course Hierarchy ────────────────────────────────────────
@@ -81,11 +82,25 @@ Notification.belongsTo(AssignmentSubmission, { foreignKey: "reference_id", as: "
 User.hasMany(Notification, { foreignKey: "user_id", as: "notifications" });
 AssignmentSubmission.hasMany(Notification, { foreignKey: "reference_id", as: "notifications" });
 
-// ─── Chat Messages ───────────────────────────────────────────
-User.hasMany(ChatMessage, { foreignKey: "sender_id", as: "sentMessages" });
-User.hasMany(ChatMessage, { foreignKey: "receiver_id", as: "receivedMessages" });
+// ─── Chat (Conversation-based) ──────────────────────────────
+Conversation.hasMany(ChatMessage, { foreignKey: "conversation_id", as: "messages", onDelete: "CASCADE" });
+ChatMessage.belongsTo(Conversation, { foreignKey: "conversation_id", as: "conversation" });
+
+Conversation.belongsTo(Student, { foreignKey: "student_id", as: "student" });
+Conversation.belongsTo(Instructor, { foreignKey: "instructor_id", as: "instructor" });
+Student.hasMany(Conversation, { foreignKey: "student_id", as: "conversations" });
+Instructor.hasMany(Conversation, { foreignKey: "instructor_id", as: "conversations" });
+
 ChatMessage.belongsTo(User, { foreignKey: "sender_id", as: "sender" });
-ChatMessage.belongsTo(User, { foreignKey: "receiver_id", as: "receiver" });
+User.hasMany(ChatMessage, { foreignKey: "sender_id", as: "sentMessages" });
+
+// ─── Quiz ──────────────────────────────────────────────────────
+CourseSection.hasMany(Quiz, { foreignKey: "section_id", as: "quizzes" });
+Quiz.belongsTo(CourseSection, { foreignKey: "section_id", as: "section" });
+
+Quiz.hasMany(QuizAttempt, { foreignKey: "quiz_id", as: "attempts" });
+QuizAttempt.belongsTo(Quiz, { foreignKey: "quiz_id", as: "quiz" });
+
 // ─── Exports ─────────────────────────────────────────────────
 export {
   User,
@@ -101,5 +116,6 @@ export {
   QuizAttempt,
   AssignmentSubmission,
   Notification,
+  Conversation,
   ChatMessage,
 };

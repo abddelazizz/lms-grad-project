@@ -50,6 +50,9 @@ export const updateStudentProfile = async (userId, updateData) => {
 
   // Handle password update if provided
   if (updateData.currentPassword && updateData.newPassword) {
+    if (!user.password) {
+      throw new AppError("This account was created via social login. Please reset your password to set one.", 401);
+    }
     const isMatch = await bcrypt.compare(updateData.currentPassword, user.password);
     if (!isMatch) {
       throw new AppError("Incorrect current password.", 401);

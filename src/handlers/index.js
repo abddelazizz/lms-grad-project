@@ -9,3 +9,4 @@ export { uploadThumbnail, createUnifiedLesson, deleteLesson } from "./lessonHand
 export { enrollStudent, watchLesson, updateProgress } from "./enrollmentHandler.js";
 export { submitAssignment, getInstructorInbox, reviewSubmission, getStudentInbox, deleteSubmission } from "./assignmentHandler.js";
 export { markAsRead, getUnreadCount } from "./notificationHandler.js";
+export { createConversation, getConversations, getMessages } from "./chatHandler.js";

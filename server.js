@@ -2,7 +2,7 @@ import "dotenv/config";
 import http from "http";
 import app from "./src/app.js";
 import { sequelize } from "./src/config/index.js";
-import initializeSocket from "./src/socketManager.js";
+import initializeSocket from "./src/socket/index.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -13,6 +13,7 @@ process.on("uncaughtException", (err) => {
 
 let server;
 let httpServer;
+let io;
 
 async function startServer() {
   try {
@@ -23,9 +24,8 @@ async function startServer() {
     console.log("Database synced");
 
     httpServer = http.createServer(app);
-    
-    // Initialize Socket.io
-    initializeSocket(httpServer);
+
+    io = initializeSocket(httpServer);
 
     server = httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
@@ -46,3 +46,6 @@ process.on("unhandledRejection", (err) => {
 });
 
 startServer();
+
+export { io };
+export default startServer;

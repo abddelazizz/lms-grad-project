@@ -5,7 +5,7 @@ import * as chatService from "./services/chatService.js";
 const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: [process.env.FRONTEND_URL || "https://learn.evolvesight.com", "http://localhost:5173", "http://localhost:3000"],
+      origin: [process.env.FRONTEND_URL || "https://learn.evolvesight.com"],
       methods: ["GET", "POST"],
     },
   });

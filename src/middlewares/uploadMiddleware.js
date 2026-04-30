@@ -131,3 +131,28 @@ const uploadLessonConfig = multer({
 });
 
 export const uploadLessonMaterial = uploadLessonConfig.single("lesson_file");
+
+// ─── Quiz Material Upload ────────────────────────────────────
+const quizMaterialStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "recode_academy_quiz_materials",
+    resource_type: "auto",
+  },
+});
+
+const quizFileFilter = (req, file, cb) => {
+  if (file.mimetype === "application/pdf") {
+    cb(null, true);
+  } else {
+    cb(new AppError("Only PDF files are allowed for quiz generation.", 400), false);
+  }
+};
+
+const uploadQuizConfig = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: quizFileFilter,
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
+
+export const uploadQuizMaterial = uploadQuizConfig.single("materials");

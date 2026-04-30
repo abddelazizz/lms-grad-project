@@ -20,3 +20,15 @@ export {
   createLessonSchema,
   updateProgressSchema,
 } from "./courseValidation.js";
+
+export {
+  createConversationSchema,
+  sendMessageSchema,
+  markReadSchema,
+  paginationQuerySchema,
+} from "./chatValidation.js";
+
+export {
+  generateQuizSchema,
+  saveQuizSchema,
+} from "./quizValidation.js";

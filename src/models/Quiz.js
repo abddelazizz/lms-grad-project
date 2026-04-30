@@ -17,13 +17,32 @@ const Quiz = sequelize.define("Quiz", {
   title: {
     type: DataTypes.STRING,
   },
+  duration: {
+    type: DataTypes.INTEGER,
+  },
+  num_questions: {
+    type: DataTypes.INTEGER,
+  },
+  score_per_question: {
+    type: DataTypes.INTEGER,
+  },
+  total_score: {
+    type: DataTypes.INTEGER,
+  },
+  material_url: {
+    type: DataTypes.STRING,
+  },
   questions_json: {
-    type: DataTypes.JSON, // Native MariaDB JSON support
+    type: DataTypes.JSON,
+  },
+  status: {
+    type: DataTypes.ENUM("draft", "published"),
+    defaultValue: "draft",
   },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
-  }
+  },
 }, { tableName: "quizzes", timestamps: false });
 
 export default Quiz;

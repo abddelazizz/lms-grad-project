@@ -111,6 +111,11 @@ const login = async (email, password) => {
     throw new AppError("Please verify your email before logging in.", 403);
   }
 
+  if (!user.password) {
+    securityLog("FAILED_LOGIN_NO_PASSWORD_SET", { email, user_id: user.user_id });
+    throw new AppError("This account was created using a social login. Please log in with Google or reset your password.", 401);
+  }
+
   const validPassword = await comparePassword(password, user.password);
 
   if (!validPassword) {
