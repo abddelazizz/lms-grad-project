@@ -174,7 +174,7 @@ const Signup = () => {
             <button 
               type="button" 
               className="btn btn-social-signup w-100 py-2 rounded-2 d-flex align-items-center justify-content-center gap-2 mb-4 mb-md-5 fs-7 border border-light-subtle"
-              onClick={() => window.location.href = `${API_BASE}/auth/google`}
+              onClick={() => window.location.href = `${API_BASE}/api/auth/google`}
             >
               <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18" height="18" alt="Google" />
               <span className="fw-medium text-dark">Sign Up with Google</span>
