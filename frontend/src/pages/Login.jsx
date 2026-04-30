@@ -73,7 +73,7 @@ const Login = () => {
           <div className="login-form-group">
             <div className="d-flex justify-content-between">
                <label className="login-label">Password</label>
-               <Link to="/forgot-password-init" className="login-forgot-link">Forgot password?</Link>
+               <Link to="/forgot-password" style={{fontSize:'12px'}} className="login-forgot-link">Forgot password?</Link>
             </div>
             <input 
               type="password" 

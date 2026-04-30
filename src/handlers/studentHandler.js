@@ -33,14 +33,19 @@ export const uploadProfilePicture = catchAsync(async (req, res, next) => {
   const cloudImageUrl = req.file.path;
   const userId = req.user?.id || req.user?.user_id || req.params.id;
 
-  const updatedUser = await updateProfilePicture(userId, cloudImageUrl);
-  const token = generateToken(updatedUser);
+  try {
+    const updatedUser = await updateProfilePicture(userId, cloudImageUrl);
+    const token = generateToken(updatedUser);
 
-  res.status(200).json({
-    success: true,
-    message: "Profile picture uploaded successfully.",
-    profile_picture: cloudImageUrl,
-    data: updatedUser,
-    token, // Send new token reflecting the new picture
-  });
+    res.status(200).json({
+      success: true,
+      message: "Profile picture uploaded successfully.",
+      profile_picture: cloudImageUrl,
+      data: updatedUser,
+      token, // Send new token reflecting the new picture
+    });
+  } catch (error) {
+    console.error("UPLOAD_PHOTO_ERROR:", error);
+    throw error;
+  }
 });
