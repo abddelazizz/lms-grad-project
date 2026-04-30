@@ -27,3 +27,8 @@ export {
   markReadSchema,
   paginationQuerySchema,
 } from "./chatValidation.js";
+
+export {
+  generateQuizSchema,
+  saveQuizSchema,
+} from "./quizValidation.js";

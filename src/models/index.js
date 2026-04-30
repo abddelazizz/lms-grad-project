@@ -94,6 +94,13 @@ Instructor.hasMany(Conversation, { foreignKey: "instructor_id", as: "conversatio
 ChatMessage.belongsTo(User, { foreignKey: "sender_id", as: "sender" });
 User.hasMany(ChatMessage, { foreignKey: "sender_id", as: "sentMessages" });
 
+// ─── Quiz ──────────────────────────────────────────────────────
+CourseSection.hasMany(Quiz, { foreignKey: "section_id", as: "quizzes" });
+Quiz.belongsTo(CourseSection, { foreignKey: "section_id", as: "section" });
+
+Quiz.hasMany(QuizAttempt, { foreignKey: "quiz_id", as: "attempts" });
+QuizAttempt.belongsTo(Quiz, { foreignKey: "quiz_id", as: "quiz" });
+
 // ─── Exports ─────────────────────────────────────────────────
 export {
   User,

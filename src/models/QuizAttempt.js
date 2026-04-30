@@ -21,10 +21,22 @@ const QuizAttempt = sequelize.define("QuizAttempt", {
   score: {
     type: DataTypes.INTEGER,
   },
+  total_quiz_score: {
+    type: DataTypes.INTEGER,
+  },
   attempted_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
-  }
-}, { tableName: "quiz_attempts", timestamps: false });
+  },
+}, {
+  tableName: "quiz_attempts",
+  timestamps: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ["quiz_id", "student_id"],
+    },
+  ],
+});
 
 export default QuizAttempt;

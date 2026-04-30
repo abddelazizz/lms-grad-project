@@ -9,4 +9,5 @@ export * as notificationService from "./notificationService.js";
 export { checkService } from "./testService.js";
 export { updateProfilePicture, getStudentProfile, updateStudentProfile } from "./studentService.js";
 export * as chatService from "./chatService.js";
+export * as quizService from "./quizService.js";
 

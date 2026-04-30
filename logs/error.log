@@ -60,3 +60,5 @@
 2026-04-29 22:17:55 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v3@example.com","user_id":5}
 2026-04-29 22:19:40 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
 >>>>>>> 0668d76 (feat: complete real-time chat system, enrollment fixes, and notification engine integration)
+2026-04-30 06:15:21 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"instructor@recode.com"}
+2026-04-30 06:15:53 [ERROR]: SECURITY | event=FAILED_LOGIN_WRONG_PASSWORD | {"email":"abdere@test.com","user_id":30}
