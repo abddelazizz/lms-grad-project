@@ -1,15 +1,27 @@
 import express from "express";
-import { getHistory, getContacts } from "../handlers/chatHandler.js";
+import {
+  createConversation,
+  getConversations,
+  getMessages,
+  markAsRead,
+} from "../handlers/chatHandler.js";
 import authenticate from "../middlewares/authMiddleware.js";
+import restrictTo from "../middlewares/restrictTo.js";
+import validate from "../middlewares/validationMiddleware.js";
+import { createConversationSchema } from "../validations/chatValidation.js";
 
 const router = express.Router();
 
 router.use(authenticate);
 
-// GET /api/chat/contacts - Get list of users I've chatted with
-router.get("/contacts", getContacts);
+router.use(restrictTo("student", "instructor"));
 
-// GET /api/chat/history/:otherUserId - Get messages between me and someone else
-router.get("/history/:otherUserId", getHistory);
+router.post("/conversations", validate(createConversationSchema), createConversation);
+
+router.get("/conversations", getConversations);
+
+router.get("/conversations/:id/messages", getMessages);
+
+router.patch("/conversations/:id/read", markAsRead);
 
 export default router;

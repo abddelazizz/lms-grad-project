@@ -1,42 +1,35 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/index.js";
 
-const ChatMessage = sequelize.define(
-  "ChatMessage",
+const Conversation = sequelize.define(
+  "Conversation",
   {
-    message_id: {
+    conversation_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    conversation_id: {
+    student_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "conversations",
-        key: "conversation_id",
+        model: "students",
+        key: "user_id",
       },
       onDelete: "CASCADE",
     },
-    sender_id: {
+    instructor_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
+        model: "instructors",
         key: "user_id",
       },
+      onDelete: "CASCADE",
     },
-    content: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        len: [1, 2000],
-      },
-    },
-    is_read: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    last_message_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -44,13 +37,17 @@ const ChatMessage = sequelize.define(
     },
   },
   {
-    tableName: "chat_messages",
+    tableName: "conversations",
     timestamps: false,
     indexes: [
-      { fields: ["conversation_id", "created_at"] },
-      { fields: ["sender_id"] },
+      {
+        unique: true,
+        fields: ["student_id", "instructor_id"],
+      },
+      { fields: ["student_id"] },
+      { fields: ["instructor_id"] },
     ],
   }
 );
 
-export default ChatMessage;
+export default Conversation;
