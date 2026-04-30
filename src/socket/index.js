@@ -9,8 +9,6 @@ const initializeSocket = (server) => {
     cors: {
       origin: [
         process.env.FRONTEND_URL || "https://learn.evolvesight.com",
-        "http://localhost:5173",
-        "http://localhost:3000",
       ],
       methods: ["GET", "POST"],
       credentials: true,

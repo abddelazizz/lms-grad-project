@@ -19,7 +19,7 @@ app.use(helmet());
 
 // ─── CORS ─────────────────────────────────────────────────────
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || "https://learn.evolvesight.com", "http://localhost:5173", "http://localhost:3000"],
+  origin: [process.env.FRONTEND_URL || "https://learn.evolvesight.com"],
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
