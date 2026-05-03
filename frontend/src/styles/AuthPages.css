@@ -1,0 +1,112 @@
+.auth-page-container {
+  min-height: calc(100vh - 200px); /* يضمن إن الكارت في النص بالضبط بين الهيدر والفوتر */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  background-color: #fbfbfc;
+}
+
+.auth-logo-top {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.auth-card {
+  background-color: #ffffff;
+  border: 1px solid #f1f1f3;
+  padding: 60px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px; /* مقاس الكارت في الصور */
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #262626;
+  margin-bottom: 12px;
+}
+
+.auth-subtitle {
+  font-size: 0.95rem;
+  color: #59595a;
+  margin-bottom: 40px;
+}
+
+.auth-form {
+  text-align: left;
+}
+
+.auth-form-group {
+  margin-bottom: 25px;
+}
+
+.auth-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #262626;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 16px 20px;
+  background-color: #fcfcfd;
+  border: 1px solid #f1f1f3;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.auth-input:focus {
+  border-color: #4a6b82;
+}
+
+.btn-auth-submit {
+  width: 100%;
+  background-color: #4a6b82;
+  color: #fff;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-auth-submit:hover {
+  background-color: #3b5668;
+}
+
+.auth-footer-link {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #59595a;
+}
+
+.auth-footer-link a {
+  color: #262626;
+  text-decoration: underline;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+/* Checkbox Style for Reset Password */
+.auth-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.auth-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #4a6b82;
+}

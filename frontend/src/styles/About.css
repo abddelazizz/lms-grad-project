@@ -1,0 +1,35 @@
+.about-page {
+  background-color: #fbfbfc;
+  padding: 80px 0;
+}
+
+.about-hero h1 {
+  color: #262626;
+  margin-bottom: 24px;
+}
+
+.about-card {
+  background-color: #fff;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.hover-shadow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.about-icon {
+  width: 70px;
+  height: 70px;
+  background-color: #f1f1f3;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.about-check {
+  color: #4a6b82;
+}

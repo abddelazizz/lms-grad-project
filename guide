@@ -1,0 +1,108 @@
+This is the exact mindset needed to build resilient systems. When you manipulate a single "Total Points" column, you are essentially building a ledger, much like a banking application. If the math is wrong, the user's trust in the platform is broken.
+
+Here is the senior-level architectural blueprint to implement the Delta-Based Cumulative Grading System, followed by the logical test matrix to prove it works.
+
+Phase 1: State Retrieval & Validation (The Pre-Flight Check)
+Before opening a database transaction or mutating any data, the backend must establish the current "truth" of the system.
+
+The Fetch: Query the database for the specific assignment submission being graded.
+
+The Extraction: Extract two critical pieces of information:
+
+The ID of the student who owns this submission.
+
+The current grade sitting in the database (we will call this the Baseline Grade).
+
+State Evaluation:
+
+If the assignment is currently marked as "Pending" (never graded), the Baseline Grade is treated as exactly 0.
+
+If the assignment is already "Graded", the Baseline Grade is whatever number is currently stored.
+
+Phase 2: The Idempotent Calculation (The Math)
+Idempotency means that no matter how many times a request is sent, or how the numbers change, the system always arrives at the correct final state without duplicating effects.
+
+The Input: Receive the New Grade from the instructor's payload.
+
+The Delta Calculation: Subtract the Baseline Grade from the New Grade.
+
+Formula: Delta = New Grade - Baseline Grade
+
+This Delta represents the exact net change required for the student's total score. It might be a positive number, a negative number, or exactly zero.
+
+Phase 3: The Atomic Transaction (The Ledger Update)
+Now we lock the database and perform the writes. By grouping these writes into an atomic transaction, we guarantee that if the server crashes halfway through, nothing is saved, preventing mismatched records.
+
+Write 1 (The Submission): Overwrite the submission record. Update the grade column to the New Grade, insert the instructor's feedback, and hardcode the status to "Graded".
+
+Write 2 (The Student Ledger): Target the student's profile record. Instruct the database engine to specifically increment the student's "Total Points" column by the Delta value calculated in Phase 2.
+
+Note on Concurrency: We ask the database engine to increment the existing row (e.g., total_points = total_points + Delta) rather than reading the total, doing the math in Node.js, and saving it back. This prevents "Race Conditions" if two instructors grade two different assignments for the same student at the exact same millisecond.
+
+Phase 4: Side Effects & Commit
+The Notification: Generate the "New Review" row in the inbox system so the student is alerted.
+
+The Progress Check: Evaluate if the New Grade crosses the passing threshold. If it does, mark the specific lesson as complete in the progress engine.
+
+The Commit: Close and commit the transaction. The data is now permanent.
+
+The Test Matrix (Proving the Logic)
+To test this architecture, a QA engineer would run a specific sequence of actions on a single student to attempt to break the ledger.
+
+Initial State: Student has 0 Total Points. Assignment X is Pending.
+
+Test Scenario 1: The First Grade (Standard Path)
+
+Action: Instructor grades Assignment X with an 80.
+
+System Logic:
+
+Baseline: 0
+
+New Grade: 80
+
+Delta: 80 - 0 = +80
+
+Result: Submission becomes 80. Student Total becomes 80. (PASS)
+
+Test Scenario 2: The Upward Correction (Regrading Higher)
+
+Action: Instructor realizes they missed a page, regrades Assignment X to a 95.
+
+System Logic:
+
+Baseline: 80
+
+New Grade: 95
+
+Delta: 95 - 80 = +15
+
+Result: Submission becomes 95. Student Total increments by 15, becoming 95. (PASS - If we lacked Delta logic, the student would incorrectly have 175 points).
+
+Test Scenario 3: The Downward Correction (Applying a Penalty)
+
+Action: Instructor realizes the student submitted it late, penalizes Assignment X to a 60.
+
+System Logic:
+
+Baseline: 95
+
+New Grade: 60
+
+Delta: 60 - 95 = -35
+
+Result: Submission becomes 60. Student Total increments by -35 (subtracts 35), becoming 60. (PASS)
+
+Test Scenario 4: The Idempotency Check (Accidental Double-Click)
+
+Action: Instructor's internet lags, and they submit the 60 grade a second time.
+
+System Logic:
+
+Baseline: 60
+
+New Grade: 60
+
+Delta: 60 - 60 = 0
+
+Result: Submission stays 60. Student Total increments by 0, remaining exactly 60. (PASS - The system is immune to duplicate requests).

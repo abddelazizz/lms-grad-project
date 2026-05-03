@@ -1,0 +1,85 @@
+2026-04-09 08:30:54 [ERROR]: Error
+    at Query.run (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)
+    at /home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+    at async User.findAll (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1140:21)
+    at async User.findOne (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1240:12)
+    at async googleAuth (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/services/authService.js:177:14)
+    at async Strategy._verify (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/config/passport.js:25:24)
+2026-04-09 09:09:26 [ERROR]: Error
+    at Query.run (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/mysql/query.js:52:25)
+    at /home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+    at async User.findAll (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1140:21)
+    at async User.findOne (/home/abdelaziz/Desktop/LMS project/lms-grad-project-feature-say-my-name/node_modules/sequelize/lib/model.js:1240:12)
+    at async googleAuth (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/services/authService.js:193:14)
+    at async Strategy._verify (file:///home/abdelaziz/Desktop/LMS%20project/lms-grad-project-feature-say-my-name/src/config/passport.js:25:24)
+2026-04-09 11:35:10 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"aboodymohamed538@gmail.com","user_id":12}
+2026-04-09 11:35:12 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"aboodymohamed538@gmail.com","user_id":12}
+2026-04-09 12:06:22 [ERROR]: Error
+    at Query.run (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\dialects\mysql\query.js:52:25)
+    at L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async User.findAll (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\model.js:1140:21)
+    at async User.findOne (L:\EvolveSight\lms-grad-project-master\node_modules\sequelize\lib\model.js:1240:12)
+    at async googleAuth (file:///L:/EvolveSight/lms-grad-project-master/src/services/authService.js:193:14)
+    at async Strategy._verify (file:///L:/EvolveSight/lms-grad-project-master/src/config/passport.js:34:24)
+2026-04-09 12:10:26 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"pubg.kr.refa3i@gmail.com","user_id":9}
+2026-04-28 01:37:05 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:37:46 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:37:50 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:37:54 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:38:00 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:38:04 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student2@gmail.com"}
+2026-04-28 01:38:09 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:15 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:19 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:23 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:28 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:35 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:38 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:38:41 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:39:06 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:50:42 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 01:51:58 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-28 02:56:43 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"aboodymo@gmail.com","user_id":26}
+2026-04-29 04:27:35 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"ebrahimelrefaei22@gmail.com"}
+2026-04-29 04:27:36 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"ebrahimelrefaei22@gmail.com"}
+2026-04-29 16:42:09 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-29 16:42:24 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-29 16:45:04 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"student1@gmail.com"}
+2026-04-29 16:57:09 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"abdinst@test.com","user_id":29}
+<<<<<<< HEAD
+=======
+2026-04-29 22:09:08 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"final@example.com"}
+2026-04-29 22:14:48 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
+2026-04-29 22:16:46 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
+2026-04-29 22:17:55 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v3@example.com","user_id":5}
+2026-04-29 22:19:40 [ERROR]: SECURITY | event=FAILED_LOGIN_UNVERIFIED | {"email":"v2@example.com","user_id":4}
+>>>>>>> 0668d76 (feat: complete real-time chat system, enrollment fixes, and notification engine integration)
+2026-04-30 06:15:21 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"instructor@recode.com"}
+2026-04-30 06:15:53 [ERROR]: SECURITY | event=FAILED_LOGIN_WRONG_PASSWORD | {"email":"abdere@test.com","user_id":30}
+2026-04-30 19:41:07 [ERROR]: SECURITY | event=FAILED_LOGIN_NO_PASSWORD_SET | {"email":"pubg.kr.refa3i@gmail.com","user_id":6}
+2026-04-30 19:41:11 [ERROR]: SECURITY | event=FAILED_LOGIN_NO_PASSWORD_SET | {"email":"pubg.kr.refa3i@gmail.com","user_id":6}
+2026-05-03 18:11:39 [ERROR]: Error
+    at Query.run (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\dialects\mysql\query.js:52:25)
+    at L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async User.findAll (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\model.js:1140:21)
+    at async User.findOne (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\model.js:1240:12)
+    at async googleAuth (file:///L:/EvolveSight/lms-grad-project-security/src/services/authService.js:319:14)
+    at async Strategy._verify (file:///L:/EvolveSight/lms-grad-project-security/src/config/passport.js:34:24)
+2026-05-03 18:17:39 [ERROR]: Error
+    at Query.run (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\dialects\mysql\query.js:52:25)
+    at L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async MySQLQueryInterface.select (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\dialects\abstract\query-interface.js:407:12)
+    at async User.findAll (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\model.js:1140:21)
+    at async User.findOne (L:\EvolveSight\lms-grad-project-security\node_modules\sequelize\lib\model.js:1240:12)
+    at async googleAuth (file:///L:/EvolveSight/lms-grad-project-security/src/services/authService.js:319:14)
+    at async Strategy._verify (file:///L:/EvolveSight/lms-grad-project-security/src/config/passport.js:34:24)
+2026-05-03 18:20:23 [ERROR]: SECURITY | event=FAILED_LOGIN_NO_PASSWORD_SET | {"email":"ebrahimelrefaei22@gmail.com","user_id":1}

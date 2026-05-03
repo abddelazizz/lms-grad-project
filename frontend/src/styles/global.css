@@ -1,0 +1,59 @@
+body {
+  font-family: 'Inter', 'Outfit', sans-serif;
+  color: #262626;
+  background-color: #fbfbfc;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
+
+.bg-light-custom {
+  background-color: #fbfbfc !important;
+}
+
+.top-banner-custom {
+  background-color: #4a6b82;
+  font-size: 14.5px;
+}
+
+.btn-primary-custom {
+  background-color: #4a6b82;
+  color: #fff;
+  border: none;
+}
+
+.btn-primary-custom:hover {
+  background-color: #3b5668;
+  color: #fff;
+}
+
+.active-nav-link {
+  background-color: #c8ced3;
+}
+.container-custom {
+  width: 100%;
+  max-width: 1530px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 2rem;
+  padding-left: 2rem;
+}
+
+
+::-webkit-scrollbar {
+  width: 10px; 
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F7F8; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #385b73; 
+  border-radius: 8px; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2c4a5e; 
+}
