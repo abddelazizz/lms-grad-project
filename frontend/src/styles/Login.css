@@ -123,3 +123,32 @@
 .x-small {
   font-size: 0.75rem !important;
 }
+
+/* MFA Specific Styles */
+.mfa-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background-color: rgba(56, 91, 115, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #385b73;
+  margin-bottom: 1.5rem;
+}
+
+.mfa-input-field {
+  background-color: #f1f3f5 !important;
+  border: 2px solid transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+.mfa-input-field:focus {
+  border-color: #385b73 !important;
+  background-color: #fff !important;
+  transform: scale(1.02);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

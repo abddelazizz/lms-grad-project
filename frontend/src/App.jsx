@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Banner from './components/Banner';
 import Navbar from './components/Navbar';
@@ -35,56 +35,62 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './styles/global.css';
 import './styles/home.css';
 
+function AppContent() {
+  return (
+    <div className="bg-light-gray">
+      <Banner />
+      <Navbar />
+      
+      <Routes>
+        <Route path="/" element={
+          <main>
+            <Hero />
+            <Benefits />
+            <CoursesSection />
+          </main>
+        } />
+        <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/courses/:id" element={<CourseDetails />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/dashboard/quiz" element={<ProtectedRoute><QuizDetails /></ProtectedRoute>} />
+        <Route path="/dashboard/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
+        <Route path="/dashboard/assignment/:id" element={<ProtectedRoute><Assignment /></ProtectedRoute>} />
+        <Route path="/dashboard/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+        <Route path="/dashboard/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/courses/:courseId/learn/lesson/:lessonId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
+        
+        <Route path="/instructor/course-builder" element={<InstructorRoute><CourseBuilder /></InstructorRoute>} />
+        <Route path="/instructor/upload-video" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
+        <Route path="/instructor/upload-pdf" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
+        <Route path="/instructor/upload-assignment" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
+        <Route path="/instructor/quiz-generator" element={<InstructorRoute><QuizGenerator /></InstructorRoute>} />
+        
+        <Route path="/admin/add-teacher" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="/admin/add-student" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="/admin/teachers" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="/admin/students" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        
+        <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+      </Routes>
+
+      <Footer />
+    </div>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="bg-light-gray">
-          <Banner />
-          <Navbar />
-          
-          <Routes>
-            <Route path="/" element={
-              <main>
-                <Hero />
-                <Benefits />
-                <CoursesSection />
-              </main>
-            } />
-            <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/courses/:id" element={<CourseDetails />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/quiz" element={<ProtectedRoute><QuizDetails /></ProtectedRoute>} />
-            <Route path="/dashboard/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
-            <Route path="/dashboard/assignment/:id" element={<ProtectedRoute><Assignment /></ProtectedRoute>} />
-            <Route path="/dashboard/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
-            <Route path="/dashboard/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-            <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/courses/:courseId/learn/lesson/:lessonId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
-            
-            <Route path="/instructor/course-builder" element={<InstructorRoute><CourseBuilder /></InstructorRoute>} />
-            <Route path="/instructor/upload-video" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
-            <Route path="/instructor/upload-pdf" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
-            <Route path="/instructor/upload-assignment" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
-            <Route path="/instructor/quiz-generator" element={<InstructorRoute><QuizGenerator /></InstructorRoute>} />
-            
-            <Route path="/admin/add-teacher" element={<AdminRoute><Dashboard /></AdminRoute>} />
-            <Route path="/admin/add-student" element={<AdminRoute><Dashboard /></AdminRoute>} />
-            <Route path="/admin/teachers" element={<AdminRoute><Dashboard /></AdminRoute>} />
-            <Route path="/admin/students" element={<AdminRoute><Dashboard /></AdminRoute>} />
-            
-            <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-          </Routes>
-
-          <Footer />
-        </div>
+        <AppContent />
       </Router>
     </AuthProvider>
   );

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuth, authApi } from '../contexts/AuthContext';
 import '../styles/Login.css';
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,8 +11,16 @@ const Login = () => {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaData, setMfaData] = useState({ userId: null, tempToken: null });
   const [totpCode, setTotpCode] = useState('');
-  const { login, loginWithMFA } = useAuth();
+  const { login, loginWithMFA, isAuthenticated } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -35,7 +44,7 @@ const Login = () => {
       if (result.mfaRequired) {
         setMfaRequired(true);
         setMfaData({ userId: result.userId, tempToken: result.tempToken });
-        toast('MFA verification required.', { icon: '🔒' });
+        toast('MFA verification required.',);
         return;
       }
 
@@ -59,41 +68,54 @@ const Login = () => {
 
   if (mfaRequired) {
     return (
-      <div className="login-page-container">
+      <div className="login-page-container animate__animated animate__fadeIn">
         <Toaster position="top-center" reverseOrder={false} />
         <div className="login-logo-top">
           <img src="/images/logo.png" alt="Recode" height="80" />
         </div>
-        <div className="login-card">
-          <h1 className="login-title">Two-Factor Authentication</h1>
-          <p className="login-subtitle">Enter the verification code from your authenticator app.</p>
+        <div className="login-card shadow-lg">
+          <div className="text-center mb-4">
+            <div className="mfa-icon-wrapper mx-auto mb-3">
+              <i className="fas fa-user-shield text-primary fa-2x"></i>
+            </div>
+            <h1 className="login-title h3 fw-bold">Two-Step Verification</h1>
+            <p className="login-subtitle px-2">Enter the 6-digit code from your authenticator app to secure your session.</p>
+          </div>
+
           <form className="login-form" onSubmit={handleMFAVerify}>
             <div className="login-form-group">
-              <label className="login-label">Verification Code</label>
+              <label className="login-label text-center d-block mb-3">6-Digit Verification Code</label>
               <input
                 type="text"
-                className="login-input"
-                placeholder="e.g. 123456"
+                className="login-input mfa-input-field text-center fw-bold"
+                placeholder="000 000"
                 value={totpCode}
-                onChange={(e) => setTotpCode(e.target.value)}
+                onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
                 required
                 maxLength={6}
-                pattern="[0-9]+"
+                style={{ fontSize: '1.5rem', letterSpacing: '0.5rem' }}
               />
             </div>
-            <button type="submit" className="btn-login-submit">Verify</button>
+            <button type="submit" className="btn-login-submit d-flex align-items-center justify-content-center gap-2">
+              <i className="fas fa-unlock-alt small"></i>
+              <span>Verify & Authenticate</span>
+            </button>
+            <button type="button" className="btn btn-link w-100 text-muted small text-decoration-none" onClick={() => setMfaRequired(false)}>
+              Cancel and go back
+            </button>
           </form>
         </div>
       </div>
     );
   }
 
+
   return (
     <div className="login-page-container">
       <Toaster position="top-center" reverseOrder={false} />
-      
+
       <div className="login-logo-top">
-         <img src="/images/logo.png" alt="Recode" height="80" />
+        <img src="/images/logo.png" alt="Recode" height="80" />
       </div>
 
       <div className="login-card">
@@ -105,10 +127,10 @@ const Login = () => {
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="login-form-group">
             <label className="login-label">Email address</label>
-            <input 
-              type="email" 
-              className="login-input" 
-              placeholder="e.g kristen.watson@example.com" 
+            <input
+              type="email"
+              className="login-input"
+              placeholder="e.g kristen.watson@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -117,13 +139,13 @@ const Login = () => {
 
           <div className="login-form-group">
             <div className="d-flex justify-content-between">
-               <label className="login-label">Password</label>
-               <Link to="/forgot-password" style={{fontSize:'12px'}} className="login-forgot-link">Forgot password?</Link>
+              <label className="login-label">Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '12px' }} className="login-forgot-link">Forgot password?</Link>
             </div>
-            <input 
-              type="password" 
-              className="login-input" 
-              placeholder="Enter your password" 
+            <input
+              type="password"
+              className="login-input"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -143,8 +165,8 @@ const Login = () => {
             <hr className="flex-grow-1 border-secondary-subtle my-0" />
           </div>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn btn-social-login w-100 py-2 rounded-2 d-flex align-items-center justify-content-center gap-2 mb-4 mb-md-5 fs-7 border border-light-subtle"
             onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/google`}
           >

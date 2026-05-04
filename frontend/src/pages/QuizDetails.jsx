@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { quizService } from '../services';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
+import Swal from 'sweetalert2';
 import '../styles/Dashboard.css';
 
 const QuizDetails = () => {
@@ -176,7 +177,12 @@ const QuizDetails = () => {
                         setResultScore(res.data?.data?.score || 0);
                       } catch (err) {
                         console.error(err);
-                        alert("Failed to submit quiz.");
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Submission Failed',
+                          text: 'Failed to submit quiz. Please check your connection and try again.',
+                          confirmButtonColor: '#31506a'
+                        });
                       } finally {
                         setSubmitting(false);
                       }

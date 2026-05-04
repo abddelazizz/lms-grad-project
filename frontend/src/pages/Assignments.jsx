@@ -56,12 +56,13 @@ const Assignments = () => {
                 <div className="text-center p-5 text-muted">
                   <div className="spinner-border spinner-border-sm me-2"></div> Loading assignments...
                 </div>
-              ) : assignments.length === 0 ? (
+              ) : notifications.length === 0 ? (
                 <div className="text-center p-5 text-muted border rounded-4 bg-white shadow-sm">
                   <i className="fas fa-folder-open mb-3 fs-2" style={{ color: '#ccc' }}></i>
                   <p>No assignments found.</p>
                 </div>
               ) : notifications.map((n) => {
+
                 const assignment = n.submission;
                 const lesson = assignment?.lessonContent;
                 const statusStyle = statusColors[assignment?.status] || statusColors.pending;

@@ -32,6 +32,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [csrfToken, setCsrfToken] = useState(null);
 
+  // Use a ref to keep track of the latest token without re-running the interceptor effect
+  const tokenRef = React.useRef(accessToken);
+  useEffect(() => {
+    tokenRef.current = accessToken;
+  }, [accessToken]);
+
+
   const storeToken = useCallback((token) => {
     setAccessToken(token);
     sessionStorage.setItem("accessToken", token);
@@ -90,8 +97,10 @@ export const AuthProvider = ({ children }) => {
   }, [storeToken, clearToken]);
   useEffect(() => {
     const interceptor = api.interceptors.request.use((config) => {
-      if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+      // Always look for the freshest token: state ref first, then sessionStorage
+      const token = tokenRef.current || sessionStorage.getItem("accessToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
       if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(config.method.toUpperCase())) {
         config.headers['X-CSRF-Token'] = csrfToken;
@@ -100,7 +109,8 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => api.interceptors.request.eject(interceptor);
-  }, [accessToken, csrfToken]);
+  }, [csrfToken]); // Removed accessToken from dependencies to keep the interceptor stable
+
 
   useEffect(() => {
     const interceptor = api.interceptors.response.use(
@@ -126,22 +136,29 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const init = async () => {
-      const savedToken = sessionStorage.getItem("accessToken");
       const urlParams = new URLSearchParams(window.location.search);
       const urlToken = urlParams.get("token");
+      const savedToken = sessionStorage.getItem("accessToken");
 
-      if (savedToken) {
+      if (urlToken) {
+        // If there's a token in the URL (Google Auth), prioritize it
+        storeToken(urlToken);
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (savedToken) {
         storeToken(savedToken);
-      } else if (!urlToken) {
+      } else {
+        // Only try refresh if no token exists at all
         const newToken = await refreshAccessToken();
         if (newToken) {
-          sessionStorage.setItem("accessToken", newToken);
+          storeToken(newToken);
         }
       }
       setLoading(false);
     };
     init();
   }, [storeToken, refreshAccessToken]);
+
 
 
   const isAuthenticated = !!accessToken;

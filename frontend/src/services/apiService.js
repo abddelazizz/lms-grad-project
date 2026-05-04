@@ -11,6 +11,42 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Add a request interceptor to include the JWT token in all requests
+api.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Add a response interceptor to handle 401 Unauthorized errors
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh')) {
+      originalRequest._retry = true;
+      try {
+        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+        const { token } = response.data;
+        sessionStorage.setItem('accessToken', token);
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        sessionStorage.removeItem('accessToken');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 export const courseService = {
   getAllCourses: (page = 1, limit = 10) => api.get(`/courses?page=${page}&limit=${limit}`),
   getCourseDetails: (id) => api.get(`/courses/${id}`),
@@ -87,11 +123,16 @@ export const quizService = {
   getQuiz: (id) => api.get(`/quizzes/${id}`),
   submitQuiz: (id, data) => api.post(`/quizzes/${id}/submit`, data),
   generateQuiz: (data) => api.post('/quizzes/generate', data),
+  saveQuiz: (data) => api.post('/quizzes/save', data),
+  publishQuiz: (id) => api.post(`/quizzes/${id}/publish`),
 };
 
 export const chatService = {
-  getContacts: () => api.get('/chat/contacts'),
-  getHistory: (otherUserId) => api.get(`/chat/history/${otherUserId}`),
+  getConversations: () => api.get('/chat/conversations'),
+  getMessages: (conversationId, page = 1, limit = 50) => 
+    api.get(`/chat/conversations/${conversationId}/messages?page=${page}&limit=${limit}`),
+  createConversation: (otherUserId) => api.post('/chat/conversations', { otherUserId }),
+  markAsRead: (conversationId) => api.patch(`/chat/conversations/${conversationId}/read`),
 };
 
 export const inboxService = {
@@ -102,6 +143,12 @@ export const inboxService = {
 export const notificationService = {
   getUnreadCount: () => api.get('/notifications/unread-count'),
   markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  getUserNotifications: (role) => {
+    if (role === 'instructor' || role === 'admin') {
+      return api.get('/instructor/inbox/assignments');
+    }
+    return api.get('/students/inbox/reviews');
+  },
 };
 
 export const lessonService = {

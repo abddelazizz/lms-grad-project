@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import { useAuth } from '../contexts/AuthContext';
+import Swal from 'sweetalert2';
 import '../styles/Dashboard.css';
 
 const AdminDashboard = () => {
@@ -21,7 +22,10 @@ const AdminDashboard = () => {
     getStudent: (id) => api.get(`/admin/students/${id}`),
     addStudent: (data) => api.post('/admin/students', data),
     removeStudent: (id) => api.delete(`/admin/students/${id}`),
+    getAuditLogs: () => api.get('/admin/audit-logs'),
+    unlockUser: (id) => api.post(`/admin/users/${id}/unlock`),
   };
+
 
   const studentService = {
     updateProfilePictureById: (id, formData) => api.patch(`/students/${id}/profile-picture`, formData, {
@@ -44,17 +48,23 @@ const AdminDashboard = () => {
   const isAddStudent = path.includes('add-student');
   const isTeachersList = path.includes('teachers');
   const isStudentsList = path.includes('students');
+  const isSecurityAudit = path.includes('security-audit');
+
+  const [auditLogs, setAuditLogs] = useState([]);
+
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (isTeachersList) fetchTeachers();
       else if (isStudentsList) fetchStudents();
+      else if (isSecurityAudit) fetchAuditLogs();
       else if (!isAddTeacher && !isAddStudent) {
          fetchStats();
          fetchTeachers();
          fetchStudents();
       }
     }, 500); // 500ms debounce
+ // 500ms debounce
 
     return () => clearTimeout(delayDebounceFn);
   }, [path, searchQuery]);
@@ -103,6 +113,40 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAuditLogs = async () => {
+    try {
+      setLoading(true);
+      const res = await adminService.getAuditLogs();
+      setAuditLogs(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlockUser = async (id) => {
+    try {
+      await adminService.unlockUser(id);
+      Swal.fire({
+        icon: 'success',
+        title: 'Unlocked',
+        text: 'User account unlocked successfully!',
+        confirmButtonColor: '#31506a'
+      });
+      if (isTeachersList) fetchTeachers();
+      else fetchStudents();
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to unlock user.',
+        confirmButtonColor: '#31506a'
+      });
+    }
+  };
+
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -117,10 +161,20 @@ const AdminDashboard = () => {
         phone_number: formData.phone,
         specialization: formData.subject || 'All'
       });
-      alert('Teacher added successfully!');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Teacher added successfully!',
+        confirmButtonColor: '#31506a'
+      });
       setFormData({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' });
     } catch (err) {
-      alert(err.response?.data?.message || 'Error adding teacher');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'Error adding teacher',
+        confirmButtonColor: '#31506a'
+      });
     } finally {
       setLoading(false);
     }
@@ -136,36 +190,86 @@ const AdminDashboard = () => {
         phone_number: formData.phone,
         grade_level: formData.class || 'None'
       });
-      alert('Student added successfully!');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Student added successfully!',
+        confirmButtonColor: '#31506a'
+      });
       setFormData({ fullName: '', email: '', password: '', phone: '', class: '', gender: '', subject: '' });
       fetchStudents();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error adding student');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'Error adding student',
+        confirmButtonColor: '#31506a'
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteTeacher = async (id) => {
-    if (window.confirm('Are you sure you want to remove this teacher?')) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#31506a',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
       try {
         await adminService.removeInstructor(id);
-        alert('Teacher removed successfully');
+        Swal.fire({
+          icon: 'success',
+          title: 'Removed!',
+          text: 'Teacher removed successfully',
+          confirmButtonColor: '#31506a'
+        });
         fetchTeachers();
       } catch (err) {
-        alert('Failed to remove teacher');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to remove teacher',
+          confirmButtonColor: '#31506a'
+        });
       }
     }
   };
 
   const handleDeleteStudent = async (id) => {
-    if (window.confirm('Are you sure you want to remove this student?')) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#31506a',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
       try {
         await adminService.removeStudent(id);
-        alert('Student removed successfully');
+        Swal.fire({
+          icon: 'success',
+          title: 'Removed!',
+          text: 'Student removed successfully',
+          confirmButtonColor: '#31506a'
+        });
         fetchStudents();
       } catch (err) {
-        alert('Failed to remove student');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to remove student',
+          confirmButtonColor: '#31506a'
+        });
       }
     }
   };
@@ -187,16 +291,32 @@ const AdminDashboard = () => {
   };
 
   const handleUpdatePicture = async (id) => {
-    if (!selectedFile) return alert("Select a file first.");
+    if (!selectedFile) {
+      return Swal.fire({
+        icon: 'info',
+        text: 'Select a file first.',
+        confirmButtonColor: '#31506a'
+      });
+    }
     try {
       const form = new FormData();
       form.append("profile_picture", selectedFile);
       await studentService.updateProfilePictureById(id, form);
-      alert("Profile picture updated!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated',
+        text: 'Profile picture updated!',
+        confirmButtonColor: '#31506a'
+      });
       fetchStudents();
       setShowModal(false);
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to update picture.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || "Failed to update picture.",
+        confirmButtonColor: '#31506a'
+      });
     }
   };
 
@@ -460,7 +580,44 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {isSecurityAudit && (
+              <div className="admin-audit-container">
+                <h2 className="fw-bold mb-5">Security Audit Logs</h2>
+                <div className="bg-white rounded-4 shadow-sm border overflow-hidden p-4">
+                  <table className="table table-hover align-middle">
+                    <thead className="bg-light">
+                      <tr className="small text-uppercase text-secondary fw-bold">
+                        <th className="px-4 py-3">Event</th>
+                        <th className="px-4 py-3">User</th>
+                        <th className="px-4 py-3">IP Address</th>
+                        <th className="px-4 py-3">Status</th>
+                        <th className="px-4 py-3">Timestamp</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.length > 0 ? auditLogs.map((log, i) => (
+                        <tr key={i} className="border-bottom">
+                          <td className="px-4 py-3 fw-bold">{log.event_type}</td>
+                          <td className="px-4 py-3 small">{log.User?.email || 'System'}</td>
+                          <td className="px-4 py-3 small text-muted">{log.ip_address}</td>
+                          <td className="px-4 py-3">
+                            <span className={`badge rounded-pill ${log.status === 'success' ? 'bg-success' : 'bg-danger'} bg-opacity-10 ${log.status === 'success' ? 'text-success' : 'text-danger'}`}>
+                              {log.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 small text-muted">{new Date(log.created_at).toLocaleString()}</td>
+                        </tr>
+                      )) : (
+                        <tr><td colSpan="5" className="text-center p-5 text-muted">No audit logs found.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
           </div>
+
         </main>
 
         {showModal && (

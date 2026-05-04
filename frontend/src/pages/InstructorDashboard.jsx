@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import { instructorService, courseService, lessonService } from '../services/apiService';
 import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import '../styles/Dashboard.css';
 
 const InstructorDashboard = () => {
@@ -43,14 +44,30 @@ const InstructorDashboard = () => {
   }, []);
 
   const handleDeleteCourse = async (courseId) => {
-    if (!window.confirm("Are you sure you want to delete this course?")) return;
-    try {
-      await courseService.deleteCourse(courseId);
-      toast.success("Course deleted successfully");
-      setShowModal(false);
-      fetchStats();
-    } catch (err) {
-      toast.error("Failed to delete course");
+    const result = await Swal.fire({
+      title: 'Delete Course?',
+      text: "Are you sure you want to delete this course? This action cannot be undone.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#31506a',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await courseService.deleteCourse(courseId);
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Course deleted successfully',
+          confirmButtonColor: '#31506a'
+        });
+        setShowModal(false);
+        fetchStats();
+      } catch (err) {
+        toast.error("Failed to delete course");
+      }
     }
   };
 
@@ -66,26 +83,49 @@ const InstructorDashboard = () => {
   };
 
   const handleEditCourseTitle = async (courseId, currentTitle) => {
-    const newTitle = window.prompt("Enter new course title:", currentTitle);
-    if (!newTitle || newTitle === currentTitle) return;
-    try {
-      await courseService.updateCourse(courseId, { title: newTitle });
-      toast.success("Course updated successfully");
-      handleCourseClick(courseId); // refresh modal
-      fetchStats(); // refresh list
-    } catch (err) {
-      toast.error("Failed to update course");
+    const { value: newTitle } = await Swal.fire({
+      title: 'Edit Course Title',
+      input: 'text',
+      inputLabel: 'New Title',
+      inputValue: currentTitle,
+      showCancelButton: true,
+      confirmButtonColor: '#31506a',
+      inputValidator: (value) => {
+        if (!value) return 'Title cannot be empty!';
+      }
+    });
+
+    if (newTitle && newTitle !== currentTitle) {
+      try {
+        await courseService.updateCourse(courseId, { title: newTitle });
+        toast.success("Course updated successfully");
+        handleCourseClick(courseId); // refresh modal
+        fetchStats(); // refresh list
+      } catch (err) {
+        toast.error("Failed to update course");
+      }
     }
   };
 
   const handleDeleteLesson = async (lessonId, courseId) => {
-    if (!window.confirm("Are you sure you want to delete this lesson?")) return;
-    try {
-      await lessonService.deleteLesson(lessonId);
-      toast.success("Lesson deleted successfully");
-      handleCourseClick(courseId); // refresh modal
-    } catch (err) {
-      toast.error("Failed to delete lesson");
+    const result = await Swal.fire({
+      title: 'Remove Lesson?',
+      text: "Are you sure you want to delete this lesson?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#31506a',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await lessonService.deleteLesson(lessonId);
+        toast.success("Lesson deleted successfully");
+        handleCourseClick(courseId); // refresh modal
+      } catch (err) {
+        toast.error("Failed to delete lesson");
+      }
     }
   };
 

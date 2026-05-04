@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { courseService, enrollmentService } from '../services';
 import toast, { Toaster } from 'react-hot-toast';
-import '../styles/Courses.css';
-import '../styles/CourseDetails.css';
+import Sidebar from '../components/Sidebar';
+import ProfileSidebar from '../components/ProfileSidebar';
+import '../styles/Dashboard.css';
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -12,124 +13,197 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
 
+  const fetchCourse = async () => {
+    try {
+      const response = await courseService.getCourseDetails(id);
+      if (response.data?.data?.course) {
+        setCourse(response.data.data.course);
+      }
+    } catch (error) {
+      console.error('Failed to fetch course details', error);
+      toast.error("Failed to load course details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourse();
+  }, [id]);
+
   const handleEnroll = async () => {
     setEnrolling(true);
     try {
-      // Backend expects POST /api/courses/:id/enroll
       await enrollmentService.enroll(id);
-      toast.success("Successfully enrolled in the course!");
-      // Optionally navigate to dashboard
-      setTimeout(() => navigate('/dashboard'), 1500);
+      toast.success("Successfully enrolled!");
+      fetchCourse(); // Refresh to show "Go to Course"
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to enroll in the course.");
+      toast.error(error.response?.data?.message || "Failed to enroll.");
     } finally {
       setEnrolling(false);
     }
   };
 
-
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const response = await courseService.getCourseDetails(id);
-        if (response.data && response.data.data && response.data.data.course) {
-          setCourse(response.data.data.course);
-        }
-      } catch (error) {
-        console.error('Failed to fetch course details', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourse();
-  }, [id]);
-
   if (loading) {
     return (
-      <div className="course-details-page d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+      <div className="dashboard-page d-flex justify-content-center align-items-center">
+        <div className="spinner-border text-primary-custom" role="status"></div>
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="course-details-page container py-5">
-        <h2>Course not found.</h2>
-        <Link to="/courses" className="btn btn-primary mt-3">Back to Courses</Link>
+      <div className="dashboard-page container py-5 text-center">
+        <h2 className="fw-bold">Course not found.</h2>
+        <Link to="/courses" className="btn btn-primary-custom mt-3">Back to Courses</Link>
       </div>
     );
   }
 
   return (
-    <div className="course-details-page">
+    <div className="dashboard-page">
       <Toaster position="top-center" />
-      <div className="container-custom">
-        <div className="section-title-wrapper d-flex justify-content-between align-items-end">
-          <div>
-            <h1 className="display-4 fw-bold text-dark">{course.title}</h1>
-            <p>{course.description}</p>
-          </div>
-          <button 
-            className="btn btn-primary-custom px-5 py-3 fw-bold rounded-3" 
-            onClick={handleEnroll}
-            disabled={enrolling}
-          >
-            {enrolling ? 'Enrolling...' : 'Enroll Now'}
-          </button>
-        </div>
+      <div className="dashboard-layout">
+        <Sidebar activePath="/courses" />
 
-        <div className="details-hero-section position-relative">
-          <img src={course.heroImage} className="hero-main-img" alt={course.title} />
-          <div className="video-play-overlay" onClick={() => navigate(`/courses/${id}/learn/lesson/01`)}>
-            <i className="fas fa-play"></i>
-          </div>
-        </div>
+        <main className="main-dashboard-content w-100 p-4">
+          <div className="container-fluid pt-5 mt-4 mx-auto" style={{ maxWidth: '1100px' }}>
+            
+            {/* Header / Hero */}
+            <div className="row g-5 mb-5">
+              <div className="col-lg-7">
+                <div className="badge bg-primary-custom mb-3 px-3 py-2 rounded-pill">{course.level?.toUpperCase()}</div>
+                <h1 className="display-5 fw-bold text-dark mb-4">{course.title}</h1>
+                <p className="lead text-muted mb-5" style={{ fontSize: '18px', lineHeight: '1.8' }}>
+                  {course.description || "No description available for this course yet."}
+                </p>
 
-        <div className="details-curriculum-grid">
-            {course.images && course.images.length > 0 ? (
-              course.images.map((img, idx) => (
-                <div key={idx} className="course-img-wrapper">
-                  <img src={img} alt={`${course.title} detail ${idx + 1}`} />
+                <div className="d-flex align-items-center gap-4 mb-5 p-4 bg-white rounded-4 border shadow-sm">
+                   <div className="instructor-info d-flex align-items-center gap-3">
+                      <img 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor_id || 'Instructor')}&background=random`} 
+                        className="rounded-circle" style={{ width: '50px', height: '50px' }} alt="" 
+                      />
+                      <div>
+                        <div className="text-muted small">Created by</div>
+                        <div className="fw-bold">Instructor #{course.instructor_id}</div>
+                      </div>
+                   </div>
+                   <div className="vr mx-2" style={{ height: '40px' }}></div>
+                   <div>
+                      <div className="text-muted small">Price</div>
+                      <div className="fw-bold text-primary-custom">${course.price}</div>
+                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="bg-light w-100 rounded-4 d-flex align-items-center justify-content-center border" style={{ height: '300px', gridColumn: '1 / -1' }}>
-                <i className="fas fa-image text-secondary" style={{ fontSize: '4rem' }}></i>
-              </div>
-            )}
-          {course.curriculum.map((section, idx) => (
-            <div key={section.id} className="section-card">
-              <span className="section-number">0{idx + 1}</span>
-              <h3 className="section-header-title">{section.title}</h3>
-              
-              <div className="lessons-container">
-                {section.lessons.map((lesson, lIdx) => (
-                  <div 
-                    key={lIdx} 
-                    className="lesson-row" 
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/courses/${id}/learn/lesson/${lIdx + 1}`)}
+
+                {course.isEnrolled ? (
+                  <button 
+                    className="btn btn-dark px-5 py-3 fw-bold rounded-pill shadow-lg" 
+                    onClick={() => {
+                        const firstLessonId = course.sections?.[0]?.lessons?.[0]?.content_id;
+                        if (firstLessonId) navigate(`/courses/${course.course_id}/learn/lesson/${firstLessonId}`);
+                        else toast.error("No lessons available yet.");
+                    }}
                   >
-                    <div className="lesson-info-left">
-                      <span className="lesson-info-title">{lesson.title}</span>
-                      <span className="lesson-info-subtitle">Lesson {lIdx + 1}</span>
-                    </div>
-                    <div className="lesson-info-right">
-                      <span className="duration-tag">
-                        <i className="far fa-clock"></i> {lesson.duration}
-                      </span>
+                    <i className="fas fa-play-circle me-2"></i> Go to Course
+                  </button>
+                ) : (
+                  <button 
+                    className="btn btn-primary-custom px-5 py-3 fw-bold rounded-pill shadow-lg" 
+                    onClick={handleEnroll}
+                    disabled={enrolling}
+                  >
+                    {enrolling ? 'Processing...' : 'Enroll Now'}
+                  </button>
+                )}
+              </div>
+
+              <div className="col-lg-5">
+                <div className="position-relative rounded-5 overflow-hidden shadow-lg border-4 border-white" style={{ height: '350px' }}>
+                  <img 
+                    src={course.thumbnail_url || '/images/course-placeholder.jpg'} 
+                    className="w-100 h-100" style={{ objectFit: 'cover' }} 
+                    alt={course.title} 
+                    onError={(e) => e.target.src = 'https://via.placeholder.com/600x400?text=Course+Thumbnail'}
+                  />
+                  <div className="position-absolute bottom-0 start-0 w-100 p-4 bg-dark bg-opacity-50 text-white backdrop-blur">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <span className="fw-bold"><i className="fas fa-layer-group me-2"></i> {course.sections?.length || 0} Sections</span>
+                        <span className="fw-bold"><i className="fas fa-clock me-2"></i> Self-paced</span>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+
+            {/* Curriculum */}
+            <div className="bg-white p-5 rounded-5 shadow-sm border mb-5">
+              <h3 className="fw-bold mb-5 d-flex align-items-center gap-3">
+                <span className="bg-primary-custom text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', fontSize: '18px' }}>
+                  <i className="fas fa-list-ul"></i>
+                </span>
+                Course Curriculum
+              </h3>
+
+              <div className="accordion custom-accordion" id="curriculumAccordion">
+                {course.sections && course.sections.length > 0 ? course.sections.map((section, idx) => (
+                  <div key={section.section_id} className="accordion-item border-0 mb-3 bg-light rounded-4 overflow-hidden shadow-sm">
+                    <h2 className="accordion-header">
+                      <button className="accordion-button collapsed bg-white fw-bold px-4 py-3" type="button" data-bs-toggle="collapse" data-bs-target={`#collapse${idx}`}>
+                        <div className="d-flex align-items-center gap-3">
+                          <span className="text-primary-custom opacity-50">0{idx + 1}</span>
+                          {section.title}
+                        </div>
+                        <span className="ms-auto me-3 badge bg-light text-muted border fw-normal">{section.lessons?.length || 0} Lessons</span>
+                      </button>
+                    </h2>
+                    <div id={`collapse${idx}`} className="accordion-collapse collapse" data-bs-parent="#curriculumAccordion">
+                      <div className="accordion-body p-0 bg-white">
+                        <div className="list-group list-group-flush">
+                          {section.lessons && section.lessons.length > 0 ? section.lessons.map((lesson, lIdx) => (
+                            <div 
+                              key={lesson.content_id} 
+                              className={`list-group-item d-flex align-items-center justify-content-between px-4 py-3 border-0 border-bottom ${course.isEnrolled ? 'cursor-pointer hover-bg-gray' : ''}`}
+                              onClick={() => {
+                                if (course.isEnrolled) {
+                                  navigate(`/courses/${course.course_id}/learn/lesson/${lesson.content_id}`);
+                                } else if (lesson.is_free_preview) {
+                                  toast.info("Free preview coming soon!");
+                                } else {
+                                  toast.error("Please enroll to access this lesson.");
+                                }
+                              }}
+                            >
+                              <div className="d-flex align-items-center gap-3">
+                                <i className={`fas ${lesson.content_type === 'video' ? 'fa-video' : 'fa-file-pdf'} text-muted`}></i>
+                                <span className="fw-medium">{lesson.title}</span>
+                              </div>
+                              <div className="d-flex align-items-center gap-3 text-muted small">
+                                <span>{lesson.duration}</span>
+                                {(!course.isEnrolled && !lesson.is_free_preview) ? <i className="fas fa-lock"></i> : <i className="fas fa-play-circle"></i>}
+                              </div>
+                            </div>
+                          )) : (
+                            <div className="p-4 text-center text-muted small">No lessons in this section yet.</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="text-center p-5 bg-light rounded-4 border dashed">
+                     <p className="mb-0 text-muted">Curriculum is being prepared. Stay tuned!</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+        <ProfileSidebar />
       </div>
     </div>
   );

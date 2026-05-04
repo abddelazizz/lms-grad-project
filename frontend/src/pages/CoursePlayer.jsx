@@ -98,9 +98,38 @@ const CoursePlayer = () => {
   };
 
   const handleLessonClick = (lesson) => {
-    setCurrentLesson(lesson);
     navigate(`/courses/${courseId}/learn/lesson/${lesson.content_id}`);
+    reportProgress(lesson.content_id);
   };
+
+  const reportProgress = async (lessonId) => {
+    try {
+      await api.post(`/lessons/${lessonId}/watch`);
+    } catch (err) {
+      console.error('Failed to report progress:', err);
+    }
+  };
+
+  const handleCompleteLesson = async () => {
+    if (!currentLesson) return;
+    try {
+      await api.post(`/lessons/${currentLesson.content_id}/watch`);
+      toast.success('Lesson marked as completed!');
+      // Update local state to show checkmark
+      setSections(prev => prev.map(section => ({
+        ...section,
+        lessonGroups: section.lessonGroups.map(group => {
+           if (group.lesson.content_id === currentLesson.content_id) {
+             return { ...group, lesson: { ...group.lesson, isCompleted: true } };
+           }
+           return group;
+        })
+      })));
+    } catch (err) {
+      toast.error('Failed to mark lesson as completed.');
+    }
+  };
+
 
   const isEnrolled = course?.isEnrolled;
   const isFreeCourse = String(courseId) === '1'; 
@@ -172,16 +201,22 @@ const CoursePlayer = () => {
                 )}
               </div>
 
-              <div className="p-4 d-flex justify-content-between align-items-center bg-white">
+                <div className="p-4 d-flex justify-content-between align-items-center bg-white">
                 <h4 className="fw-bold mb-0 text-dark" style={{ fontSize: '20px' }}>
                   {currentLesson ? `${currentLesson.position_order || 1}. ${currentLesson.title}` : 'Select a lesson'}
                 </h4>
                 {currentLesson && (
-                    <div className="text-muted small bg-light px-3 py-2 rounded-pill border">
-                        <i className="far fa-clock me-2"></i>{formatDuration(currentLesson.duration) || 'N/A'}
+                    <div className="hstack gap-3">
+                        <button className="btn btn-success btn-sm rounded-pill px-3 fw-bold" onClick={handleCompleteLesson}>
+                           <i className="fas fa-check-circle me-1"></i> Mark as Completed
+                        </button>
+                        <div className="text-muted small bg-light px-3 py-2 rounded-pill border">
+                            <i className="far fa-clock me-2"></i>{formatDuration(currentLesson.duration) || 'N/A'}
+                        </div>
                     </div>
                 )}
               </div>
+
             </div>
 
             {/* Tabs Section */}
@@ -241,14 +276,15 @@ const CoursePlayer = () => {
                                  style={{ 
                                    width: '24px', height: '24px', 
                                    border: '2px solid #dee2e6',
-                                   backgroundColor: (!showLock && currentLesson?.content_id === lesson.content_id) ? '#31506a' : 'transparent'
+                                   backgroundColor: (!showLock && (currentLesson?.content_id === lesson.content_id || lesson.isCompleted)) ? '#31506a' : 'transparent'
                                  }}>
                               {showLock ? (
                                   <i className="fas fa-lock text-muted" style={{ fontSize: '10px' }}></i>
                               ) : (
-                                  currentLesson?.content_id === lesson.content_id ? <div className="rounded-circle bg-white" style={{ width: '6px', height: '6px' }}></div> : null
+                                  (currentLesson?.content_id === lesson.content_id || lesson.isCompleted) ? <i className="fas fa-check text-white" style={{ fontSize: '10px' }}></i> : null
                               )}
                             </div>
+
                             <div className="flex-grow-1">
                               <div className={`small fw-bold ${(!showLock && currentLesson?.content_id === lesson.content_id) ? 'text-primary' : 'text-dark'}`}>
                                   {lesson.position_order}. {lesson.title}
