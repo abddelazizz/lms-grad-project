@@ -1,14 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const API_BASE_URL = `${BASE_URL}/api`;
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: { "Content-Type": "application/json" },
-  withCredentials: true,
-});
+import http from "../services/http";
 
 const AuthContext = createContext(null);
 
@@ -53,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = useCallback(async (credentials) => {
-    const response = await api.post("/auth/login", credentials);
+    const response = await http.post("/auth/login", credentials);
     const { token, mfaRequired } = response.data;
 
     if (mfaRequired) {
@@ -65,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   }, [storeToken]);
 
   const loginWithMFA = useCallback(async (userId, totpCode, tempToken) => {
-    const response = await api.post("/mfa/verify-login", {
+    const response = await http.post("/mfa/verify-login", {
       userId,
       totpCode,
       tempToken,
@@ -80,14 +73,14 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await api.post("/auth/logout");
+      await http.post("/auth/logout");
     } catch {}
     clearToken();
   }, [clearToken]);
 
   const refreshAccessToken = useCallback(async () => {
     try {
-      const response = await api.post("/auth/refresh");
+      const response = await http.post("/auth/refresh");
       storeToken(response.data.token);
       return response.data.token;
     } catch {
@@ -96,7 +89,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [storeToken, clearToken]);
   useEffect(() => {
-    const interceptor = api.interceptors.request.use((config) => {
+    const interceptor = http.interceptors.request.use((config) => {
       // Always look for the freshest token: state ref first, then sessionStorage
       const token = tokenRef.current || sessionStorage.getItem("accessToken");
       if (token) {
@@ -108,12 +101,12 @@ export const AuthProvider = ({ children }) => {
       return config;
     });
 
-    return () => api.interceptors.request.eject(interceptor);
+    return () => http.interceptors.request.eject(interceptor);
   }, [csrfToken]); // Removed accessToken from dependencies to keep the interceptor stable
 
 
   useEffect(() => {
-    const interceptor = api.interceptors.response.use(
+    const interceptor = http.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
@@ -123,7 +116,7 @@ export const AuthProvider = ({ children }) => {
           const newToken = await refreshAccessToken();
           if (newToken) {
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return api(originalRequest);
+            return http(originalRequest);
           }
         }
 
@@ -131,7 +124,7 @@ export const AuthProvider = ({ children }) => {
       }
     );
 
-    return () => api.interceptors.response.eject(interceptor);
+    return () => http.interceptors.response.eject(interceptor);
   }, [refreshAccessToken]);
 
   useEffect(() => {
@@ -175,11 +168,11 @@ export const AuthProvider = ({ children }) => {
     refreshAccessToken,
     storeToken,
     setCsrfToken,
-    api,
+    api: http,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export { api as authApi };
+export { http as authApi };
 export default AuthContext;

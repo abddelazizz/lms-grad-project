@@ -12,6 +12,7 @@ const InstructorDashboard = () => {
   const [selectedCourseDetails, setSelectedCourseDetails] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleCourseClick = async (courseId) => {
     if (!courseId) return;
@@ -129,6 +130,43 @@ const InstructorDashboard = () => {
     }
   };
 
+  const handleEditLesson = async (lesson, courseId) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Lesson',
+      html:
+        `<label class="swal2-label">Lesson Title</label>` +
+        `<input id="swal-input1" class="swal2-input" value="${lesson.title}">` +
+        `<label class="swal2-label">Description</label>` +
+        `<textarea id="swal-input2" class="swal2-textarea">${lesson.description || ''}</textarea>`,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#31506a',
+      preConfirm: () => {
+        return [
+          document.getElementById('swal-input1').value,
+          document.getElementById('swal-input2').value
+        ]
+      }
+    });
+
+    if (formValues) {
+      const [title, description] = formValues;
+      if (!title) return toast.error("Title is required");
+
+      try {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        
+        await lessonService.updateLesson(lesson.content_id, formData);
+        toast.success("Lesson updated successfully");
+        handleCourseClick(courseId);
+      } catch (err) {
+        toast.error("Failed to update lesson");
+      }
+    }
+  };
+
 
 
   if (loading) return (
@@ -149,7 +187,13 @@ const InstructorDashboard = () => {
             {/* Search Bar */}
             <div className="search-bar-wrapper mb-5 mx-auto" style={{ maxWidth: '700px' }}>
               <i className="fas fa-search search-icon"></i>
-              <input type="text" className="search-input" placeholder="Search your course here...." />
+              <input 
+                type="text" 
+                className="search-input" 
+                placeholder="Search your course here...." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
 
             <div className="row g-4 mb-4">
@@ -157,30 +201,40 @@ const InstructorDashboard = () => {
               <div className="col-lg-7">
                 <div className="bg-white p-4 rounded-4 border shadow-sm" style={{ minHeight: '380px' }}>
                   <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h5 className="fw-bold mb-0">Student Statistic</h5>
-                    <div className="text-muted small d-flex align-items-center gap-2">
-                       <span className="ms-2 fw-bold" style={{ color: '#31506a' }}>Total Students: {stats?.summary?.total_students || 1}</span>
+                    <div>
+                      <h5 className="fw-bold mb-1">Student Statistic</h5>
+                    </div>
+                    <div className="d-flex align-items-center gap-3">
+                       <div className="d-flex align-items-center gap-2 border rounded-pill px-2 py-1" style={{ fontSize: '10px' }}>
+                          <i className="fas fa-chevron-left text-muted"></i>
+                          <span className="fw-bold">Sept 2022</span>
+                          <i className="fas fa-chevron-right text-muted"></i>
+                       </div>
+                       <span className="small fw-bold border-start ps-3" style={{ color: '#31506a' }}>Avg.</span>
                     </div>
                   </div>
                   
-                  {/* Real stats mapped if available, otherwise fallback */}
                   <div className="d-flex align-items-end justify-content-between h-75 px-3 pt-4" style={{ minHeight: '260px', position: 'relative' }}>
-                    <div className="position-absolute start-0 top-0 h-100 d-flex flex-column justify-content-between text-muted" style={{ fontSize: '10px' }}>
-                      <span>100</span><span>80</span><span>60</span><span>40</span><span>20</span><span>0</span>
+                    <div className="position-absolute start-0 top-0 h-100 d-flex flex-column justify-content-between text-muted" style={{ fontSize: '10px', paddingBottom: '30px' }}>
+                      <span>60%</span><span>50</span><span>40</span><span>30</span><span>20</span><span>10</span><span>0</span>
                     </div>
-                    {(stats?.courses?.slice(0, 5) || []).map((item, i) => {
-                      const h = (item.enrollments?.total || 0) * 100 || 4; // Use total enrollments
+                    {/* Decorative avg line */}
+                    <div className="position-absolute w-100 border-top border-primary border-opacity-25" style={{ top: '40%', left: 0, zIndex: 1 }}>
+                       <span className="position-absolute bg-primary text-white rounded-1 px-1" style={{ top: '-10px', left: '50%', fontSize: '8px' }}>Av Poin</span>
+                    </div>
+
+                    {(stats?.courses?.filter(c => c.title.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 5) || []).map((item, i) => {
+                      const h = (item.enrollments?.total || 0) * 100 || 15;
                       return (
-                        <div key={i} className="text-center" style={{ width: '15%' }}>
+                        <div key={i} className="text-center position-relative" style={{ width: '15%', zIndex: 2 }}>
                           <div className="mx-auto rounded-1" 
                                style={{ 
                                  width: '32px', 
-                                 height: `${Math.max(Math.min(h, 250), 4)}px`, // Min 4px for empty bars
-                                 backgroundColor: i === 0 ? '#31506a' : '#e0e7ff',
-                                 opacity: 1,
+                                 height: `${Math.max(Math.min(h, 220), 10)}px`,
+                                 backgroundColor: i === 3 ? '#31506a' : '#e0e7ff',
                                  transition: 'all 0.5s ease' 
                                }}></div>
-                          <div className="small mt-2 text-muted text-truncate" style={{ fontSize: '10px' }}>{item.title}</div>
+                          <div className="small mt-2 text-muted text-truncate" style={{ fontSize: '10px' }}>{item.title.split(' ')[0]}</div>
                         </div>
                       );
                     })}
@@ -193,7 +247,7 @@ const InstructorDashboard = () => {
                 <div className="bg-white p-4 rounded-4 border shadow-sm" style={{ minHeight: '380px' }}>
                   <h5 className="fw-bold mb-4">Course Performance</h5>
                   <div className="d-flex flex-column gap-3">
-                    {(stats?.courses && stats.courses.length > 0) ? stats.courses.slice(0, 4).map((cls, i) => (
+                    {stats?.courses?.filter(c => c.title.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 ? stats.courses.filter(c => c.title.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 4).map((cls, i) => (
                       <div 
                         key={i} 
                         className="d-flex align-items-center justify-content-between p-3 rounded-4 bg-light-gray border-light"
@@ -222,24 +276,38 @@ const InstructorDashboard = () => {
               </div>
             </div>
 
-            {/* Upcoming Activities - Bottom Section */}
             <div className="row g-4">
               <div className="col-12">
-                <div className="bg-white p-5 rounded-4 border shadow-sm">
-                  <div className="d-flex justify-content-between align-items-center mb-5">
-                    <h5 className="fw-bold mb-0">Quick Insights</h5>
-                    <div className="d-flex gap-4">
-                       <span className="small fw-bold">Revenue: ${stats?.summary?.total_revenue || 0}</span>
-                       <span className="small fw-bold">Rating: {stats?.summary?.overall_avg_rating || 'N/A'} ⭐</span>
-                    </div>
+                <div className="bg-white p-4 rounded-4 border shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h5 className="fw-bold mb-0">Upcoming Activities</h5>
+                    <button className="btn btn-link text-primary text-decoration-none small p-0">See all</button>
                   </div>
-                  <div className="row g-4">
-                    <div className="col-12">
-                      <div className="text-muted bg-light p-4 rounded-4 text-center border">
-                        <i className="fas fa-calendar-times fs-4 mb-2 text-secondary"></i>
-                        <p className="mb-0">No upcoming activities scheduled.</p>
+                  <div className="row g-3">
+                    {[
+                      { date: '31', title: 'Meeting with the VC', link: 'Meeting link//www.zoom.com', time: '10 A.M - 11 A.M', status: 'Due soon', statusColor: 'danger' },
+                      { date: '04', title: 'Meeting with the J..', link: 'Meeting link//www.zoom.com', time: '10 A.M - 11 A.M', status: 'Upcoming', statusColor: 'primary' },
+                      { date: '12', title: 'Class B middle sess..', link: 'Physical science lab', time: '10 A.M - 11 A.M', status: 'Upcoming', statusColor: 'primary' },
+                      { date: '16', title: 'Send Mr Ayo class..', link: 'Send Document via email', time: '10 A.M - 11 A.M', status: 'Upcoming', statusColor: 'primary' },
+                    ].map((activity, i) => (
+                      <div key={i} className="col-md-12">
+                        <div className="d-flex align-items-center gap-3 p-3 rounded-4 bg-light bg-opacity-50 border">
+                          <div className="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center fw-bold" style={{ width: '45px', height: '45px', flexShrink: 0 }}>
+                            {activity.date}
+                          </div>
+                          <div className="flex-grow-1 overflow-hidden">
+                            <h6 className="mb-1 fw-bold text-truncate" style={{ fontSize: '14px' }}>{activity.title}</h6>
+                            <p className="mb-0 text-primary small text-truncate" style={{ fontSize: '11px' }}>{activity.link}</p>
+                          </div>
+                          <div className="text-end" style={{ flexShrink: 0 }}>
+                            <div className="small text-muted mb-1" style={{ fontSize: '10px' }}>
+                              <span className="text-primary me-1">•</span>{activity.time}
+                            </div>
+                            <span className={`badge bg-${activity.statusColor} bg-opacity-10 text-${activity.statusColor} rounded-pill`} style={{ fontSize: '10px' }}>{activity.status}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -326,9 +394,14 @@ const InstructorDashboard = () => {
                                               <i className={`fas ${les.content_type === 'video' ? 'fa-video' : 'fa-file-pdf'} text-primary me-2`}></i>
                                               {les.title}
                                             </span>
-                                            <button className="btn btn-sm btn-link text-danger p-0" onClick={() => handleDeleteLesson(les.content_id, selectedCourseDetails.course.course_id)} title="Delete Lesson">
-                                              <i className="fas fa-trash"></i>
-                                            </button>
+                                            <div className="d-flex gap-2">
+                                              <button className="btn btn-sm btn-link text-primary p-0" onClick={() => handleEditLesson(les, selectedCourseDetails.course.course_id)} title="Edit Lesson">
+                                                <i className="fas fa-edit"></i>
+                                              </button>
+                                              <button className="btn btn-sm btn-link text-danger p-0" onClick={() => handleDeleteLesson(les.content_id, selectedCourseDetails.course.course_id)} title="Delete Lesson">
+                                                <i className="fas fa-trash"></i>
+                                              </button>
+                                            </div>
                                           </li>
                                         ))}
                                       </ul>

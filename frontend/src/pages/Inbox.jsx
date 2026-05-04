@@ -9,6 +9,10 @@ const Inbox = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user, api } = useAuth();
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [grade, setGrade] = useState('');
+  const [feedback, setFeedback] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const role = user?.role?.toLowerCase();
 
   const fetchInbox = async () => {
@@ -39,6 +43,25 @@ const Inbox = () => {
       setNotifications(prev => prev.map(n => n.notification_id === id ? { ...n, is_read: true } : n));
     } catch (error) {
       console.error("Failed to mark as read", error);
+    }
+  };
+
+  const handleReview = async () => {
+    if (!selectedSubmission || !grade) return;
+    try {
+      setSubmitting(true);
+      await api.patch(`/assignments/submissions/${selectedSubmission.submission_id}/review`, {
+        grade: parseInt(grade),
+        feedback
+      });
+      setSelectedSubmission(null);
+      setGrade('');
+      setFeedback('');
+      fetchInbox();
+    } catch (error) {
+      console.error("Failed to submit review", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -142,6 +165,22 @@ const Inbox = () => {
                                 : `Grade: ${n.submission?.grade}% - ${n.submission?.feedback || 'View feedback'}`
                               }
                             </div>
+                            {isInstructor && (
+                              <div className="mt-3 hstack gap-2">
+                                <a href={n.submission?.file_url} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                  View File
+                                </a>
+                                <button 
+                                  className="btn btn-sm btn-primary-custom rounded-pill px-3 text-white"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedSubmission(n.submission);
+                                  }}
+                                >
+                                  Review
+                                </button>
+                              </div>
+                            )}
                           </div>
                           {!n.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#6c5ce7', marginTop: '15px' }}></div>}
                         </div>
@@ -163,6 +202,33 @@ const Inbox = () => {
 
         <ProfileSidebar />
       </div>
+
+      {selectedSubmission && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="bg-white p-5 rounded-4 shadow-lg border" style={{ maxWidth: '500px', width: '90%' }}>
+            <h4 className="fw-bold mb-4">Review Submission</h4>
+            <div className="mb-4 text-center p-3 bg-light rounded-3">
+                <a href={selectedSubmission.file_url} target="_blank" rel="noreferrer" className="text-primary-custom fw-bold text-decoration-none">
+                  <i className="fas fa-file-download me-2"></i> Download Student File
+                </a>
+            </div>
+            <div className="mb-3">
+              <label className="form-label small fw-bold">GRADE (0-100)</label>
+              <input type="number" className="form-control" value={grade} onChange={(e) => setGrade(e.target.value)} placeholder="Enter grade..." />
+            </div>
+            <div className="mb-4">
+              <label className="form-label small fw-bold">FEEDBACK (OPTIONAL)</label>
+              <textarea className="form-control" rows="3" value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Well done! Keep it up..."></textarea>
+            </div>
+            <div className="hstack gap-2 justify-content-end">
+              <button className="btn btn-light rounded-pill px-4" onClick={() => setSelectedSubmission(null)}>Cancel</button>
+              <button className="btn btn-primary-custom rounded-pill px-4 text-white shadow" onClick={handleReview} disabled={submitting}>
+                {submitting ? 'Saving...' : 'Save Grade'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

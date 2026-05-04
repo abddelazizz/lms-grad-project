@@ -1,6 +1,6 @@
 /* ─── Settings Page Layout ─────────────────────────────────── */
 .settings-main-content {
-  background-color: #f0f2f5;
+  background-color: transparent;
   min-height: 100vh;
 }
 
@@ -235,7 +235,7 @@
 
 .mfa-card-header {
   padding: 20px 24px;
-  background-color: #fcfcfd;
+  background-color: #ffffff;
   border-bottom: 1px solid #f1f1f3;
 }
 
@@ -335,4 +335,36 @@
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.2s;
+}
+
+/* ─── Recovery Codes ───────────────────────────────────────── */
+.recovery-codes-overlay {
+  background-color: #fcfcfd;
+  border-top: 1px solid #f1f1f3;
+}
+
+.recovery-codes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px dashed #e2e8f0;
+}
+
+.recovery-code-item {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.recovery-code-item code {
+  color: #475569;
 }

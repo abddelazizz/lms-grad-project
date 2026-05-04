@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { useAuth, authApi } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/Login.css';
 
 
@@ -11,7 +11,9 @@ const Login = () => {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaData, setMfaData] = useState({ userId: null, tempToken: null });
   const [totpCode, setTotpCode] = useState('');
-  const { login, loginWithMFA, isAuthenticated } = useAuth();
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const { login, loginWithMFA, isAuthenticated, api } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -66,6 +68,19 @@ const Login = () => {
     }
   };
 
+  const handleMFARecover = async (e) => {
+    e.preventDefault();
+    if (!recoveryCode) return toast.error('Please enter a recovery code.');
+    try {
+      const response = await api.post('/mfa/recover', { recoveryCode, userId: mfaData.userId });
+      toast.success('Access recovered! Please login normally.');
+      setMfaRequired(false);
+      setShowRecovery(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Invalid recovery code.');
+    }
+  };
+
   if (mfaRequired) {
     return (
       <div className="login-page-container animate__animated animate__fadeIn">
@@ -82,25 +97,32 @@ const Login = () => {
             <p className="login-subtitle px-2">Enter the 6-digit code from your authenticator app to secure your session.</p>
           </div>
 
-          <form className="login-form" onSubmit={handleMFAVerify}>
+          <form className="login-form" onSubmit={showRecovery ? handleMFARecover : handleMFAVerify}>
             <div className="login-form-group">
-              <label className="login-label text-center d-block mb-3">6-Digit Verification Code</label>
+              <label className="login-label text-center d-block mb-3">
+                {showRecovery ? '8-Character Recovery Code' : '6-Digit Verification Code'}
+              </label>
               <input
                 type="text"
                 className="login-input mfa-input-field text-center fw-bold"
-                placeholder="000 000"
-                value={totpCode}
-                onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                placeholder={showRecovery ? "XXXX-XXXX" : "000 000"}
+                value={showRecovery ? recoveryCode : totpCode}
+                onChange={(e) => showRecovery ? setRecoveryCode(e.target.value) : setTotpCode(e.target.value.replace(/\D/g, ''))}
                 required
-                maxLength={6}
-                style={{ fontSize: '1.5rem', letterSpacing: '0.5rem' }}
+                maxLength={showRecovery ? 12 : 6}
+                style={{ fontSize: '1.2rem', letterSpacing: showRecovery ? '0.1rem' : '0.5rem' }}
               />
             </div>
             <button type="submit" className="btn-login-submit d-flex align-items-center justify-content-center gap-2">
-              <i className="fas fa-unlock-alt small"></i>
-              <span>Verify & Authenticate</span>
+              <i className={`fas ${showRecovery ? 'fa-key' : 'fa-unlock-alt'} small`}></i>
+              <span>{showRecovery ? 'Recover Access' : 'Verify & Authenticate'}</span>
             </button>
-            <button type="button" className="btn btn-link w-100 text-muted small text-decoration-none" onClick={() => setMfaRequired(false)}>
+            <div className="text-center mt-3">
+               <button type="button" className="btn btn-link text-primary small text-decoration-none fw-bold" onClick={() => setShowRecovery(!showRecovery)}>
+                 {showRecovery ? 'Back to App Code' : 'Lost your device? Use a recovery code'}
+               </button>
+            </div>
+            <button type="button" className="btn btn-link w-100 text-muted small text-decoration-none mt-2" onClick={() => setMfaRequired(false)}>
               Cancel and go back
             </button>
           </form>

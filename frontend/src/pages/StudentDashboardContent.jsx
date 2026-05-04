@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { courseService } from '../services';
+import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { courseService, enrollmentService } from '../services';
 
 const StudentDashboardContent = () => {
+  const navigate = useNavigate();
   const [liveCourses, setLiveCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
 
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchMyCourses = async () => {
@@ -16,7 +20,7 @@ const StudentDashboardContent = () => {
             id: c.course_id,
             title: c.title,
             author: c.Instructor ? c.Instructor.name : "Instructor",
-            progress: 0, 
+            progress: c.enrollment?.progress || 0, 
             image: c.thumbnail_url || null,
             avatar: null
           }));
@@ -33,14 +37,44 @@ const StudentDashboardContent = () => {
     fetchMyCourses();
   }, []);
 
+  const filteredCourses = liveCourses.filter(c => 
+    c.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleToggleFavorite = (courseId) => {
+    setLiveCourses(prev => prev.map(c => 
+      c.id === courseId ? { ...c, isFavorite: !c.isFavorite } : c
+    ));
+    // In a real app, you would also call an API here: studentService.toggleFavorite(courseId)
+    toast.success('Favorites updated');
+  };
+
+  const handleWithdraw = async (courseId, enrollmentId) => {
+    if (!window.confirm("Are you sure you want to withdraw from this course?")) return;
+    try {
+      await enrollmentService.updateEnrollment(enrollmentId, { status: 'cancelled' });
+      toast.success('Withdrawn from course');
+      setLiveCourses(prev => prev.filter(c => c.id !== courseId));
+    } catch (err) {
+      toast.error('Failed to withdraw from course');
+    }
+  };
+
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>;
 
   return (
     <div className="student-dashboard-content">
+      <Toaster position="top-center" />
       {/* Search Bar - Consistent with Instructor Hub */}
       <div className="search-bar-wrapper mb-5 mx-auto" style={{ maxWidth: '700px' }}>
         <i className="fas fa-search search-icon"></i>
-        <input type="text" className="search-input" placeholder="Search your course here...." />
+        <input 
+          type="text" 
+          className="search-input" 
+          placeholder="Search your course here...." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
 
       {/* Welcome Hero Section */}
@@ -48,7 +82,7 @@ const StudentDashboardContent = () => {
          <div className="position-relative z-1">
             <h2 className="fw-bold mb-2">Welcome Back, Learner! 👋</h2>
             <p className="opacity-75 mb-4" style={{ maxWidth: '500px' }}>Keep pushing to reach your learning goals. Dive back into your courses below.</p>
-            <button className="btn btn-light text-primary-custom fw-bold px-4 rounded-3 shadow-sm" style={{ color: '#31506a' }}>Browse Courses</button>
+            <button className="btn btn-light text-primary-custom fw-bold px-4 rounded-3 shadow-sm" style={{ color: '#31506a' }} onClick={() => navigate('/')}>Browse Courses</button>
          </div>
          {/* Abstract background shapes */}
          <div className="position-absolute end-0 top-0 opacity-10" style={{ transform: 'translate(20%, -20%)' }}>
@@ -63,10 +97,18 @@ const StudentDashboardContent = () => {
                 <div className="d-flex justify-content-between align-items-center mb-4">
                    <h5 className="fw-bold mb-0">Study Analytics</h5>
                 </div>
-                <div className="d-flex align-items-center justify-content-center h-75 px-3 pt-4 text-muted" style={{ minHeight: '180px' }}>
-                   <div className="text-center">
-                     <i className="fas fa-chart-bar fs-1 mb-3 text-secondary"></i>
-                     <p>Analytics currently unavailable.</p>
+                <div className="row text-center py-3">
+                   <div className="col-4 border-end">
+                      <h4 className="fw-bold text-primary-custom mb-0">{liveCourses.length}</h4>
+                      <div className="small text-muted">Courses</div>
+                   </div>
+                   <div className="col-4 border-end">
+                      <h4 className="fw-bold text-primary-custom mb-0">{liveCourses.filter(c => c.progress === 100).length}</h4>
+                      <div className="small text-muted">Completed</div>
+                   </div>
+                   <div className="col-4">
+                      <h4 className="fw-bold text-primary-custom mb-0">{Math.round(liveCourses.reduce((acc, c) => acc + (c.progress || 0), 0) / (liveCourses.length || 1))}%</h4>
+                      <div className="small text-muted">Avg Progress</div>
                    </div>
                 </div>
              </div>
@@ -75,14 +117,10 @@ const StudentDashboardContent = () => {
 
       <div className="content-section-header mb-4">
         <h4 className="fw-bold text-dark mb-0">Continue Watching</h4>
-        <div className="scroll-controls">
-          <button className="btn btn-link text-dark p-0 me-2"><i className="fas fa-chevron-left"></i></button>
-          <button className="btn btn-link text-dark p-0"><i className="fas fa-chevron-right"></i></button>
-        </div>
       </div>
 
       <div className="row g-4">
-        {liveCourses.length > 0 ? liveCourses.map(course => (
+        {filteredCourses.length > 0 ? filteredCourses.map(course => (
           <div key={course.id} className="col-md-6 col-xl-4">
             <div className="bg-white rounded-4 overflow-hidden border shadow-sm hover-up transition-all h-100">
               <div className="position-relative d-flex align-items-center justify-content-center bg-light" style={{ height: '160px' }}>
@@ -94,8 +132,12 @@ const StudentDashboardContent = () => {
                   </div>
                 )}
                 <div className="position-absolute top-0 end-0 p-2">
-                   <div className="bg-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
-                      <i className="far fa-heart text-danger"></i>
+                   <div 
+                      className="bg-white rounded-circle p-2 shadow-sm d-flex align-items-center justify-content-center" 
+                      style={{ width: '32px', height: '32px', cursor: 'pointer' }}
+                      onClick={() => handleToggleFavorite(course.id)}
+                   >
+                      <i className={`${course.isFavorite ? 'fas' : 'far'} fa-heart text-danger`}></i>
                    </div>
                 </div>
               </div>
@@ -119,7 +161,16 @@ const StudentDashboardContent = () => {
                      )}
                      <span className="text-muted" style={{ fontSize: '11px' }}>{course.author}</span>
                    </div>
-                   <button className="btn p-0 text-primary-custom fw-bold" style={{ fontSize: '12px' }}>Resume</button>
+                   <button className="btn p-0 text-primary-custom fw-bold" style={{ fontSize: '12px' }} onClick={() => navigate(`/course-player/${course.id}`)}>Resume</button>
+                </div>
+                <div className="pt-3">
+                   <button 
+                     className="btn btn-outline-secondary w-100 rounded-pill btn-sm fw-bold"
+                     onClick={() => handleWithdraw(course.id, course.enrollment_id)}
+                     style={{ fontSize: '11px', opacity: 0.7 }}
+                   >
+                     Withdraw from Course
+                   </button>
                 </div>
               </div>
             </div>

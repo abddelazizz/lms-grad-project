@@ -165,9 +165,9 @@ const Contact = () => {
 
             <div className="info-card social-profiles-card text-center">
               <div className="social-icons-row">
-                <a href="#" className="social-icon-btn"><i className="fab fa-facebook-f"></i></a>
-                <a href="#" className="social-icon-btn"><i className="fab fa-twitter"></i></a>
-                <a href="#" className="social-icon-btn"><i className="fab fa-linkedin-in"></i></a>
+                <a href="https://facebook.com/recodeacademy" target="_blank" rel="noreferrer" className="social-icon-btn"><i className="fab fa-facebook-f"></i></a>
+                <a href="https://twitter.com/recodeacademy" target="_blank" rel="noreferrer" className="social-icon-btn"><i className="fab fa-twitter"></i></a>
+                <a href="https://linkedin.com/company/recodeacademy" target="_blank" rel="noreferrer" className="social-icon-btn"><i className="fab fa-linkedin-in"></i></a>
               </div>
               <span className="form-label mt-3" style={{ fontSize: '0.85rem' }}>Social Profiles</span>
             </div>

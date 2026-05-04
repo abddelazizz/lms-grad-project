@@ -15,6 +15,9 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [searching, setSearching] = useState(false);
   
   const socketRef = useRef();
   const messagesEndRef = useRef(null);
@@ -105,6 +108,35 @@ const Chat = () => {
     fetchConversations();
   }, []);
 
+  const openNewChatModal = async () => {
+    setShowNewChatModal(true);
+    setSearching(true);
+    try {
+      // Get users to chat with (if student, get instructors; if instructor, get students)
+      const res = user.role === 'student' ? await chatService.api.get('/admin/instructors') : await chatService.api.get('/admin/students');
+      const users = res.data?.data?.data || res.data?.data || [];
+      setAvailableUsers(users.filter(u => (u.user_id || u.id) !== user.user_id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleCreateChat = async (otherUserId) => {
+    try {
+      const res = await chatService.createConversation(otherUserId);
+      const newConv = res.data?.data?.conversation || res.data?.conversation;
+      if (newConv) {
+        setConversations(prev => [newConv, ...prev]);
+        setSelectedConv(newConv);
+        setShowNewChatModal(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // 3. Fetch History when conversation selected
   useEffect(() => {
     if (selectedConv) {
@@ -172,7 +204,7 @@ const Chat = () => {
               <div className="col-md-4 border-end bg-light-gray d-flex flex-column">
                 <div className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
                   <h5 className="fw-bold mb-0">Chat</h5>
-                  <i className="fas fa-edit text-primary-custom cursor-pointer"></i>
+                  <i className="fas fa-edit text-primary-custom cursor-pointer" onClick={openNewChatModal}></i>
                 </div>
                 
                 <div className="flex-grow-1 overflow-auto">
@@ -240,9 +272,6 @@ const Chat = () => {
                         </div>
                       </div>
                       <div className="hstack gap-3 text-muted">
-                        <i className="fas fa-video cursor-pointer"></i>
-                        <i className="fas fa-phone-alt cursor-pointer"></i>
-                        <i className="fas fa-info-circle cursor-pointer"></i>
                       </div>
                     </div>
 
@@ -278,7 +307,6 @@ const Chat = () => {
                     <div className="p-3 border-top bg-white">
                       <div className="d-flex align-items-center gap-3 bg-light-gray p-2 rounded-pill px-3">
                         <button className="btn btn-link text-muted p-0"><i className="far fa-grin fs-5"></i></button>
-                        <button className="btn btn-link text-muted p-0"><i className="fas fa-paperclip fs-5"></i></button>
                         <input
                           type="text"
                           className="form-control border-0 bg-transparent shadow-none"
@@ -313,6 +341,38 @@ const Chat = () => {
 
         <ProfileSidebar />
       </div>
+
+      {showNewChatModal && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="bg-white p-5 rounded-4 shadow-lg border" style={{ maxWidth: '500px', width: '90%', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h4 className="fw-bold mb-0">New Conversation</h4>
+              <button className="btn-close" onClick={() => setShowNewChatModal(false)}></button>
+            </div>
+            
+            <div className="vstack gap-3 mt-3">
+              {searching ? (
+                <div className="text-center p-4"><div className="spinner-border text-primary"></div></div>
+              ) : availableUsers.length === 0 ? (
+                <div className="text-center p-4 text-muted">No users found to chat with.</div>
+              ) : availableUsers.map(u => (
+                <div 
+                  key={u.user_id || u.id} 
+                  className="d-flex align-items-center gap-3 p-3 border rounded-3 hover-bg-gray cursor-pointer"
+                  onClick={() => handleCreateChat(u.user_id || u.id)}
+                >
+                  <img src={u.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || 'User')}&background=random`} className="rounded-circle" style={{ width: '40px', height: '40px', objectFit: 'cover' }} alt="" />
+                  <div>
+                    <div className="fw-bold small">{u.name || u.User?.name}</div>
+                    <div className="text-muted" style={{ fontSize: '11px' }}>{u.role || (user.role === 'student' ? 'Instructor' : 'Student')}</div>
+                  </div>
+                  <i className="fas fa-chevron-right ms-auto text-muted opacity-50"></i>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

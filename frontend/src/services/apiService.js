@@ -1,60 +1,22 @@
-import axios from 'axios';
+import http, { BASE_URL } from './http';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const API_BASE_URL = `${BASE_URL}/api`;
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-});
-
-// Add a request interceptor to include the JWT token in all requests
-api.interceptors.request.use(
-  (config) => {
-    const token = sessionStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Add a response interceptor to handle 401 Unauthorized errors
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh')) {
-      originalRequest._retry = true;
-      try {
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
-        const { token } = response.data;
-        sessionStorage.setItem('accessToken', token);
-        originalRequest.headers.Authorization = `Bearer ${token}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        sessionStorage.removeItem('accessToken');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
-
+const api = http;
 
 export const courseService = {
   getAllCourses: (page = 1, limit = 10) => api.get(`/courses?page=${page}&limit=${limit}`),
   getCourseDetails: (id) => api.get(`/courses/${id}`),
   getMyCourses: () => api.get('/courses/my-courses'),
-  createCourse: (data) => api.post('/courses', data),
+  createCourse: (data) => api.post('/courses', {
+    title: data.title,
+    category_id: data.category_id || 1,
+    status: 'draft',
+    instructor_id: data.instructor_id,
+    user_id: data.user_id
+  }),
   updateCourse: (id, data) => api.patch(`/courses/${id}`, data),
   deleteCourse: (id) => api.delete(`/courses/${id}`),
   publishCourse: (id) => api.patch(`/courses/${id}/publish`),
+  getDetailedCourse: (id) => api.get(`/courses/${id}/details`),
   uploadCourseThumbnail: (id, formData) => api.patch(`/courses/${id}/thumbnail`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
@@ -83,6 +45,7 @@ export const adminService = {
   addStudent: (data) => api.post('/admin/students', data),
   removeStudent: (id) => api.delete(`/admin/students/${id}`),
   getStats: () => api.get('/admin/dashboard/stats'),
+  getAuditLogs: () => api.get('/admin/audit-logs'),
 };
 
 export const studentService = {
@@ -107,7 +70,8 @@ export const instructorService = {
 
 export const assignmentService = {
   // Now student sees their reviews in assignments list
-  getAssignments: () => api.get('/students/inbox/reviews'), 
+  getReviewsInbox: () => api.get('/students/inbox/reviews'), 
+  getAssignment: (id) => api.get(`/assignments/${id}`),
   uploadAssignment: (contentId, file) => {
     const formData = new FormData();
     formData.append("assignment_file", file);
@@ -155,8 +119,10 @@ export const lessonService = {
   createLesson: (sectionId, formData) => api.post(`/sections/${sectionId}/lessons`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
-  updateLesson: (id, data) => api.patch(`/lessons/${id}`, data),
   deleteLesson: (id) => api.delete(`/lessons/${id}`),
+  updateLesson: (id, formData) => api.patch(`/lessons/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
 };
 
 export const sectionService = {
@@ -166,7 +132,6 @@ export const sectionService = {
 export const enrollmentService = {
   // Corrected to match backend: POST /api/courses/:id/enroll
   enroll: (courseId) => api.post(`/courses/${courseId}/enroll`),
-  getEnrollments: () => api.get('/enrollments'),
   updateEnrollment: (id, data) => api.patch(`/enrollments/${id}`, data),
 };
 

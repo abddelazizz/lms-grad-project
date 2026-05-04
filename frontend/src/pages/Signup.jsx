@@ -19,20 +19,25 @@ const Signup = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setShowResend(false); 
+    setShowResend(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation: Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match!");
       return;
     }
 
+    if (formData.password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
+
     setShowResend(false);
-    
+
     try {
       // Send only necessary data to the backend
       const { name, username, email, password } = formData;
@@ -44,14 +49,14 @@ const Signup = () => {
       };
       const response = await authService.signup(payload);
       toast.success(response.data.message);
-      
+
       setTimeout(() => {
         window.location.href = '/login';
       }, 2500);
-      
+
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Something went wrong!';
-      
+
       if (errorMessage === "Email already registered but not verified.") {
         setUnverifiedEmail(formData.email);
         setShowResend(true);
@@ -78,7 +83,7 @@ const Signup = () => {
     <div className="signup-page-container py-4 py-md-5">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="container d-flex justify-content-center align-items-center">
-        <div className="signup-form-card bg-white p-4 p-md-5 rounded-4 border border-light-subtle shadow-soft w-100" style={{maxWidth: '480px'}}>
+        <div className="signup-form-card bg-white p-4 p-md-5 rounded-4 border border-light-subtle shadow-soft w-100" style={{ maxWidth: '480px' }}>
           <div className="text-center mb-4 mb-md-5">
             <h2 className="fw-bold text-dark mb-2 h3">Sign Up</h2>
             <p className="text-secondary fs-7">Create your account to start learning today.</p>
@@ -87,23 +92,23 @@ const Signup = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label fw-bold text-dark fs-7">Full Name</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="name"
-                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7" 
+                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7"
                 placeholder="Enter your Name"
                 value={formData.name}
                 onChange={handleChange}
-                required 
+                required
               />
             </div>
 
             <div className="mb-3">
               <label className="form-label fw-bold text-dark fs-7">User Name (Optional)</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="username"
-                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7" 
+                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7"
                 placeholder="e.g. alaa.mohamed"
                 value={formData.username}
                 onChange={handleChange}
@@ -112,40 +117,40 @@ const Signup = () => {
 
             <div className="mb-3">
               <label className="form-label fw-bold text-dark fs-7">Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 name="email"
-                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7" 
+                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7"
                 placeholder="Enter your Email"
                 value={formData.email}
                 onChange={handleChange}
-                required 
+                required
               />
             </div>
 
             <div className="mb-3">
               <label className="form-label fw-bold text-dark fs-7">Password</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 name="password"
-                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7" 
+                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7"
                 placeholder="Enter your Password"
                 value={formData.password}
                 onChange={handleChange}
-                required 
+                required
               />
             </div>
 
             <div className="mb-4">
               <label className="form-label fw-bold text-dark fs-7">Confirm Password</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 name="confirmPassword"
-                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7" 
+                className="form-control signup-input-field py-2 px-3 rounded-2 fs-7"
                 placeholder="Confirm your Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                required 
+                required
               />
             </div>
 
@@ -154,9 +159,9 @@ const Signup = () => {
             {showResend && (
               <div className="mb-4 p-3 bg-light-custom border border-warning-subtle rounded-3 text-center">
                 <p className="text-dark fs-7 mb-2 fw-medium">Didn't receive the verification email?</p>
-                <button 
-                  type="button" 
-                  onClick={handleResendVerification} 
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
                   disabled={isResending}
                   className="btn btn-outline-warning w-100 py-2 fs-7 fw-bold"
                 >
@@ -171,8 +176,8 @@ const Signup = () => {
               <hr className="flex-grow-1 border-secondary-subtle my-0" />
             </div>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-social-signup w-100 py-2 rounded-2 d-flex align-items-center justify-content-center gap-2 mb-4 mb-md-5 fs-7 border border-light-subtle"
               onClick={() => window.location.href = `${API_BASE}/api/auth/google`}
             >

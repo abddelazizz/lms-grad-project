@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { quizService } from '../services';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
@@ -8,19 +8,27 @@ import '../styles/Dashboard.css';
 
 const QuizDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [quizInfo, setQuizInfo] = useState({
     title: "Loading...",
     duration: "N/A",
     count: 0,
-    score: 0,
-    description: "Please wait while we load the quiz."
+    score: 0
   });
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [resultScore, setResultScore] = useState(null);
   const [started, setStarted] = useState(false);
+  const [startTime, setStartTime] = useState(null);
+  const [realTimeTaken, setRealTimeTaken] = useState(0);
+
+  const formatSeconds = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}m ${secs}s`;
+  };
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -41,10 +49,9 @@ const QuizDetails = () => {
           
           setQuizInfo({
             title: fetchedQuiz.title || "Untitled Quiz",
-            duration: "Self-Paced", 
+            duration: fetchedQuiz.duration ? `${fetchedQuiz.duration} Mins` : "Self-Paced", 
             count: numQuestions || 0,
-            score: 1, // Score per question
-            description: "A comprehensive assessment loaded from the server."
+            score: fetchedQuiz.score_per_question || 1
           });
           
           if (Array.isArray(fetchedQuiz.questions_json)) {
@@ -128,24 +135,83 @@ const QuizDetails = () => {
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <div className="quiz-description-container">
-                    <div className="description-header">Description</div>
-                    <div className="description-body">
-                      {quizInfo.description}
-                    </div>
-                  </div>
 
                   {/* Start Button */}
-                  <button className="btn-start-quiz" onClick={() => setStarted(true)}>
+                  <button className="btn-start-quiz" onClick={() => {
+                    setStarted(true);
+                    setStartTime(Date.now());
+                  }}>
                     <i className="fas fa-pen-nib"></i>
                     Start
                   </button>
                 </>
               ) : resultScore !== null ? (
-                <div className="text-center py-5">
-                  <h2 className="display-4 fw-bold text-success mb-3">Quiz Completed!</h2>
-                  <p className="fs-4">Your Score: <strong>{resultScore}</strong> / {questions.length}</p>
+                <div className="quiz-result-container text-center py-4">
+                   <div className="d-flex align-items-center gap-2 mb-5" style={{ color: '#555', fontSize: '14px' }}>
+                      <span className="fw-bold" style={{ color: '#1a1d20' }}>Result</span>
+                      <i className="fas fa-angles-right" style={{ fontSize: '10px', color: '#31506a' }}></i>
+                   </div>
+
+                   <div className="result-score-circle">
+                      <div className="percentage">{Math.round((resultScore / (questions.length * quizInfo.score)) * 100)}%</div>
+                      <div className="score-text">
+                        {resultScore / quizInfo.score} / {questions.length} CORRECT
+                      </div>
+                   </div>
+
+                   <h3 className="fw-bold mb-2">Well done!</h3>
+                   <p className="text-muted mb-5">You've successfully completed the quiz.</p>
+
+                   <div className="d-flex justify-content-center gap-3 mb-5">
+                      <button 
+                        className="btn text-white px-4 py-3 fw-bold d-flex align-items-center gap-2" 
+                        style={{ backgroundColor: '#31506a', borderRadius: '12px', minWidth: '200px' }}
+                        onClick={() => navigate(`/dashboard/quiz/review/${id}`)}
+                      >
+                         <i className="fas fa-file-signature"></i>
+                         Review Answers
+                      </button>
+                      <button 
+                        className="btn px-4 py-3 fw-bold d-flex align-items-center gap-2" 
+                        style={{ backgroundColor: '#dbeafe', color: '#1e40af', borderRadius: '12px', minWidth: '200px' }}
+                        onClick={() => navigate('/dashboard')}
+                      >
+                         <i className="fas fa-arrow-left"></i>
+                         Return to Course
+                      </button>
+                   </div>
+
+                   <div className="vstack gap-3 mx-auto" style={{ maxWidth: '500px' }}>
+                      <div className="result-card">
+                         <div className="result-icon-wrapper correct">
+                            <i className="fas fa-check"></i>
+                         </div>
+                         <div className="result-card-info text-start">
+                            <div className="label">CORRECT</div>
+                            <div className="value">{resultScore / quizInfo.score} Questions</div>
+                         </div>
+                      </div>
+
+                      <div className="result-card">
+                         <div className="result-icon-wrapper incorrect">
+                            <i className="fas fa-times"></i>
+                         </div>
+                         <div className="result-card-info text-start">
+                            <div className="label">INCORRECT</div>
+                            <div className="value">{questions.length - (resultScore / quizInfo.score)} Questions</div>
+                         </div>
+                      </div>
+
+                      <div className="result-card">
+                         <div className="result-icon-wrapper time">
+                            <i className="fas fa-stopwatch"></i>
+                         </div>
+                         <div className="result-card-info text-start">
+                            <div className="label">TIME TAKEN</div>
+                            <div className="value">{formatSeconds(realTimeTaken)}</div>
+                         </div>
+                      </div>
+                   </div>
                 </div>
               ) : (
                 <div className="quiz-questions-container mt-4">
@@ -159,8 +225,8 @@ const QuizDetails = () => {
                               type="radio" 
                               name={`question-${idx}`} 
                               value={opt}
-                              checked={answers[idx] === opt}
-                              onChange={() => setAnswers({ ...answers, [idx]: opt })}
+                              checked={answers[q.id || idx] === opt}
+                              onChange={() => setAnswers({ ...answers, [q.id || idx]: opt })}
                             />
                             {opt}
                           </label>
@@ -173,7 +239,12 @@ const QuizDetails = () => {
                     onClick={async () => {
                       setSubmitting(true);
                       try {
-                        const res = await quizService.submitQuiz(id, { answers });
+                        const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+                        setRealTimeTaken(timeTaken);
+                        const res = await quizService.submitQuiz(id, { 
+                          answers, 
+                          time_taken_seconds: timeTaken 
+                        });
                         setResultScore(res.data?.data?.score || 0);
                       } catch (err) {
                         console.error(err);

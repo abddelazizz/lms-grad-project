@@ -28,7 +28,7 @@ const Navbar = () => {
   const markAsRead = async (id) => {
     try {
       await api.patch(`/notifications/${id}/read`);
-      setNotifications(prev => prev.filter(n => n.id !== id));
+      setNotifications(prev => prev.filter(n => n.notification_id !== id));
     } catch (err) {}
   };
 

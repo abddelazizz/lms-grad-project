@@ -15,7 +15,7 @@ const ForgotPassword = () => {
         await authService.forgotPassword(email);
         toast.success('OTP sent to your email!');
         setTimeout(() => {
-          navigate('/verify-email', { state: { email, from: 'forgot-password' } });
+          navigate('/verify-reset-otp', { state: { email, from: 'forgot-password' } });
         }, 1500);
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to send OTP. Please try again.');

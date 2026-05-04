@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
+import { studentService } from '../services/apiService';
 import '../styles/Dashboard.css';
 import '../styles/Settings.css';
 
@@ -33,6 +34,8 @@ const Settings = () => {
   const [securityLoading, setSecurityLoading] = useState(false);
   const [isDisablingMFA, setIsDisablingMFA] = useState(false);
   const [disableFormData, setDisableFormData] = useState({ password: '', totpCode: '' });
+  const [recoveryCodes, setRecoveryCodes] = useState([]);
+  const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
 
 
   const [formData, setFormData] = useState({
@@ -136,10 +139,16 @@ const Settings = () => {
   const handleVerifyMFA = async () => {
     try {
       setSecurityLoading(true);
-      await api.post('/mfa/verify-setup', { totpCode: mfaCode });
+      const res = await api.post('/mfa/verify-setup', { totpCode: mfaCode });
       setMfaEnabled(true);
       setMfaStep('active');
       setMfaCode('');
+      
+      if (res.data?.data?.recoveryCodes) {
+        setRecoveryCodes(res.data.data.recoveryCodes);
+        setShowRecoveryCodes(true);
+      }
+      
       toast.success('MFA enabled successfully!');
     } catch (error) {
 
@@ -185,6 +194,19 @@ const Settings = () => {
       toast.success('Session logged out');
     } catch (error) {
       toast.error('Failed to revoke session');
+    }
+  };
+
+  const handleLogoutAll = async () => {
+    try {
+      setSecurityLoading(true);
+      await api.delete('/auth/sessions');
+      setSessions(sessions.filter(s => s.isCurrent));
+      toast.success('All other sessions logged out');
+    } catch (error) {
+      toast.error('Failed to logout other devices');
+    } finally {
+      setSecurityLoading(false);
     }
   };
 
@@ -234,20 +256,20 @@ const Settings = () => {
     setLoading(true);
     try {
       const updatePayload = {
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
-        phone_number: formData.phone,
-        username: formData.userName,
+        ...(formData.firstName && formData.lastName && { name: `${formData.firstName} ${formData.lastName}`.trim() }),
+        ...(formData.phone && { phone_number: formData.phone }),
+        ...(formData.userName && { username: formData.userName }),
         ...(formData.newPassword && {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,
         }),
         // Send role specific data
         ...(formData.role === 'instructor' && {
-           bio: formData.bio,
-           specialization: formData.specialization
+           ...(formData.bio && { bio: formData.bio }),
+           ...(formData.specialization && { specialization: formData.specialization })
         }),
         ...(formData.role === 'student' && {
-           grade_level: formData.grade_level
+           ...(formData.grade_level && { grade_level: formData.grade_level })
         }),
         // If they cleared the photo visually and have no file to upload, delete from DB
         ...((!avatarPreview && !avatarFile) && {
@@ -255,7 +277,7 @@ const Settings = () => {
         }),
       };
 
-      const response = await api.patch('/students/profile', updatePayload);
+      const response = await studentService.updateProfile(updatePayload);
 
       if (response?.data?.token) {
         storeToken(response.data.token);
@@ -264,7 +286,7 @@ const Settings = () => {
       if (avatarFile) {
         const photoForm = new FormData();
         photoForm.append('profile_picture', avatarFile);
-        const photoResponse = await api.patch('/students/profile/photo', photoForm);
+        const photoResponse = await studentService.updatePhoto(photoForm);
         
         if (photoResponse?.data?.token) {
           storeToken(photoResponse.data.token);
@@ -556,9 +578,50 @@ const Settings = () => {
 
                     {mfaStep === 'active' && (
                       <div className="p-4 bg-success bg-opacity-10 border-top border-success border-opacity-10">
-                        <div className="d-flex align-items-center gap-3 text-success">
-                          <i className="fas fa-check-circle fs-5"></i>
-                          <span className="small fw-bold">MFA is currently enabled on your account.</span>
+                        <div className="d-flex align-items-center justify-content-between text-success">
+                          <div className="d-flex align-items-center gap-3">
+                            <i className="fas fa-check-circle fs-5"></i>
+                            <span className="small fw-bold">MFA is currently enabled on your account.</span>
+                          </div>
+                          {recoveryCodes.length > 0 && (
+                            <button className="btn btn-success btn-sm rounded-pill px-3 fw-bold" onClick={() => setShowRecoveryCodes(true)}>
+                              View Recovery Codes
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recovery Codes Modal-like Overlay */}
+                    {showRecoveryCodes && (
+                      <div className="recovery-codes-overlay p-4 border-top animate__animated animate__fadeIn">
+                        <div className="text-center mb-4">
+                          <div className="bg-warning bg-opacity-10 text-warning d-inline-block p-3 rounded-circle mb-3">
+                            <i className="fas fa-exclamation-triangle fs-4"></i>
+                          </div>
+                          <h6 className="fw-bold">Your Recovery Codes</h6>
+                          <p className="text-muted small">Save these codes in a safe place. You can use them to access your account if you lose your phone.</p>
+                        </div>
+                        <div className="recovery-codes-grid mb-4">
+                          {recoveryCodes.map((code, idx) => (
+                            <div key={idx} className="recovery-code-item">
+                              <code>{code}</code>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="d-flex gap-2">
+                          <button 
+                            className="btn btn-outline-primary flex-grow-1 fw-bold rounded-3" 
+                            onClick={() => {
+                              navigator.clipboard.writeText(recoveryCodes.join('\n'));
+                              toast.success('Codes copied to clipboard');
+                            }}
+                          >
+                            <i className="fas fa-copy me-2"></i>Copy All
+                          </button>
+                          <button className="btn btn-primary flex-grow-1 fw-bold rounded-3" onClick={() => setShowRecoveryCodes(false)}>
+                            Done
+                          </button>
                         </div>
                       </div>
                     )}
@@ -567,8 +630,15 @@ const Settings = () => {
 
                 {/* Sessions Section */}
                 <div className="settings-form-full mt-5">
-                  <h6 className="fw-bold mb-4 border-top pt-4 hstack gap-2">
-                    <i className="fas fa-history text-primary"></i> Active Sessions
+                  <h6 className="fw-bold mb-4 border-top pt-4 hstack gap-2 justify-content-between">
+                    <div className="hstack gap-2">
+                      <i className="fas fa-history text-primary"></i> Active Sessions
+                    </div>
+                    {sessions.length > 1 && (
+                      <button className="btn btn-link text-danger text-decoration-none small p-0" onClick={handleLogoutAll} disabled={securityLoading}>
+                        Logout all other devices
+                      </button>
+                    )}
                   </h6>
                   <div className="vstack gap-3">
                     {sessions.length > 0 ? sessions.map((session) => (

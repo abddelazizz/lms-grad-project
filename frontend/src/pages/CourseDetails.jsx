@@ -15,7 +15,7 @@ const CourseDetails = () => {
 
   const fetchCourse = async () => {
     try {
-      const response = await courseService.getCourseDetails(id);
+      const response = await courseService.getDetailedCourse(id);
       if (response.data?.data?.course) {
         setCourse(response.data.data.course);
       }
@@ -83,12 +83,12 @@ const CourseDetails = () => {
                 <div className="d-flex align-items-center gap-4 mb-5 p-4 bg-white rounded-4 border shadow-sm">
                    <div className="instructor-info d-flex align-items-center gap-3">
                       <img 
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor_id || 'Instructor')}&background=random`} 
-                        className="rounded-circle" style={{ width: '50px', height: '50px' }} alt="" 
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(course.Instructor?.name || course.instructor_id || 'Instructor')}&background=random`} 
+                        className="rounded-circle" style={{ width: '50px', height: '50px' }} alt={course.Instructor?.name || 'Instructor'} 
                       />
                       <div>
                         <div className="text-muted small">Created by</div>
-                        <div className="fw-bold">Instructor #{course.instructor_id}</div>
+                        <div className="fw-bold">{course.Instructor?.name || `Instructor #${course.instructor_id}`}</div>
                       </div>
                    </div>
                    <div className="vr mx-2" style={{ height: '40px' }}></div>
@@ -100,16 +100,12 @@ const CourseDetails = () => {
 
                 {course.isEnrolled ? (
                   <button 
-                    className="btn btn-dark px-5 py-3 fw-bold rounded-pill shadow-lg" 
-                    onClick={() => {
-                        const firstLessonId = course.sections?.[0]?.lessons?.[0]?.content_id;
-                        if (firstLessonId) navigate(`/courses/${course.course_id}/learn/lesson/${firstLessonId}`);
-                        else toast.error("No lessons available yet.");
-                    }}
+                    className="btn btn-primary-custom px-5 py-3 fw-bold rounded-pill shadow-lg hstack gap-2" 
+                    onClick={() => navigate(`/dashboard/course/${course.course_id}`)}
                   >
                     <i className="fas fa-play-circle me-2"></i> Go to Course
                   </button>
-                ) : (
+                ) : user?.role === 'student' ? (
                   <button 
                     className="btn btn-primary-custom px-5 py-3 fw-bold rounded-pill shadow-lg" 
                     onClick={handleEnroll}
@@ -117,6 +113,10 @@ const CourseDetails = () => {
                   >
                     {enrolling ? 'Processing...' : 'Enroll Now'}
                   </button>
+                ) : (
+                  <div className="alert alert-info d-inline-block rounded-pill px-4">
+                    <i className="fas fa-info-circle me-2"></i> Only students can enroll in courses.
+                  </div>
                 )}
               </div>
 

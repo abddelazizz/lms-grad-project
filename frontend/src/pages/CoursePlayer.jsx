@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import { useAuth } from '../contexts/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import '../styles/CoursePlayer.css';
@@ -104,7 +102,7 @@ const CoursePlayer = () => {
 
   const reportProgress = async (lessonId) => {
     try {
-      await api.post(`/lessons/${lessonId}/watch`);
+      await api.get(`/lessons/${lessonId}/watch`);
     } catch (err) {
       console.error('Failed to report progress:', err);
     }
@@ -113,7 +111,7 @@ const CoursePlayer = () => {
   const handleCompleteLesson = async () => {
     if (!currentLesson) return;
     try {
-      await api.post(`/lessons/${currentLesson.content_id}/watch`);
+      await api.get(`/lessons/${currentLesson.content_id}/watch`);
       toast.success('Lesson marked as completed!');
       // Update local state to show checkmark
       setSections(prev => prev.map(section => ({
@@ -132,7 +130,7 @@ const CoursePlayer = () => {
 
 
   const isEnrolled = course?.isEnrolled;
-  const isFreeCourse = String(courseId) === '1'; 
+  const isFreeCourse = course?.is_free; 
   const showLock = !isFreeCourse && !isEnrolled;
 
   if (loading) {
@@ -163,7 +161,10 @@ const CoursePlayer = () => {
                        <i className="fas fa-lock text-white fa-3x mb-3"></i>
                        <h3 className="text-white fw-bold">This Content is Locked</h3>
                        <p className="text-white-50">Enroll in this course to access all lessons and resources.</p>
-                       <button className="btn btn-primary-custom px-5 py-2 fw-bold rounded-pill shadow">
+                       <button 
+                         className="btn btn-primary-custom px-5 py-2 fw-bold rounded-pill shadow"
+                         onClick={() => navigate(`/course/${courseId}`)}
+                       >
                           Enroll Now to Unlock
                        </button>
                     </div>

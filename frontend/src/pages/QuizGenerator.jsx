@@ -92,7 +92,14 @@ const QuizGenerator = () => {
 
   const handleEditOption = (qIndex, oIndex, value) => {
     const updatedQuestions = [...generatedQuiz.questions];
+    const oldOptionValue = updatedQuestions[qIndex].options[oIndex];
     updatedQuestions[qIndex].options[oIndex] = value;
+    
+    // If the edited option was the correct answer, update the correct answer string too
+    if (updatedQuestions[qIndex].correctAnswer === oldOptionValue) {
+      updatedQuestions[qIndex].correctAnswer = value;
+    }
+    
     setGeneratedQuiz({ ...generatedQuiz, questions: updatedQuestions });
   };
 
@@ -137,13 +144,22 @@ const QuizGenerator = () => {
 
             {step === 'form' ? (
               <div className="bg-white p-5 rounded-4 shadow-sm border mx-auto" style={{ maxWidth: '850px' }}>
-                <h2 className="fw-bold mb-5" style={{ color: '#1a1d20', fontSize: '32px' }}>AI Quiz Generator</h2>
+                <h2 className="fw-bold mb-4" style={{ color: '#1a1d20', fontSize: '28px' }}>Quiz</h2>
                 
-                <div className="vstack gap-4 mb-5">
-                  <div className="form-group">
-                    <label className="small fw-bold text-secondary mb-2">QUIZ TITLE</label>
-                    <input type="text" className="form-control border bg-light-gray p-3 rounded-3" placeholder="e.g. Chapter 1: Introduction to React" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <div className="vstack gap-3 mb-4">
+                  <div className="form-group" style={{ maxWidth: '300px' }}>
+                    <input type="text" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter Title" style={{ fontSize: '12px' }} value={title} onChange={(e) => setTitle(e.target.value)} />
                   </div>
+                  <div className="form-group" style={{ maxWidth: '300px' }}>
+                    <input type="number" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter Duration" style={{ fontSize: '12px' }} value={duration} onChange={(e) => setDuration(e.target.value)} />
+                  </div>
+                  <div className="form-group" style={{ maxWidth: '300px' }}>
+                    <input type="number" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter question Number" style={{ fontSize: '12px' }} value={numQuestions} onChange={(e) => setNumQuestions(e.target.value)} />
+                  </div>
+                  <div className="form-group" style={{ maxWidth: '300px' }}>
+                    <input type="number" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter score per question" style={{ fontSize: '12px' }} value={scorePerQuestion} onChange={(e) => setScorePerQuestion(e.target.value)} />
+                  </div>
+
 
                   <div className="row g-4">
                     <div className="col-md-6">
@@ -182,23 +198,37 @@ const QuizGenerator = () => {
                     </div>
                   </div>
 
-                  <div className="form-group mt-3">
-                    <label className="small fw-bold text-secondary mb-2">UPLOAD PDF MATERIAL</label>
-                    <div className="p-4 border border-dashed rounded-4 text-center bg-light" style={{ cursor: 'pointer' }} onClick={() => document.getElementById('pdf-upload').click()}>
-                      <i className="fas fa-file-pdf fs-1 mb-3 text-danger opacity-75"></i>
-                      <p className="mb-0 fw-medium">{pdfFile ? pdfFile.name : 'Click to upload PDF or drag and drop'}</p>
-                      <small className="text-muted">Maximum file size: 50MB</small>
-                      <input id="pdf-upload" type="file" className="d-none" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
+                  <div className="d-flex gap-5 mb-5 text-dark fw-bold" style={{ fontSize: '16px' }}>
+                    <div className="d-flex align-items-center gap-3">
+                      <i className="far fa-calendar-alt text-dark"></i> <span>00 / 00 / 0000</span>
                     </div>
+                    <div className="d-flex align-items-center gap-3">
+                      <i className="far fa-clock text-dark"></i> <span>00 : 00</span>
+                    </div>
+                  </div>
+
+                  <div className="upload-dropzone p-4 text-center rounded-4 mb-4" 
+                    onClick={() => document.getElementById('pdf-upload').click()}
+                    style={{ border: '2px dashed #9fb0c0', backgroundColor: '#f4f7fa', cursor: 'pointer', minHeight: '200px' }}
+                  >
+                    <input id="pdf-upload" type="file" className="d-none" accept="application/pdf" onChange={(e) => setPdfFile(e.target.files[0])} />
+                    <div className="bg-white rounded-circle shadow-sm mx-auto d-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
+                      <i className="fas fa-cloud-upload-alt fa-lg text-primary-custom"></i>
+                    </div>
+                    <p className="mb-0 fw-medium" style={{ color: '#555', fontSize: '13px' }}>
+                      {pdfFile ? pdfFile.name : (
+                        <>Drag & drop files or <span className="text-primary-custom text-decoration-underline fw-bold">Browse</span></>
+                      )}
+                    </p>
                   </div>
                 </div>
 
                 <div className="text-center mt-5">
-                  <button className="btn btn-primary-custom px-5 py-3 fw-bold rounded-pill shadow-lg" onClick={handleGenerate} disabled={loading} style={{ minWidth: '320px' }}>
+                  <button className="btn px-5 py-2 fw-bold rounded-2 shadow-sm" onClick={handleGenerate} disabled={loading} style={{ minWidth: '220px', backgroundColor: '#31506a', color: 'white' }}>
                     {loading ? (
-                      <span><i className="fas fa-circle-notch fa-spin me-2"></i> Generating Quiz...</span>
+                      <span><i className="fas fa-circle-notch fa-spin me-2"></i> Generating...</span>
                     ) : (
-                      <span><i className="fas fa-magic me-2"></i> Generate with Gemini AI</span>
+                      <span>Generate Quiz with AI</span>
                     )}
                   </button>
                 </div>

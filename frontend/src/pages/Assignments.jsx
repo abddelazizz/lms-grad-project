@@ -17,20 +17,30 @@ const Assignments = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchAssignments = async () => {
+    try {
+      const response = await assignmentService.getReviewsInbox();
+      setNotifications(response.data?.data?.notifications || []);
+    } catch (error) {
+      console.error("Failed to fetch assignments", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAssignments = async () => {
-      try {
-        const response = await assignmentService.getAssignments();
-        // The backend returns { status: "success", data: { notifications: [] } }
-        setNotifications(response.data?.data?.notifications || []);
-      } catch (error) {
-        console.error("Failed to fetch assignments", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAssignments();
   }, []);
+
+  const handleDeleteSubmission = async (submissionId) => {
+    if (!window.confirm("Are you sure you want to delete this submission?")) return;
+    try {
+      await assignmentService.deleteSubmission(submissionId);
+      fetchAssignments();
+    } catch (error) {
+      console.error("Failed to delete submission", error);
+    }
+  };
 
   return (
     <div className="dashboard-page">
@@ -133,6 +143,19 @@ const Assignments = () => {
                         }}>
                           {statusStyle.label}
                         </span>
+
+                        {assignment?.status !== 'graded' && (
+                          <button 
+                            className="btn btn-sm btn-link text-danger p-0 ms-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSubmission(assignment.submission_id);
+                            }}
+                            title="Delete Submission"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
