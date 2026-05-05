@@ -9,6 +9,7 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     {
       user_id: user.user_id,
+      name: user.name,
       role: user.role,
       picture: user.picture,
       token_version: user.token_version ?? 0,

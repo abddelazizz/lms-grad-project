@@ -355,6 +355,56 @@ const googleAuth = async (googleId, name, email, picture) => {
   return { user, token };
 };
 
+/**
+ * setPassword — for Google-only users who have no local password yet.
+ * After setting a password they can log in with email + password.
+ */
+const setPassword = async (userId, newPassword) => {
+  const user = await User.findByPk(userId);
+  if (!user) throw new AppError("User not found.", 404);
+
+  if (user.password) {
+    throw new AppError(
+      "You already have a password. Use change-password instead.",
+      400
+    );
+  }
+
+  user.password = await hashPassword(newPassword);
+  user.password_changed_at = new Date();
+  await user.save();
+};
+
+/**
+ * changePassword — for users who already have a local password.
+ * Requires the current password for verification.
+ */
+const changePassword = async (userId, currentPassword, newPassword) => {
+  const user = await User.findByPk(userId);
+  if (!user) throw new AppError("User not found.", 404);
+
+  if (!user.password) {
+    throw new AppError(
+      "You don't have a password set. Use set-password instead.",
+      400
+    );
+  }
+
+  const valid = await comparePassword(currentPassword, user.password);
+  if (!valid) {
+    throw new AppError("Current password is incorrect.", 401);
+  }
+
+  user.password = await hashPassword(newPassword);
+  user.token_version += 1;
+  user.password_changed_at = new Date();
+  await user.save();
+
+  // Revoke all existing sessions so user has to re-login
+  await revokeAllRefreshTokens(user.user_id);
+  await publishTokenRevocation(user.user_id);
+};
+
 export {
   signup,
   verifyEmail,
@@ -366,4 +416,6 @@ export {
   resetPassword,
   resendVerification,
   googleAuth,
+  setPassword,
+  changePassword,
 };

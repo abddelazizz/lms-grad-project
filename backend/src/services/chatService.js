@@ -30,11 +30,11 @@ export const createOrGetConversation = async (userId, role, otherUserId) => {
   }
 
   const enrollment = await Enrollment.findOne({
-    where: { student_id: studentId, status: "active" },
-    include: [{ model: Course, where: { instructor_id: instructorId }, attributes: [] }],
+    where: { student_id: studentId },
+    include: [{ model: Course, as: "course", where: { instructor_id: instructorId }, attributes: [] }],
   });
   if (!enrollment) {
-    throw new AppError("You can only chat with instructors whose courses you are enrolled in", 403);
+    throw new AppError("You can only chat with students enrolled in your courses", 403);
   }
 
   const [conversation, created] = await Conversation.findOrCreate({
@@ -64,7 +64,7 @@ export const getConversations = async (userId, role) => {
 
   const conversations = await Conversation.findAll({
     where: whereClause,
-    order: [Sequelize.literal('last_message_at DESC NULLS LAST'), ["created_at", "DESC"]],
+    order: [[Sequelize.literal('ISNULL(last_message_at)'), 'ASC'], ['last_message_at', 'DESC'], ["created_at", "DESC"]],
     include: [
       {
         model: Student,

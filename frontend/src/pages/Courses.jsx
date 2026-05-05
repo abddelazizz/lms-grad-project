@@ -24,11 +24,7 @@ const Courses = () => {
     fetchCourses();
   }, []);
 
-  const displayCourses = courses.map((c) => ({
-    ...c,
-    images: c.thumbnail_url ? [c.thumbnail_url] : [],
-    curriculum: c.sections ? c.sections.flatMap(s => s.lessons || []).slice(0, 5) : []
-  }));
+  const displayCourses = courses;
 
   if (loading) {
     return (
@@ -43,58 +39,70 @@ const Courses = () => {
   return (
     <div className="courses-page">
       <div className="container-custom">
-        <div className="section-title-wrapper">
-          <h1 className="display-4 fw-bold text-dark">Online Courses on Design and Development</h1>
+        <div className="section-title-wrapper animate-fade-in">
+          <h1 className="display-4 fw-bold text-dark">Discover Your Potential</h1>
           <p>
-            Welcome to our learning platform, where passion meets expertise. Our courses are designed to provide a comprehensive and deeply engaging learning experience, perfectly tailored for your success in the competitive landscape of design and technology.
+            Explore our curated selection of high-impact courses designed and taught by industry experts. 
+            Level up your skills with practical, project-based learning.
           </p>
         </div>
 
-        {displayCourses.length > 0 ? displayCourses.map((course) => (
-          <div key={course.course_id} className="course-item-container">
-            <div className="course-header">
-              <div className="course-info">
-                <h2 className="course-title">{course.title}</h2>
-                <p className="course-description">{course.description}</p>
-              </div>
-              <Link to={`/courses/${course.course_id}`} className="btn-view-course">View Course</Link>
-            </div>
-
-            {course.images && course.images.length > 0 ? (
-              <div className="course-images-grid">
-                {course.images.map((img, idx) => (
-                  <div key={idx} className="course-img-wrapper">
-                    <img src={img} alt={`${course.title} detail ${idx + 1}`} />
+        {displayCourses.length > 0 ? (
+          <div className="courses-grid">
+            {displayCourses.map((course) => (
+              <div key={course.course_id} className="course-card-premium">
+                <div className="card-image-wrapper">
+                  <img 
+                    src={course.thumbnail_url || `https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop`} 
+                    alt={course.title} 
+                  />
+                  <div className={`level-badge level-${course.level || 'beginner'}`}>
+                    {course.level || 'Beginner'}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-light rounded-4 d-flex align-items-center justify-content-center border" style={{ height: '200px', marginBottom: '2rem' }}>
-                <i className="fas fa-image text-secondary fs-1"></i>
-              </div>
-            )}
-
-            <div className="curriculum-section">
-              <h3 className="curriculum-section-title">Curriculum</h3>
-              {course.curriculum && course.curriculum.length > 0 ? (
-                <div className="curriculum-grid">
-                  {course.curriculum.map((item, idx) => (
-                    <div key={idx} className="curriculum-item">
-                      <span className="curriculum-number">0{idx + 1}</span>
-                      <p className="curriculum-title">{item.title}</p>
-                    </div>
-                  ))}
+                  <div className="price-tag">
+                    {parseFloat(course.price) > 0 ? `$${parseFloat(course.price).toFixed(2)}` : 'FREE'}
+                  </div>
                 </div>
-              ) : (
-                <div className="text-muted p-3 bg-light rounded-3 border">No curriculum uploaded yet.</div>
-              )}
-            </div>
+
+                <div className="card-content-refined">
+                  <div className="instructor-info">
+                    <img 
+                      src={course.instructor?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(course.instructor?.name || 'Instructor')}&background=random`} 
+                      alt={course.instructor?.name} 
+                      className="instructor-avatar"
+                    />
+                    <span className="instructor-name">by {course.instructor?.name || 'Expert Instructor'}</span>
+                  </div>
+
+                  <h3>{course.title}</h3>
+                  <p>{course.description}</p>
+
+                  <div className="meta-stats">
+                    <div className="stat-item">
+                      <i className="fas fa-layer-group"></i>
+                      <span>{course.sections?.length || 0} Sections</span>
+                    </div>
+                    <div className="stat-item">
+                      <i className="fas fa-play-circle"></i>
+                      <span>{course.sections?.reduce((acc, s) => acc + (s.lessons?.length || 0), 0)} Lessons</span>
+                    </div>
+                  </div>
+
+                  <div className="card-actions">
+                    <Link to={`/courses/${course.course_id}`} className="btn-premium-action">
+                      <span>Explore Course</span>
+                      <i className="fas fa-arrow-right"></i>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        )) : (
-          <div className="text-center p-5 bg-white rounded-4 border shadow-sm my-5">
-             <i className="fas fa-folder-open fs-1 text-muted mb-3"></i>
-             <h4 className="fw-bold text-dark">No Courses Available</h4>
-             <p className="text-muted">There are currently no courses published on the platform.</p>
+        ) : (
+          <div className="empty-state-lux animate-fade-in">
+             <i className="fas fa-rocket mb-4"></i>
+             <h2 className="fw-bold text-dark mb-3">Courses are coming soon!</h2>
+             <p className="text-muted">Our instructors are currently crafting new learning experiences. Stay tuned for amazing content.</p>
           </div>
         )}
       </div>

@@ -74,6 +74,7 @@ const updateCourseSchema = Joi.object({
   description: Joi.string().max(5000).optional(),
   price: Joi.number().min(0).precision(2).optional(),
   level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
+  status: Joi.string().valid("draft", "published").optional(),
   category_id: Joi.number().integer().optional(),
 }).min(1); // must provide at least one field to update
 

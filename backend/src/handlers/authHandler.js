@@ -214,6 +214,42 @@ const revokeAllUserSessions = catchAsync(async (req, res) => {
   });
 });
 
+const setPasswordHandler = catchAsync(async (req, res) => {
+  const { newPassword } = req.body;
+
+  if (!newPassword || newPassword.length < 8) {
+    throw new AppError("Password must be at least 8 characters long.", 400);
+  }
+
+  await authService.setPassword(req.user.user_id, newPassword);
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Password set successfully. You can now log in with your email and password.",
+  });
+});
+
+const changePasswordHandler = catchAsync(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    throw new AppError("Both currentPassword and newPassword are required.", 400);
+  }
+
+  if (newPassword.length < 8) {
+    throw new AppError("New password must be at least 8 characters long.", 400);
+  }
+
+  await authService.changePassword(req.user.user_id, currentPassword, newPassword);
+
+  res.status(200).json({
+    success: true,
+    statusCode: 200,
+    message: "Password changed successfully. Please log in again.",
+  });
+});
+
 export {
   signup,
   login,
@@ -228,4 +264,6 @@ export {
   getSessions,
   revokeSessionById as revokeSession,
   revokeAllUserSessions as revokeAllSessions,
+  setPasswordHandler as setPassword,
+  changePasswordHandler as changePassword,
 };

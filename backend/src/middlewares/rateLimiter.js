@@ -7,7 +7,7 @@ const handler = (message) => (req, res, next) => {
 
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   handler: handler("Too many requests. Please try again later."),

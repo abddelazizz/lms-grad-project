@@ -32,6 +32,7 @@ import InstructorDashboard from './pages/InstructorDashboard';
 import QuizReview from './pages/QuizReview';
 import AdminDashboard from './pages/AdminDashboard';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
+import UnifiedUpload from './pages/UnifiedUpload';
 import ProtectedRoute, { AdminRoute, InstructorRoute, StudentRoute } from './components/ProtectedRoute';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -42,11 +43,12 @@ import './styles/home.css';
 function AppContent() {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/instructor') || location.pathname.startsWith('/admin');
+  const isPlayer = location.pathname.includes('/learn');
 
   return (
     <div className="bg-light-gray">
-      <Banner />
-      <Navbar />
+      {!isPlayer && <Banner />}
+      {!isPlayer && <Navbar />}
       
       <Routes>
         <Route path="/" element={
@@ -71,6 +73,8 @@ function AppContent() {
         <Route path="/dashboard/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/courses/:courseId/learn/lesson/:lessonId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
+        <Route path="/courses/:courseId/learn" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
+        <Route path="/course-player/:courseId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
         
         <Route path="/instructor/my-courses" element={<InstructorRoute><InstructorMyCourses /></InstructorRoute>} />
         <Route path="/instructor/manage-course/:courseId" element={<InstructorRoute><InstructorDashboard /></InstructorRoute>} />
@@ -79,6 +83,7 @@ function AppContent() {
         <Route path="/instructor/upload-pdf" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
         <Route path="/instructor/upload-assignment" element={<InstructorRoute><InstructorUpload /></InstructorRoute>} />
         <Route path="/instructor/quiz-generator" element={<InstructorRoute><QuizGenerator /></InstructorRoute>} />
+        <Route path="/instructor/bulk-upload" element={<InstructorRoute><UnifiedUpload /></InstructorRoute>} />
         
         <Route path="/admin/add-teacher" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/add-student" element={<AdminRoute><AdminDashboard /></AdminRoute>} />

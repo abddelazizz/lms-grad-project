@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import toast, { Toaster } from 'react-hot-toast';
 import { quizService, courseService, instructorService } from '../services';
+import CustomDropdown from '../components/CustomDropdown';
 import '../styles/Dashboard.css';
 
 const QuizGenerator = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Form State
   const [title, setTitle] = useState('');
-  const [duration, setDuration] = useState('');
+  const [duration, setDuration] = useState('30');
   const [numQuestions, setNumQuestions] = useState('5');
   const [scorePerQuestion, setScorePerQuestion] = useState('1');
   const [pdfFile, setPdfFile] = useState(null);
@@ -30,14 +32,21 @@ const QuizGenerator = () => {
     const fetchCourses = async () => {
       try {
         const res = await courseService.getMyCourses();
-        setCourses(res.data.data.courses || []);
+        const courseList = res.data.data.courses || [];
+        setCourses(courseList);
+
+        const params = new URLSearchParams(location.search);
+        const courseParam = params.get('course');
+        if (courseParam) {
+          setSelectedCourse(courseParam);
+        }
       } catch (err) {
         console.error("Failed to fetch courses", err);
         toast.error("Failed to load your courses.");
       }
     };
     fetchCourses();
-  }, []);
+  }, [location.search]);
 
   // Fetch sections when course changes
   useEffect(() => {
@@ -58,9 +67,13 @@ const QuizGenerator = () => {
   }, [selectedCourse]);
 
   const handleGenerate = async () => {
-    if (!title || !duration || !numQuestions || !scorePerQuestion || !pdfFile || !selectedSection) {
-      return toast.error("Please fill in all details, select a section, and upload a PDF.");
-    }
+    if (!title) return toast.error("Please enter a quiz title.");
+    if (!selectedCourse) return toast.error("Please select a course.");
+    if (!selectedSection) return toast.error("Please select a section.");
+    if (!duration) return toast.error("Please enter duration.");
+    if (!numQuestions) return toast.error("Please select number of questions.");
+    if (!scorePerQuestion) return toast.error("Please enter score per question.");
+    if (!pdfFile) return toast.error("Please upload a PDF file for context.");
     
     setLoading(true);
     try {
@@ -146,35 +159,35 @@ const QuizGenerator = () => {
               <div className="bg-white p-5 rounded-4 shadow-sm border mx-auto" style={{ maxWidth: '850px' }}>
                 <h2 className="fw-bold mb-4" style={{ color: '#1a1d20', fontSize: '28px' }}>Quiz</h2>
                 
-                <div className="vstack gap-3 mb-4">
-                  <div className="form-group" style={{ maxWidth: '300px' }}>
-                    <input type="text" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter Title" style={{ fontSize: '12px' }} value={title} onChange={(e) => setTitle(e.target.value)} />
+                <div className="vstack gap-4 mb-4">
+                  <div className="row g-4">
+                    <div className="col-12">
+                      <label className="small fw-bold text-secondary mb-2">QUIZ TITLE</label>
+                      <input type="text" className="form-control border bg-light-gray p-3 rounded-3" placeholder="e.g. Chapter 1 Assessment" value={title} onChange={(e) => setTitle(e.target.value)} />
+                    </div>
                   </div>
-                  <div className="form-group" style={{ maxWidth: '300px' }}>
-                    <input type="number" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter Duration" style={{ fontSize: '12px' }} value={duration} onChange={(e) => setDuration(e.target.value)} />
-                  </div>
-                  <div className="form-group" style={{ maxWidth: '300px' }}>
-                    <input type="number" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter question Number" style={{ fontSize: '12px' }} value={numQuestions} onChange={(e) => setNumQuestions(e.target.value)} />
-                  </div>
-                  <div className="form-group" style={{ maxWidth: '300px' }}>
-                    <input type="number" className="form-control border bg-light-gray p-2 rounded-2" placeholder="Enter score per question" style={{ fontSize: '12px' }} value={scorePerQuestion} onChange={(e) => setScorePerQuestion(e.target.value)} />
-                  </div>
-
 
                   <div className="row g-4">
                     <div className="col-md-6">
-                      <label className="small fw-bold text-secondary mb-2">COURSE</label>
-                      <select className="form-select border bg-light-gray p-3 rounded-3" value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-                        <option value="">Select Course</option>
-                        {courses.map(c => <option key={c.course_id} value={c.course_id}>{c.title}</option>)}
-                      </select>
+                      <CustomDropdown
+                        label="COURSE"
+                        placeholder="Select Course"
+                        options={courses.map(c => ({ value: c.course_id, label: c.title }))}
+                        value={selectedCourse}
+                        onChange={(e) => setSelectedCourse(e.target.value)}
+                        icon="fas fa-graduation-cap"
+                      />
                     </div>
                     <div className="col-md-6">
-                      <label className="small fw-bold text-secondary mb-2">SECTION</label>
-                      <select className="form-select border bg-light-gray p-3 rounded-3" value={selectedSection} onChange={(e) => setSelectedSection(e.target.value)} disabled={!selectedCourse}>
-                        <option value="">Select Section</option>
-                        {sections.map(s => <option key={s.section_id} value={s.section_id}>{s.title}</option>)}
-                      </select>
+                      <CustomDropdown
+                        label="SECTION"
+                        placeholder="Select Section"
+                        options={sections.map(s => ({ value: s.section_id, label: s.title }))}
+                        value={selectedSection}
+                        onChange={(e) => setSelectedSection(e.target.value)}
+                        disabled={!selectedCourse}
+                        icon="fas fa-folder-open"
+                      />
                     </div>
                   </div>
 
@@ -184,13 +197,19 @@ const QuizGenerator = () => {
                       <input type="number" className="form-control border bg-light-gray p-3 rounded-3" placeholder="30" value={duration} onChange={(e) => setDuration(e.target.value)} />
                     </div>
                     <div className="col-md-4">
-                      <label className="small fw-bold text-secondary mb-2">QUESTIONS</label>
-                      <select className="form-select border bg-light-gray p-3 rounded-3" value={numQuestions} onChange={(e) => setNumQuestions(e.target.value)}>
-                        <option value="5">5 Questions</option>
-                        <option value="10">10 Questions</option>
-                        <option value="15">15 Questions</option>
-                        <option value="20">20 Questions</option>
-                      </select>
+                      <CustomDropdown
+                        label="NUM QUESTIONS"
+                        placeholder="5 Questions"
+                        options={[
+                          { value: '5', label: '5 Questions' },
+                          { value: '10', label: '10 Questions' },
+                          { value: '15', label: '15 Questions' },
+                          { value: '20', label: '20 Questions' },
+                        ]}
+                        value={numQuestions}
+                        onChange={(e) => setNumQuestions(e.target.value)}
+                        icon="fas fa-list-ol"
+                      />
                     </div>
                     <div className="col-md-4">
                       <label className="small fw-bold text-secondary mb-2">PTS PER Q</label>

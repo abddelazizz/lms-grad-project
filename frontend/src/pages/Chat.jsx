@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import { useAuth } from '../contexts/AuthContext';
-import { chatService } from '../services';
+import { chatService, instructorService, adminService } from '../services';
 import { io } from 'socket.io-client';
+import toast from 'react-hot-toast';
 import '../styles/Dashboard.css';
 
 const Chat = () => {
   const { user, accessToken } = useAuth();
+  const [searchParams] = [new URLSearchParams(window.location.search)];
+  const targetUserId = searchParams.get('userId');
   const [conversations, setConversations] = useState([]);
   const [selectedConv, setSelectedConv] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -18,6 +21,8 @@ const Chat = () => {
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [modalSearchTerm, setModalSearchTerm] = useState('');
   
   const socketRef = useRef();
   const messagesEndRef = useRef(null);
@@ -96,7 +101,31 @@ const Chat = () => {
   const fetchConversations = async () => {
     try {
       const res = await chatService.getConversations();
-      setConversations(res.data.data.conversations || []);
+      const data = res.data?.data || res.data;
+      const fetchedConvs = data?.conversations || [];
+      setConversations(fetchedConvs);
+
+      if (targetUserId) {
+        console.log("Auto-selecting chat for userId:", targetUserId);
+        const existing = fetchedConvs.find(c => c.otherUser?.user_id === parseInt(targetUserId));
+        if (existing) {
+          setSelectedConv(existing);
+        } else {
+          // Create new chat
+          console.log("No existing chat found, creating new one...");
+          const newRes = await chatService.createConversation(targetUserId);
+          const newData = newRes.data?.data || newRes.data;
+          const newConv = newData?.conversation;
+          if (newConv) {
+            // Ensure otherUser info is present
+            if (!newConv.otherUser && newData.otherUser) {
+              newConv.otherUser = newData.otherUser;
+            }
+            setConversations(prev => [newConv, ...prev]);
+            setSelectedConv(newConv);
+          }
+        }
+      }
     } catch (err) {
       console.error("Failed to fetch conversations", err);
     } finally {
@@ -106,34 +135,52 @@ const Chat = () => {
 
   useEffect(() => {
     fetchConversations();
-  }, []);
+  }, [targetUserId]);
 
   const openNewChatModal = async () => {
     setShowNewChatModal(true);
     setSearching(true);
     try {
-      // Get users to chat with (if student, get instructors; if instructor, get students)
-      const res = user.role === 'student' ? await chatService.api.get('/admin/instructors') : await chatService.api.get('/admin/students');
-      const users = res.data?.data?.data || res.data?.data || [];
+      let res;
+      if (user.role === 'instructor') {
+        res = await instructorService.getMyStudents();
+      } else {
+        res = await adminService.getInstructors();
+      }
+      const users = res.data?.data || res.data || [];
       setAvailableUsers(users.filter(u => (u.user_id || u.id) !== user.user_id));
     } catch (err) {
-      console.error(err);
+      console.error("Failed to open new chat modal", err);
     } finally {
       setSearching(false);
     }
   };
 
   const handleCreateChat = async (otherUserId) => {
+    console.log("Creating/Getting chat with:", otherUserId);
     try {
       const res = await chatService.createConversation(otherUserId);
-      const newConv = res.data?.data?.conversation || res.data?.conversation;
-      if (newConv) {
-        setConversations(prev => [newConv, ...prev]);
-        setSelectedConv(newConv);
+      const data = res.data?.data || res.data;
+      const conversation = data?.conversation;
+      
+      if (conversation) {
+        console.log("Conversation obtained:", conversation.conversation_id);
+        // Add otherUser info to the conversation object for consistency if missing
+        if (!conversation.otherUser && data.otherUser) {
+          conversation.otherUser = data.otherUser;
+        }
+
+        setConversations(prev => {
+          const exists = prev.find(c => c.conversation_id === conversation.conversation_id);
+          if (exists) return prev;
+          return [conversation, ...prev];
+        });
+        setSelectedConv(conversation);
         setShowNewChatModal(false);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to create chat:", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Failed to start conversation.");
     }
   };
 
@@ -190,6 +237,14 @@ const Chat = () => {
     socketRef.current.emit('stop_typing', { conversationId: selectedConv.conversation_id });
   };
 
+  const filteredConversations = conversations.filter(c => 
+    c.otherUser?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredUsers = availableUsers.filter(u => 
+    (u.name || u.User?.name || '').toLowerCase().includes(modalSearchTerm.toLowerCase())
+  );
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-layout">
@@ -206,13 +261,26 @@ const Chat = () => {
                   <h5 className="fw-bold mb-0">Chat</h5>
                   <i className="fas fa-edit text-primary-custom cursor-pointer" onClick={openNewChatModal}></i>
                 </div>
+
+                <div className="p-3 bg-white border-bottom">
+                  <div className="input-group input-group-sm bg-light rounded-pill px-2">
+                    <span className="input-group-text bg-transparent border-0"><i className="fas fa-search text-muted"></i></span>
+                    <input 
+                      type="text" 
+                      className="form-control border-0 bg-transparent shadow-none" 
+                      placeholder="Search messages..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
                 
                 <div className="flex-grow-1 overflow-auto">
                   {loading ? (
                     <div className="text-center p-5"><i className="fas fa-circle-notch fa-spin text-muted"></i></div>
-                  ) : conversations.length === 0 ? (
-                    <div className="text-center p-5 text-muted small">No conversations yet.</div>
-                  ) : conversations.map(c => (
+                  ) : filteredConversations.length === 0 ? (
+                    <div className="text-center p-5 text-muted small">No conversations found.</div>
+                  ) : filteredConversations.map(c => (
                     <div
                       key={c.conversation_id}
                       className={`d-flex align-items-center gap-3 p-3 border-bottom cursor-pointer transition-all ${selectedConv?.conversation_id === c.conversation_id ? 'bg-white shadow-sm border-start border-primary border-4' : 'hover-bg-gray'}`}
@@ -266,8 +334,12 @@ const Chat = () => {
                         </div>
                         <div>
                           <div className="fw-bold small">{selectedConv.otherUser.name}</div>
-                          <div className="text-success" style={{ fontSize: '11px', fontWeight: '500' }}>
-                            {isTyping ? 'Typing...' : onlineUsers.has(selectedConv.otherUser.user_id) ? 'Online' : 'Offline'}
+                          <div style={{ fontSize: '11px', fontWeight: '500' }}>
+                            {isTyping ? (
+                              <span className="text-primary">Typing...</span>
+                            ) : onlineUsers.has(selectedConv.otherUser.user_id) ? (
+                              <span className="text-success">Online</span>
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -313,7 +385,12 @@ const Chat = () => {
                           placeholder="Write a message..."
                           value={newMessage}
                           onChange={(e) => { setNewMessage(e.target.value); handleStartTyping(); }}
-                          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleSend();
+                            }
+                          }}
                         />
                         <button 
                           className="btn btn-primary-custom rounded-circle p-0 d-flex align-items-center justify-content-center shadow"
@@ -345,17 +422,28 @@ const Chat = () => {
       {showNewChatModal && (
         <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
           <div className="bg-white p-5 rounded-4 shadow-lg border" style={{ maxWidth: '500px', width: '90%', maxHeight: '80vh', overflowY: 'auto' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-3">
               <h4 className="fw-bold mb-0">New Conversation</h4>
               <button className="btn-close" onClick={() => setShowNewChatModal(false)}></button>
             </div>
+
+            <div className="input-group bg-light rounded-pill px-3 mb-4">
+              <span className="input-group-text bg-transparent border-0"><i className="fas fa-search text-muted"></i></span>
+              <input 
+                type="text" 
+                className="form-control border-0 bg-transparent shadow-none" 
+                placeholder="Search students..." 
+                value={modalSearchTerm}
+                onChange={(e) => setModalSearchTerm(e.target.value)}
+              />
+            </div>
             
-            <div className="vstack gap-3 mt-3">
+            <div className="vstack gap-2 mt-2" style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {searching ? (
                 <div className="text-center p-4"><div className="spinner-border text-primary"></div></div>
-              ) : availableUsers.length === 0 ? (
-                <div className="text-center p-4 text-muted">No users found to chat with.</div>
-              ) : availableUsers.map(u => (
+              ) : filteredUsers.length === 0 ? (
+                <div className="text-center p-4 text-muted">No students found.</div>
+              ) : filteredUsers.map(u => (
                 <div 
                   key={u.user_id || u.id} 
                   className="d-flex align-items-center gap-3 p-3 border rounded-3 hover-bg-gray cursor-pointer"

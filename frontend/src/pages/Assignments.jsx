@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import '../styles/Dashboard.css';
 
+import Swal from 'sweetalert2';
 import { assignmentService } from '../services';
 
 const statusColors = {
@@ -33,17 +35,39 @@ const Assignments = () => {
   }, []);
 
   const handleDeleteSubmission = async (submissionId) => {
-    if (!window.confirm("Are you sure you want to delete this submission?")) return;
-    try {
-      await assignmentService.deleteSubmission(submissionId);
-      fetchAssignments();
-    } catch (error) {
-      console.error("Failed to delete submission", error);
+    const result = await Swal.fire({
+      title: 'Delete Submission?',
+      text: "This action cannot be undone!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#31506a',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await assignmentService.deleteSubmission(submissionId);
+        Swal.fire('Deleted!', 'Your submission has been deleted.', 'success');
+        fetchAssignments();
+      } catch (error) {
+        console.error("Failed to delete submission", error);
+        Swal.fire('Error!', 'Failed to delete submission.', 'error');
+      }
     }
   };
 
   return (
     <div className="dashboard-page">
+      <Toaster 
+        position="top-center" 
+        containerStyle={{ zIndex: 100000 }} 
+        toastOptions={{
+          style: {
+            zIndex: 100001,
+          },
+        }}
+      />
       <div className="dashboard-layout">
         <Sidebar activePath="/dashboard/assignments" />
 

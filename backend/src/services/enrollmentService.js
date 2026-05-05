@@ -178,3 +178,22 @@ const recalculateEnrollmentProgress = async (enrollment, courseId, studentId) =>
 
   await enrollment.update({ progress_percentage: percentage });
 };
+
+/**
+ * PATCH /api/enrollments/:id
+ * Updates general enrollment data (e.g., status).
+ */
+export const updateEnrollment = async (enrollmentId, userId, data) => {
+  const enrollment = await Enrollment.findByPk(enrollmentId);
+  if (!enrollment) {
+    throw new AppError("Enrollment not found", 404);
+  }
+
+  // Only the student themselves or an admin can update (cancel) the enrollment
+  if (enrollment.student_id !== userId) {
+    throw new AppError("You are not authorized to update this enrollment", 403);
+  }
+
+  await enrollment.update(data);
+  return enrollment;
+};

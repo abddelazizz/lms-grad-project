@@ -17,6 +17,7 @@ import Notification from "./Notification.js";
 import Conversation from "./Conversation.js";
 import ChatMessage from "./ChatMessage.js";
 import AuditLog from "./AuditLog.js";
+import VideoProgress from "./VideoProgress.js";
 
 // ─── Course Hierarchy ────────────────────────────────────────
 // User (instructor) → Course → Section → Lesson
@@ -102,6 +103,13 @@ Quiz.belongsTo(CourseSection, { foreignKey: "section_id", as: "section" });
 Quiz.hasMany(QuizAttempt, { foreignKey: "quiz_id", as: "attempts" });
 QuizAttempt.belongsTo(Quiz, { foreignKey: "quiz_id", as: "quiz" });
 
+// ─── Video Progress ──────────────────────────────────────────
+User.hasMany(VideoProgress, { foreignKey: "student_id", as: "video_progress" });
+VideoProgress.belongsTo(User, { foreignKey: "student_id", as: "student" });
+
+LessonContent.hasMany(VideoProgress, { foreignKey: "content_id", as: "video_records" });
+VideoProgress.belongsTo(LessonContent, { foreignKey: "content_id", as: "lesson" });
+
 // ─── Exports ─────────────────────────────────────────────────
 export {
   User,
@@ -120,4 +128,5 @@ export {
   Conversation,
   ChatMessage,
   AuditLog,
+  VideoProgress,
 };

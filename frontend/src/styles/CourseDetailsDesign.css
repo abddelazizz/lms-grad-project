@@ -1,0 +1,469 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* ── Base ──────────────────────────────────────────────────────── */
+.cd-page {
+  background: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.cd-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+.cd-hero {
+  background: #fff;
+  padding: 3rem 0 4rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cd-hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* Breadcrumb */
+.cd-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 1.25rem;
+}
+.cd-breadcrumb a { color: #64748b; text-decoration: none; font-weight: 500; }
+.cd-breadcrumb a:hover { color: #31506a; }
+.cd-breadcrumb span { color: #1e293b; font-weight: 500; }
+.cd-breadcrumb i { font-size: 10px; opacity: 0.5; }
+
+/* Badges */
+.cd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.cd-badge-level { background: #eff6ff; color: #3b82f6; }
+.cd-badge-published { background: #f0fdf4; color: #10b981; }
+.cd-badge-free { background: #fef3c7; color: #d97706; }
+
+/* Hero text */
+.cd-hero-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  margin-bottom: 1rem;
+}
+
+.cd-hero-desc {
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+}
+
+/* Stats Row */
+.cd-stats-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.cd-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #475569;
+}
+.cd-stat i { color: #31506a; font-size: 15px; }
+.cd-stat strong { color: #1e293b; }
+
+/* Mobile CTA */
+.cd-mobile-cta { display: none; }
+
+/* ── Enrollment Card ───────────────────────────────────────────── */
+.cd-enroll-card-wrap {
+  position: sticky;
+  top: 90px;
+}
+
+.cd-enroll-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.cd-card-thumb {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.cd-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cd-thumb-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cd-thumb-play:hover { background: rgba(0,0,0,0.45); }
+.cd-thumb-play i {
+  width: 56px;
+  height: 56px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #31506a;
+  padding-left: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+.cd-thumb-play:hover i { transform: scale(1.1); }
+
+.cd-card-body { padding: 1.75rem; }
+
+.cd-price-row { margin-bottom: 1.25rem; }
+.cd-price {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* CTA Buttons */
+.cd-btn-enroll {
+  background: linear-gradient(135deg, #31506a 0%, #1e3a50 100%);
+  color: #fff !important;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 15px rgba(49,80,106,0.3);
+}
+.cd-btn-enroll:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(49,80,106,0.4);
+  color: #fff !important;
+}
+.cd-btn-enroll:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.cd-btn-continue {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff !important;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.25s;
+  box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+}
+.cd-btn-continue:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16,185,129,0.4);
+  color: #fff !important;
+}
+
+/* Course Includes */
+.cd-includes { margin-top: 1.25rem; }
+.cd-includes-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+.cd-includes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.cd-includes-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #475569;
+}
+.cd-includes-list li i { width: 16px; text-align: center; font-size: 14px; }
+
+/* Instructor block */
+.cd-instructor-block {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ── Curriculum Scroll Button ──────────────────────────────────── */
+.cd-curriculum-btn {
+  display: inline-flex;
+  border: none;
+  background: linear-gradient(135deg, #0f172a 0%, #31506a 100%);
+  color: #fff;
+  border-radius: 100px;
+  padding: 0;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow: 0 6px 24px rgba(49, 80, 106, 0.35);
+  transition: transform 0.22s, box-shadow 0.22s;
+  overflow: hidden;
+  position: relative;
+}
+.cd-curriculum-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cd-curriculum-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(49, 80, 106, 0.45);
+  color: #fff;
+}
+.cd-curriculum-btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 2rem 0.9rem 1.6rem;
+}
+.cd-curriculum-btn-arrow {
+  background: rgba(255,255,255,0.12);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  animation: cd-bounce 1.6s ease-in-out infinite;
+}
+@keyframes cd-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* ── Curriculum Section ────────────────────────────────────────── */
+.cd-curriculum {
+  padding: 4rem 0;
+}
+
+.cd-section-header {
+  margin-bottom: 2rem;
+}
+.cd-section-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.4rem;
+}
+.cd-section-sub {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Accordion */
+.cd-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cd-section-item {
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.cd-section-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.cd-section-item[open] { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+.cd-section-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+.cd-section-summary::-webkit-details-marker { display: none; }
+.cd-section-summary:hover { background: #fafbfc; }
+
+.cd-section-item[open] .cd-section-summary {
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.cd-section-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.cd-section-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cd-section-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.cd-chevron {
+  transition: transform 0.25s;
+  font-size: 12px;
+}
+.cd-section-item[open] .cd-chevron { transform: rotate(180deg); }
+
+/* Lessons */
+.cd-lesson-list { padding: 0.5rem 0; }
+
+.cd-lesson-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.15s;
+}
+.cd-lesson-item:last-child { border-bottom: none; }
+.cd-lesson-item.clickable { cursor: pointer; }
+.cd-lesson-item.clickable:hover { background: #f0f4f8; }
+
+.cd-lesson-icon { width: 20px; text-align: center; flex-shrink: 0; font-size: 15px; }
+
+.cd-lesson-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.cd-lesson-title { font-size: 14px; font-weight: 500; color: #334155; }
+
+.cd-free-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.cd-lesson-dur {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.cd-lesson-empty {
+  padding: 1rem 1.5rem;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* Attachments Row */
+.cd-attachments-row {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.65rem 1.5rem;
+  background: #fafbfc;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+.cd-attach-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+/* ── Bottom CTA ────────────────────────────────────────────────── */
+.cd-bottom-cta {
+  margin-top: 3rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a50 100%);
+  border-radius: 1.5rem;
+  padding: 2.5rem 3rem;
+}
+.cd-bottom-cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.cd-bottom-cta h4 { color: #fff; }
+.cd-bottom-cta p { color: #94a3b8; }
+.cd-bottom-cta .cd-btn-enroll {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  white-space: nowrap;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 992px) {
+  .cd-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .cd-enroll-card-wrap { position: static; }
+  .cd-hero-title { font-size: 1.85rem; }
+  .cd-mobile-cta { display: block; margin-top: 1.5rem; }
+  .cd-enroll-card .cd-card-body .cd-btn-enroll,
+  .cd-enroll-card .cd-card-body .cd-btn-continue { display: none; }
+  .cd-bottom-cta { padding: 2rem; }
+}
+
+@media (max-width: 576px) {
+  .cd-stats-row { gap: 1rem; }
+  .cd-section-meta span:not(.cd-chevron-wrap) { display: none; }
+  .cd-bottom-cta-inner { flex-direction: column; text-align: center; }
+  .cd-bottom-cta .cd-btn-enroll { width: 100%; }
+}

@@ -1,4 +1,4 @@
-export { default as authenticate } from "./authMiddleware.js";
+export { default as authenticate, optionalAuthenticate } from "./authMiddleware.js";
 export { default as restrictTo } from "./restrictTo.js";
 export { default as validate } from "./validationMiddleware.js";
 export { default as notFound } from "./notFound.js";

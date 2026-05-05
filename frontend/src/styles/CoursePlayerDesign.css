@@ -1,0 +1,275 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── Global ──────────────────────────────────────────────────── */
+.course-player-premium {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top Header ──────────────────────────────────────────────── */
+.player-top-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.9rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+
+/* ── Body Layout ─────────────────────────────────────────────── */
+.player-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Content Area (left) ─────────────────────────────────────── */
+.player-content-area {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+}
+
+/* ── Video Stage ─────────────────────────────────────────────── */
+.video-stage {
+  background: #000;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Lesson Header ───────────────────────────────────────────── */
+.lesson-header-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.player-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 2rem;
+}
+
+.player-tab-btn {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.88rem;
+  position: relative;
+  transition: color 0.2s;
+  cursor: pointer;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.player-tab-btn:hover { color: #1e293b; background: #f8fafc; }
+
+.player-tab-btn.active {
+  color: #31506a;
+  font-weight: 700;
+}
+
+.player-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #31506a;
+  border-radius: 2px 2px 0 0;
+}
+
+/* ── Tab Content ─────────────────────────────────────────────── */
+.tab-content-area { min-height: 180px; }
+
+/* ── Assignment Cards ────────────────────────────────────────── */
+.assignment-item-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s;
+}
+.assignment-item-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+
+.assignment-title-area h6 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.4rem;
+}
+.assignment-title-area p {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.assignment-meta-refined {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ── Empty State ─────────────────────────────────────────────── */
+.empty-state-card {
+  text-align: center;
+  padding: 3rem;
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid #f1f5f9;
+  color: #94a3b8;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.player-sidebar-refined {
+  width: 380px;
+  min-width: 320px;
+  max-width: 420px;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem 0;
+}
+
+.sidebar-label {
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: block;
+}
+
+/* ── Section Groups ──────────────────────────────────────────── */
+.sidebar-section-group { border-bottom: 1px solid #f1f5f9; }
+
+.sidebar-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.sidebar-section-header:hover { background: #f8fafc; }
+.sidebar-section-header.open { background: #eff6ff; }
+
+.sidebar-section-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.sidebar-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+/* ── Lessons in Section ──────────────────────────────────────── */
+.sidebar-section-lessons {
+  background: #fafbfc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.module-item-refined {
+  display: flex;
+  gap: 1rem;
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-items: flex-start;
+}
+.module-item-refined:hover { background: #f0f4f8; }
+.module-item-refined.active { background: #eff6ff; border-left: 3px solid #3b82f6; }
+
+.progress-indicator {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.circle-completed { color: #3b82f6; font-size: 16px; }
+.circle-progress  { color: #3b82f6; opacity: 0.5; font-size: 16px; }
+.circle-empty     { color: #cbd5e1; font-size: 15px; }
+
+.module-info h6 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.2rem;
+  line-height: 1.4;
+}
+.module-info span {
+  font-size: 0.76rem;
+  color: #94a3b8;
+}
+
+/* ── Attachment Hints ────────────────────────────────────────── */
+.sidebar-attachments-hint {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem 0.9rem 3.5rem;
+  flex-wrap: wrap;
+}
+.sidebar-attachments-hint span {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .player-body { flex-direction: column; }
+  .player-sidebar-refined {
+    width: 100%;
+    max-width: 100%;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+    max-height: 420px;
+  }
+  .player-content-area { padding: 1.5rem 1rem; }
+}

@@ -78,16 +78,29 @@ export const AuthProvider = ({ children }) => {
     clearToken();
   }, [clearToken]);
 
+  // Ref to track an ongoing refresh request to avoid multiple concurrent refreshes (preventing 429s)
+  const refreshPromiseRef = React.useRef(null);
+
   const refreshAccessToken = useCallback(async () => {
-    try {
-      const response = await http.post("/auth/refresh");
-      storeToken(response.data.token);
-      return response.data.token;
-    } catch {
-      clearToken();
-      return null;
-    }
+    if (refreshPromiseRef.current) return refreshPromiseRef.current;
+
+    refreshPromiseRef.current = (async () => {
+      try {
+        const response = await http.post("/auth/refresh");
+        const token = response.data.token;
+        storeToken(token);
+        return token;
+      } catch {
+        clearToken();
+        return null;
+      } finally {
+        refreshPromiseRef.current = null;
+      }
+    })();
+
+    return refreshPromiseRef.current;
   }, [storeToken, clearToken]);
+
   useEffect(() => {
     const interceptor = http.interceptors.request.use((config) => {
       // Always look for the freshest token: state ref first, then sessionStorage
@@ -113,10 +126,15 @@ export const AuthProvider = ({ children }) => {
 
         if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh')) {
           originalRequest._retry = true;
-          const newToken = await refreshAccessToken();
-          if (newToken) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return http(originalRequest);
+          
+          try {
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return http(originalRequest);
+            }
+          } catch (refreshError) {
+            return Promise.reject(refreshError);
           }
         }
 

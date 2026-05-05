@@ -137,6 +137,20 @@ const User = sequelize.define(
       beforeUpdate(user) {
         user.updated_at = new Date();
       },
+      async afterUpdate(user) {
+        // Auto-create Instructor profile when role is changed to "instructor"
+        if (user.changed("role") && user.role === "instructor") {
+          const { default: Instructor } = await import("./Instructor.js");
+          const existing = await Instructor.findByPk(user.user_id);
+          if (!existing) {
+            await Instructor.create({
+              user_id: user.user_id,
+              bio: null,
+              specialization: null,
+            });
+          }
+        }
+      },
     },
   },
 );

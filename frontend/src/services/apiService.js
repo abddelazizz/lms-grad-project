@@ -66,6 +66,7 @@ export const contactService = {
 export const instructorService = {
   getStats: () => api.get('/instructor/dashboard-stats'),
   getCourseDetails: (id) => api.get(`/instructor/courses/${id}/details`),
+  getMyStudents: () => api.get('/instructor/my-students'),
 };
 
 export const assignmentService = {
@@ -86,7 +87,9 @@ export const assignmentService = {
 export const quizService = {
   getQuiz: (id) => api.get(`/quizzes/${id}`),
   submitQuiz: (id, data) => api.post(`/quizzes/${id}/submit`, data),
-  generateQuiz: (data) => api.post('/quizzes/generate', data),
+  generateQuiz: (data) => api.post('/quizzes/generate', data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
   saveQuiz: (data) => api.post('/quizzes/save', data),
   publishQuiz: (id) => api.post(`/quizzes/${id}/publish`),
 };

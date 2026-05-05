@@ -33,3 +33,14 @@ export const updateProgress = catchAsync(async (req, res) => {
 
   res.status(200).json({ status: "success", data: { progress } });
 });
+
+// PATCH /api/enrollments/:id — update enrollment (e.g. cancel)
+export const updateEnrollmentStatus = catchAsync(async (req, res) => {
+  const enrollment = await enrollmentService.updateEnrollment(
+    req.params.id,
+    req.user.user_id,
+    req.body
+  );
+
+  res.status(200).json({ status: "success", data: { enrollment } });
+});

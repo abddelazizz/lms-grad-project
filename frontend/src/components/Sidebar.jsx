@@ -9,15 +9,15 @@ const Sidebar = () => {
   const [activeCourse, setActiveCourse] = useState(null);
 
   // Extract courseId from URL (either as /manage-course/:id or ?courseId=id)
-  const courseIdFromUrl = location.pathname.split('/').includes('manage-course') 
-    ? location.pathname.split('/').pop() 
+  const courseIdFromUrl = location.pathname.split('/').includes('manage-course')
+    ? location.pathname.split('/').pop()
     : new URLSearchParams(location.search).get('courseId');
 
   React.useEffect(() => {
     if (role === 'instructor' && courseIdFromUrl) {
       const fetchCourseDetails = async () => {
         try {
-          const res = await api.get(`/instructor/courses/${courseIdFromUrl}`);
+          const res = await api.get(`/instructor/courses/${courseIdFromUrl}/details`);
           setActiveCourse(res.data?.data?.course || res.data?.course);
         } catch (err) {
           console.error("Failed to fetch sidebar course details", err);
@@ -40,11 +40,11 @@ const Sidebar = () => {
       </div>
 
       <div className="sidebar-course-wrapper px-3 mb-5">
-        <Link 
-          to="/courses" 
+        <Link
+          to="/courses"
           className="nav-menu-item active d-flex align-items-center gap-3 p-2 px-3 rounded-4 text-decoration-none transition-all"
-          style={{ 
-            background: 'linear-gradient(135deg, #31506a 0%, #4a6b82 100%)', 
+          style={{
+            background: 'linear-gradient(135deg, #31506a 0%, #4a6b82 100%)',
             color: 'white',
             boxShadow: '0 8px 15px rgba(49, 80, 106, 0.15)'
           }}
@@ -57,10 +57,10 @@ const Sidebar = () => {
             e.currentTarget.style.boxShadow = '0 8px 15px rgba(49, 80, 106, 0.15)';
           }}
         >
-          <div className="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '26px', height: '26px', color: '#31506a' }}>
+          <div className="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '26px', height: '26px', color: 'white' }}>
             <i className="fas fa-plus" style={{ fontSize: '12px' }}></i>
           </div>
-          <span className="fw-bold" style={{ fontSize: '13px', letterSpacing: '0.5px' }}>COURSES</span>
+          <span className="fw-bold" style={{ fontSize: '13px', letterSpacing: '0.5px', color: 'white' }}>COURSES</span>
         </Link>
       </div>
 
@@ -68,17 +68,17 @@ const Sidebar = () => {
         <h3 className="nav-section-title text-uppercase mb-4" style={{ fontSize: '11px', color: '#888', letterSpacing: '1.5px', fontWeight: '700' }}>Overview</h3>
         <ul className="nav-menu-list list-unstyled d-flex flex-column gap-1">
           <li>
-            <Link to="/dashboard" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard')}`} style={{ color: '#1a1d20' }}>
+            <Link to="/dashboard" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard')}`}>
               <i className="fas fa-th-large"></i> <span>Dashboard</span>
             </Link>
           </li>
           <li>
-            <Link to="/dashboard/inbox" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/inbox')}`} style={{ color: '#1a1d20' }}>
+            <Link to="/dashboard/inbox" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/inbox')}`}>
               <i className="fas fa-inbox"></i> <span>Inbox</span>
             </Link>
           </li>
           <li>
-            <Link to="/dashboard/chat" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/chat')}`} style={{ color: '#1a1d20' }}>
+            <Link to="/dashboard/chat" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/chat')}`}>
               <i className="fas fa-comments"></i> <span>Chat</span>
             </Link>
           </li>
@@ -121,7 +121,7 @@ const Sidebar = () => {
           {role?.toLowerCase() === 'instructor' && (
             <>
               <li>
-                <Link to="/instructor/my-courses" className={`nav-menu-item d-flex align-items-center gap-3 p-2 rounded-2 text-decoration-none ${getActiveState('/instructor/my-courses')}`} style={{ color: '#1a1d20' }}>
+                <Link to="/instructor/my-courses" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/instructor/my-courses')}`}>
                   <i className="fas fa-folder"></i> <span>My Courses</span>
                 </Link>
               </li>
@@ -131,31 +131,65 @@ const Sidebar = () => {
                   <div className="small text-muted mb-2 px-2 fw-bold text-truncate" style={{ maxWidth: '180px' }}>
                     Managing: {activeCourse.title}
                   </div>
-                  <div className="form-group mb-3 px-2">
-                    <select className="form-select border-0 bg-light-gray rounded-3" style={{ fontSize: '11px', padding: '8px' }}>
-                      <option>Lesson Name</option>
+                  <div className="dropdown px-2 mb-3">
+                    <button 
+                      className="btn btn-light-gray w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 border-0" 
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      style={{ fontSize: '12px' }}
+                    >
+                      <span className="text-truncate" style={{ maxWidth: '120px' }}>Quick Jump...</span>
+                      <i className="fas fa-chevron-down x-small text-muted"></i>
+                    </button>
+                    <ul className="dropdown-menu shadow-lg border-0 rounded-4 p-2 animate-slide-in" style={{ maxHeight: '400px', overflowY: 'auto', minWidth: '200px' }}>
+                      <li className="px-3 py-2 text-uppercase text-muted fw-bold" style={{ fontSize: '10px' }}>Course Curriculum</li>
                       {activeCourse.sections?.map(sec => (
-                        <optgroup label={sec.title} key={sec.section_id}>
+                        <React.Fragment key={sec.section_id}>
+                          <li><hr className="dropdown-divider opacity-50" /></li>
+                          <li className="px-3 py-1 fw-bold text-primary-custom small bg-light bg-opacity-50 rounded-2 mx-2 mb-1">{sec.title}</li>
                           {sec.lessons?.map(les => (
-                            <option key={les.content_id}>{les.title}</option>
+                            <li key={les.content_id}>
+                              <button className="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-2">
+                                <i className={`fas ${les.content_type === 'video' ? 'fa-play-circle text-primary' : 'fa-file-alt text-danger'} small`}></i>
+                                <span className="small text-truncate" style={{ maxWidth: '140px' }}>{les.title}</span>
+                              </button>
+                            </li>
                           ))}
-                        </optgroup>
+                        </React.Fragment>
                       ))}
-                    </select>
+                    </ul>
                   </div>
-                  <div className="bg-white rounded-4 p-3 border shadow-sm mb-3">
-                    <ul className="list-unstyled d-flex flex-column gap-3 mb-0">
+                  <div className="bg-light bg-opacity-50 rounded-4 p-2 mb-3">
+                    <ul className="list-unstyled d-flex flex-column gap-1 mb-0">
                       <li>
-                        <Link to={`/instructor/upload-video?courseId=${activeCourse.course_id}`} className={`nav-menu-subitem text-decoration-none ${getActiveState('/instructor/upload-video')}`} style={{ fontSize: '12px', color: getActiveState('/instructor/upload-video') ? '#1a1d20' : '#888' }}>Upload video</Link>
+                        <Link to={`/instructor/upload-video?courseId=${activeCourse.course_id}`} className={`d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none transition-all ${location.pathname === '/instructor/upload-video' ? 'bg-white shadow-sm text-primary-custom fw-bold' : 'text-muted'}`} style={{ fontSize: '13px' }}>
+                          <i className="fas fa-video" style={{ width: '15px' }}></i>
+                          <span>Upload Video</span>
+                        </Link>
                       </li>
                       <li>
-                        <Link to={`/instructor/upload-pdf?courseId=${activeCourse.course_id}`} className={`nav-menu-subitem text-decoration-none ${getActiveState('/instructor/upload-pdf')}`} style={{ fontSize: '12px', color: getActiveState('/instructor/upload-pdf') ? '#1a1d20' : '#888' }}>Upload PDF</Link>
+                        <Link to={`/instructor/upload-pdf?courseId=${activeCourse.course_id}`} className={`d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none transition-all ${location.pathname === '/instructor/upload-pdf' ? 'bg-white shadow-sm text-primary-custom fw-bold' : 'text-muted'}`} style={{ fontSize: '13px' }}>
+                          <i className="fas fa-file-pdf" style={{ width: '15px' }}></i>
+                          <span>Upload PDF</span>
+                        </Link>
                       </li>
                       <li>
-                        <Link to={`/instructor/upload-assignment?courseId=${activeCourse.course_id}`} className={`nav-menu-subitem text-decoration-none ${getActiveState('/instructor/upload-assignment')}`} style={{ fontSize: '12px', color: getActiveState('/instructor/upload-assignment') ? '#1a1d20' : '#888' }}>Upload Assignment</Link>
+                        <Link to={`/instructor/upload-assignment?courseId=${activeCourse.course_id}`} className={`d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none transition-all ${location.pathname === '/instructor/upload-assignment' ? 'bg-white shadow-sm text-primary-custom fw-bold' : 'text-muted'}`} style={{ fontSize: '13px' }}>
+                          <i className="fas fa-tasks" style={{ width: '15px' }}></i>
+                          <span>Upload Assignment</span>
+                        </Link>
                       </li>
                       <li>
-                        <Link to={`/instructor/quiz-generator?courseId=${activeCourse.course_id}`} className={`nav-menu-subitem text-decoration-none ${getActiveState('/instructor/quiz-generator')}`} style={{ fontSize: '12px', color: getActiveState('/instructor/quiz-generator') ? '#1a1d20' : '#888' }}>Quiz Generator</Link>
+                        <Link to={`/instructor/quiz-generator?courseId=${activeCourse.course_id}`} className={`d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none transition-all ${location.pathname === '/instructor/quiz-generator' ? 'bg-white shadow-sm text-primary-custom fw-bold' : 'text-muted'}`} style={{ fontSize: '13px' }}>
+                          <i className="fas fa-magic" style={{ width: '15px' }}></i>
+                          <span>Quiz Generator</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to={`/instructor/bulk-upload?courseId=${activeCourse.course_id}`} className={`d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none transition-all ${location.pathname === '/instructor/bulk-upload' ? 'bg-white shadow-sm text-primary-custom fw-bold' : 'text-muted'}`} style={{ fontSize: '13px' }}>
+                          <i className="fas fa-layer-group" style={{ width: '15px' }}></i>
+                          <span>Bulk Upload</span>
+                        </Link>
                       </li>
                     </ul>
                   </div>
@@ -163,7 +197,7 @@ const Sidebar = () => {
               )}
 
               <li>
-                <Link to="/instructor/create-course" className={`nav-menu-item d-flex align-items-center gap-3 p-2 rounded-2 text-decoration-none ${getActiveState('/instructor/create-course')}`} style={{ color: '#1a1d20' }}>
+                <Link to="/instructor/create-course" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/instructor/create-course')}`}>
                   <i className="fas fa-plus"></i> <span>Create Course</span>
                 </Link>
               </li>
@@ -173,12 +207,12 @@ const Sidebar = () => {
           {(!role || (role?.toLowerCase() !== 'admin' && role?.toLowerCase() !== 'instructor')) && (
             <>
               <li>
-                <Link to="/dashboard/assignments" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/assignments')}`} style={{ color: '#1a1d20' }}>
+                <Link to="/dashboard/assignments" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/assignments')}`}>
                   <i className="fas fa-tasks"></i> <span>Assignment</span>
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard/quiz" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/quiz')}`} style={{ color: '#1a1d20' }}>
+                <Link to="/dashboard/quiz" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/quiz')}`}>
                   <i className="fas fa-vial"></i> <span>Quiz</span>
                 </Link>
               </li>
@@ -191,13 +225,13 @@ const Sidebar = () => {
         <h3 className="nav-section-title">Settings</h3>
         <ul className="nav-menu-list">
           <li>
-            <Link to="/dashboard/settings" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/settings')}`} style={{ color: '#1a1d20' }}>
+            <Link to="/dashboard/settings" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/settings')}`}>
               <i className="fas fa-user-cog"></i> <span>Settings</span>
             </Link>
           </li>
           <li>
-            <button 
-              onClick={async () => { await logout(); window.location.href = '/login'; }} 
+            <button
+              onClick={async () => { await logout(); window.location.href = '/login'; }}
               className="nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-danger border-0 bg-transparent w-100 text-start"
             >
               <i className="fas fa-power-off"></i> <span>Logout</span>

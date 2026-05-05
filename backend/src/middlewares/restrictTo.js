@@ -8,6 +8,7 @@ const restrictTo = (...roles) => {
     }
 
     if (!roles.includes(req.user.role)) {
+      console.warn(`[RestrictTo] Access denied for user ${req.user.user_id}. Role ${req.user.role} not in [${roles.join(', ')}]`);
       return next(
         new AppError("You do not have permission to perform this action", 403)
       );

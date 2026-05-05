@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate, restrictTo, validate } from "../middlewares/index.js";
+import { authenticate, optionalAuthenticate, restrictTo, validate } from "../middlewares/index.js";
 import {
   createCourse,
   getAllCourses,
@@ -21,8 +21,8 @@ router.get("/", getAllCourses);
 router.get("/my-courses", authenticate, restrictTo("student", "instructor"), getMyCourses);
 
 // GET /api/courses/:id/details or /api/courses/:id — get sections and lessons
-router.get("/:id/details", authenticate, getCourseDetails);
-router.get("/:id", authenticate, getCourseDetails);
+router.get("/:id/details", optionalAuthenticate, getCourseDetails);
+router.get("/:id", optionalAuthenticate, getCourseDetails);
 
 // ─── Instructor / Admin ───────────────────────────────────────
 // POST /api/courses — create course (validates body via Joi)

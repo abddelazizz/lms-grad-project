@@ -49,13 +49,13 @@ export const getMyCourses = catchAsync(async (req, res) => {
 
 // PATCH /api/courses/:id — update course metadata (description, level, price, etc.)
 export const updateCourse = catchAsync(async (req, res) => {
-  const { title, description, price, level, category_id } = req.body;
+  const { title, description, price, level, category_id, status } = req.body;
 
   const course = await courseService.updateCourse(
     req.params.id,
     req.user.user_id,
     req.user.role,
-    { title, description, price, level, category_id }
+    { title, description, price, level, category_id, status }
   );
 
   res.status(200).json({ status: "success", data: { course } });
