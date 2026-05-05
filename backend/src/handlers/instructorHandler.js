@@ -8,7 +8,7 @@ export const getDashboardStats = catchAsync(async (req, res) => {
 
   const courses = await Course.findAll({
     where: { instructor_id: instructorId },
-    attributes: ["course_id", "title", "status", "price"],
+    attributes: ["course_id", "title", "status", "price", "thumbnail_url"],
     include: [
       {
         model: Enrollment,
@@ -19,6 +19,18 @@ export const getDashboardStats = catchAsync(async (req, res) => {
         model: Review,
         as: "reviews",
         attributes: ["rating"],
+      },
+      {
+        model: CourseSection,
+        as: "sections",
+        attributes: ["section_id"],
+        include: [
+          {
+            model: LessonContent,
+            as: "lessons",
+            attributes: ["content_id"],
+          },
+        ],
       },
     ],
   });
@@ -53,10 +65,19 @@ export const getDashboardStats = catchAsync(async (req, res) => {
       ratingsCount++;
     });
 
+    // Count sections and lessons
+    const total_sections = course.sections ? course.sections.length : 0;
+    const total_lessons = course.sections
+      ? course.sections.reduce((sum, s) => sum + (s.lessons ? s.lessons.length : 0), 0)
+      : 0;
+
     return {
       course_id: course.course_id,
       title: course.title,
       status: course.status,
+      thumbnail_url: course.thumbnail_url || null,
+      total_sections,
+      total_lessons,
       enrollments: {
         total: course.enrollments.length,
         active: activeEnrollments,

@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import { signup, login, verifyEmail, forgotPassword, verifyResetOTP, resetPassword, googleAuthCallback, resendVerification, refreshToken, logout, getSessions, revokeSession, revokeAllSessions } from "../handlers/index.js";
+import { signup, login, verifyEmail, forgotPassword, verifyResetOTP, resetPassword, googleAuthCallback, resendVerification, refreshToken, logout, getSessions, revokeSession, revokeAllSessions, setPassword, changePassword } from "../handlers/index.js";
 import { validate, authenticate } from "../middlewares/index.js";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, resendVerificationSchema, verifyOtpSchema } from "../validations/index.js";
 
@@ -18,6 +18,10 @@ router.post("/logout", authenticate, logout);
 router.get("/sessions", authenticate, getSessions);
 router.delete("/sessions/:tokenId", authenticate, revokeSession);
 router.delete("/sessions", authenticate, revokeAllSessions);
+
+// Password management for authenticated users
+router.post("/set-password", authenticate, setPassword);        // Google-only users
+router.post("/change-password", authenticate, changePassword);  // Users with existing password
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 

@@ -83,3 +83,7 @@
     at async googleAuth (file:///L:/EvolveSight/lms-grad-project-security/src/services/authService.js:319:14)
     at async Strategy._verify (file:///L:/EvolveSight/lms-grad-project-security/src/config/passport.js:34:24)
 2026-05-03 18:20:23 [ERROR]: SECURITY | event=FAILED_LOGIN_NO_PASSWORD_SET | {"email":"ebrahimelrefaei22@gmail.com","user_id":1}
+2026-05-05 17:15:52 [ERROR]: SECURITY | event=FAILED_LOGIN_USER_NOT_FOUND | {"email":"admin@recode.com"}
+2026-05-05 17:16:26 [ERROR]: SECURITY | event=FAILED_LOGIN_WRONG_PASSWORD | {"email":"abdelaziz@test.com","user_id":27,"attempts":1}
+2026-05-05 17:16:46 [ERROR]: SECURITY | event=FAILED_LOGIN_WRONG_PASSWORD | {"email":"abd@test.com","user_id":28,"attempts":1}
+2026-05-05 17:16:55 [ERROR]: SECURITY | event=FAILED_LOGIN_WRONG_PASSWORD | {"email":"aboodymohamed538@gmail.com","user_id":33,"attempts":1}

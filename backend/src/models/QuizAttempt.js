@@ -24,6 +24,10 @@ const QuizAttempt = sequelize.define("QuizAttempt", {
   total_quiz_score: {
     type: DataTypes.INTEGER,
   },
+  time_taken_seconds: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   attempted_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,

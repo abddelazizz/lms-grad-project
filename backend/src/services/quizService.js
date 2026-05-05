@@ -200,7 +200,7 @@ export const getQuizForStudent = async (quizId, studentId) => {
   };
 };
 
-export const submitQuizAttempt = async (quizId, studentId, answers) => {
+export const submitQuizAttempt = async (quizId, studentId, answers, timeTakenSeconds = null) => {
   const quiz = await Quiz.findByPk(quizId);
   if (!quiz) {
     throw new AppError("Quiz not found.", 404);
@@ -237,6 +237,7 @@ export const submitQuizAttempt = async (quizId, studentId, answers) => {
     answers_json: answers,
     score,
     total_quiz_score: quiz.total_score,
+    time_taken_seconds: timeTakenSeconds,
   });
 
   await Student.increment("total_points", {
@@ -293,5 +294,6 @@ export const reviewQuiz = async (quizId, studentId) => {
     review,
     score: attempt.score,
     total_quiz_score: attempt.total_quiz_score,
+    time_taken_seconds: attempt.time_taken_seconds || null,
   };
 };

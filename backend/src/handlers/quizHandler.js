@@ -55,11 +55,13 @@ export const getQuiz = catchAsync(async (req, res) => {
 });
 
 export const submitQuizAttempt = catchAsync(async (req, res) => {
+  const { answers, time_taken_seconds } = req.body;
   const { score, total_quiz_score, attempt_id } =
     await quizService.submitQuizAttempt(
       req.params.id,
       req.user.user_id,
-      req.body.answers
+      answers,
+      time_taken_seconds || null
     );
 
   res.status(200).json({
