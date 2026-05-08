@@ -19,7 +19,7 @@ export const extractTextFromBuffer = async (buffer) => {
   if (!data.text || data.text.trim().length === 0) {
     throw new AppError(
       "Could not extract text from the PDF. Please ensure it contains selectable text.",
-      400
+      400,
     );
   }
 
@@ -38,7 +38,7 @@ export const uploadToCloudinary = (buffer) => {
           return reject(new AppError("Failed to upload PDF to storage.", 502));
         }
         resolve(result.secure_url);
-      }
+      },
     );
     stream.end(buffer);
   });
@@ -86,22 +86,28 @@ export const callGemini = async (prompt) => {
   } catch {
     throw new AppError(
       "AI failed to generate valid questions. Please try again.",
-      502
+      502,
     );
   }
 
   if (!Array.isArray(questions) || questions.length === 0) {
     throw new AppError(
       "AI failed to generate valid questions. Please try again.",
-      502
+      502,
     );
   }
 
   questions.forEach((q, i) => {
-    if (!q.id || !q.question || !Array.isArray(q.options) || q.options.length !== 4 || !q.correctAnswer) {
+    if (
+      !q.id ||
+      !q.question ||
+      !Array.isArray(q.options) ||
+      q.options.length !== 4 ||
+      !q.correctAnswer
+    ) {
       throw new AppError(
         `AI generated an invalid question at index ${i}. Please try again.`,
-        502
+        502,
       );
     }
   });
@@ -109,7 +115,14 @@ export const callGemini = async (prompt) => {
   return questions;
 };
 
-export const generateQuiz = async ({ title, section_id, num_questions, score_per_question, duration, buffer }) => {
+export const generateQuiz = async ({
+  title,
+  section_id,
+  num_questions,
+  score_per_question,
+  duration,
+  buffer,
+}) => {
   const text = await extractTextFromBuffer(buffer);
   const material_url = await uploadToCloudinary(buffer);
   const prompt = buildQuizPrompt(text, num_questions);
@@ -156,7 +169,10 @@ export const publishQuiz = async (quizId, instructorId, role) => {
   }
 
   if (quiz.created_by !== instructorId && role !== "admin") {
-    throw new AppError("You do not have permission to perform this action.", 403);
+    throw new AppError(
+      "You do not have permission to perform this action.",
+      403,
+    );
   }
 
   if (quiz.status === "published") {
@@ -177,11 +193,14 @@ export const getQuizForStudent = async (quizId, studentId) => {
     throw new AppError("Quiz not found.", 404);
   }
 
-  const questions = typeof quiz.questions_json === "string"
-    ? JSON.parse(quiz.questions_json)
-    : quiz.questions_json;
+  const questions =
+    typeof quiz.questions_json === "string"
+      ? JSON.parse(quiz.questions_json)
+      : quiz.questions_json;
 
-  const safeQuestions = questions.map(({ correctAnswer, difficulty, ...rest }) => rest);
+  const safeQuestions = questions.map(
+    ({ correctAnswer, difficulty, ...rest }) => rest,
+  );
 
   const existingAttempt = await QuizAttempt.findOne({
     where: { quiz_id: quizId, student_id: studentId },
@@ -217,9 +236,10 @@ export const submitQuizAttempt = async (quizId, studentId, answers) => {
     throw new AppError("You have already attempted this quiz.", 403);
   }
 
-  const questions = typeof quiz.questions_json === "string"
-    ? JSON.parse(quiz.questions_json)
-    : quiz.questions_json;
+  const questions =
+    typeof quiz.questions_json === "string"
+      ? JSON.parse(quiz.questions_json)
+      : quiz.questions_json;
 
   let score = 0;
   if (questions && Array.isArray(questions)) {
@@ -264,13 +284,15 @@ export const reviewQuiz = async (quizId, studentId) => {
     throw new AppError("Quiz not found.", 404);
   }
 
-  const questions = typeof quiz.questions_json === "string"
-    ? JSON.parse(quiz.questions_json)
-    : quiz.questions_json;
+  const questions =
+    typeof quiz.questions_json === "string"
+      ? JSON.parse(quiz.questions_json)
+      : quiz.questions_json;
 
-  const studentAnswers = typeof attempt.answers_json === "string"
-    ? JSON.parse(attempt.answers_json)
-    : attempt.answers_json;
+  const studentAnswers =
+    typeof attempt.answers_json === "string"
+      ? JSON.parse(attempt.answers_json)
+      : attempt.answers_json;
 
   const review = questions.map((q) => {
     const studentAnswer = studentAnswers[q.id] || null;
