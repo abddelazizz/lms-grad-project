@@ -512,7 +512,7 @@ const InstructorDashboard = () => {
 
                         <div className="accordion curriculum-accordion border-0" id="curriculumAccordion">
                           {courseData?.course?.sections?.length > 0 ? courseData.course.sections.map((section, idx) => (
-                            <div className="accordion-item border rounded-4 mb-3 overflow-hidden shadow-sm" key={section.section_id} style={{ border: '1px solid #edf2f7 !important' }}>
+                            <div className="accordion-item border rounded-4 mb-3 shadow-sm" key={section.section_id} style={{ border: '1px solid #edf2f7 !important', overflow: 'visible' }}>
                               <div className="accordion-header d-flex align-items-center bg-white pe-3">
                                 <button className="accordion-button collapsed bg-white fw-bold py-4 px-4 flex-grow-1 shadow-none text-dark" type="button" data-bs-toggle="collapse" data-bs-target={`#section${idx}`} style={{ fontSize: '16px' }}>
                                   <div className="d-flex align-items-center gap-3">
@@ -527,8 +527,8 @@ const InstructorDashboard = () => {
                                   <button className="btn btn-sm btn-light rounded-circle shadow-sm hover-scale" onClick={(e) => { e.stopPropagation(); handleDeleteSection(section.section_id); }} title="Delete Section"><i className="fas fa-trash text-danger small"></i></button>
                                 </div>
                               </div>
-                              <div id={`section${idx}`} className="accordion-collapse collapse" data-bs-parent="#curriculumAccordion">
-                                <div className="accordion-body bg-light bg-opacity-25 p-0 border-top">
+                              <div id={`section${idx}`} className="accordion-collapse collapse" data-bs-parent="#curriculumAccordion" style={{ overflow: 'visible' }}>
+                                <div className="accordion-body bg-light bg-opacity-25 p-0 border-top" style={{ overflow: 'visible' }}>
                                   <div className="list-group list-group-flush">
                                     {/* Video Lessons */}
                                     {section.lessons?.filter(l => l.content_type === 'video').map((lesson, lIdx) => (
@@ -613,7 +613,7 @@ const InstructorDashboard = () => {
                                         >
                                           <i className="fas fa-plus-circle"></i> Add Content to Section
                                         </button>
-                                        <ul className="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 animate-slide-in" style={{ minWidth: '240px' }}>
+                                        <ul className="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 animate-slide-in" style={{ minWidth: '240px', zIndex: 9999 }}>
                                           <li className="px-3 py-2 text-uppercase text-muted fw-bold" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>Add Content</li>
                                           <li>
                                             <button className="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-3 transition-all" onClick={() => navigate(`/instructor/upload-video?course=${courseId}&section=${section.section_id}`)}>
