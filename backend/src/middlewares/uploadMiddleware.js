@@ -15,7 +15,9 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "recode_academy_profiles",
     allowed_formats: ["jpg", "jpeg", "png"],
-    transformation: [{ width: 500, height: 500, crop: "fill", gravity: "face" }],
+    transformation: [
+      { width: 500, height: 500, crop: "fill", gravity: "face" },
+    ],
   },
 });
 
@@ -23,7 +25,10 @@ const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new AppError("Only image files are allowed (jpg, jpeg, png).", 400), false);
+    cb(
+      new AppError("Only image files are allowed (jpg, jpeg, png).", 400),
+      false,
+    );
   }
 };
 
@@ -46,19 +51,25 @@ const assignmentStorage = new CloudinaryStorage({
 
 const assignmentFileFilter = (req, file, cb) => {
   const allowedMimeTypes = [
-    "application/pdf", 
-    "application/zip", 
+    "application/pdf",
+    "application/zip",
     "application/x-zip-compressed",
-    "image/jpeg", 
+    "image/jpeg",
     "image/png",
     "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
-  
+
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new AppError("Invalid file type. Only PDF, ZIP, Word, and Images are allowed.", 400), false);
+    cb(
+      new AppError(
+        "Invalid file type. Only PDF, ZIP, Word, and Images are allowed.",
+        400,
+      ),
+      false,
+    );
   }
 };
 
@@ -68,7 +79,8 @@ const uploadAssignmentConfig = multer({
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB max
 });
 
-export const uploadAssignment = uploadAssignmentConfig.single("assignment_file");
+export const uploadAssignment =
+  uploadAssignmentConfig.single("assignment_file");
 
 // ─── Course Thumbnail Upload ───────────────────────────────────
 const thumbnailStorage = new CloudinaryStorage({
@@ -84,7 +96,10 @@ const thumbnailFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new AppError("Only image files are allowed for thumbnails.", 400), false);
+    cb(
+      new AppError("Only image files are allowed for thumbnails.", 400),
+      false,
+    );
   }
 };
 
@@ -109,8 +124,8 @@ const lessonStorage = new CloudinaryStorage({
 const lessonFileFilter = (req, file, cb) => {
   const allowedMimeTypes = [
     "video/mp4",
-    "video/quicktime",        // .mov
-    "video/x-msvideo",        // .avi
+    "video/quicktime", // .mov
+    "video/x-msvideo", // .avi
     "video/webm",
     "application/pdf",
     "application/zip",
@@ -120,7 +135,13 @@ const lessonFileFilter = (req, file, cb) => {
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new AppError("Invalid file type. Only MP4, PDF, and ZIP files are allowed.", 400), false);
+    cb(
+      new AppError(
+        "Invalid file type. Only MP4, PDF, and ZIP files are allowed.",
+        400,
+      ),
+      false,
+    );
   }
 };
 
@@ -145,12 +166,16 @@ const quizFileFilter = (req, file, cb) => {
   if (file.mimetype === "application/pdf") {
     cb(null, true);
   } else {
-    cb(new AppError("Only PDF files are allowed for quiz generation.", 400), false);
+    cb(
+      new AppError("Only PDF files are allowed for quiz generation.", 400),
+      false,
+    );
   }
 };
+const quizStorage = multer.memoryStorage();
 
 const uploadQuizConfig = multer({
-  storage: quizMaterialStorage,
+  storage: quizStorage,
   fileFilter: quizFileFilter,
   limits: { fileSize: 50 * 1024 * 1024 },
 });
