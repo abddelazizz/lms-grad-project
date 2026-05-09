@@ -41,11 +41,6 @@ const Hero = () => {
             muted 
             playsInline
           />
-          {!false && ( // Logic to hide overlay if needed, for now we keep it as requested or keep it visual
-            <div className="play-btn-overlay position-absolute top-50 start-50 translate-middle rounded-circle d-flex justify-content-center align-items-center">
-              <i className="fa-solid fa-play text-white fs-3"></i>
-            </div>
-          )}
         </div>
 
       </div>
