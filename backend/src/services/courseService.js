@@ -256,7 +256,7 @@ export const getCourseDetails = async (courseId, userId = null, role = null) => 
           {
             model: Quiz,
             as: "quizzes",
-            attributes: ["quiz_id", "title", "num_questions", "duration"],
+            attributes: ["quiz_id", "title", "num_questions", "duration", "status"],
           },
         ],
       },
