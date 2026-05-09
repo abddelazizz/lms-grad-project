@@ -144,7 +144,7 @@ const StudentDashboardContent = ({ searchTerm = '' }) => {
               <div className="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style={{ width: '50px', height: '50px' }}>
                 <i className="fas fa-check-double"></i>
               </div>
-              <h3 className="fw-bold mb-0">{liveCourses.filter(c => c.progress === 100).length}</h3>
+              <h3 className="fw-bold mb-0">{liveCourses.filter(c => Math.round(parseFloat(c.progress) || 0) >= 100).length}</h3>
               <div className="text-muted small fw-bold">Completed</div>
             </div>
             <div className="vr opacity-10" style={{ height: '60px' }}></div>

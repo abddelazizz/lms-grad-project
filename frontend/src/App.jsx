@@ -33,6 +33,7 @@ import QuizReview from './pages/QuizReview';
 import AdminDashboard from './pages/AdminDashboard';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import UnifiedUpload from './pages/UnifiedUpload';
+import StudentQuizzes from './pages/StudentQuizzes';
 import ProtectedRoute, { AdminRoute, InstructorRoute, StudentRoute } from './components/ProtectedRoute';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -67,6 +68,7 @@ function AppContent() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/dashboard/quiz/:id" element={<StudentRoute><QuizDetails /></StudentRoute>} />
         <Route path="/dashboard/quiz/review/:id" element={<StudentRoute><QuizReview /></StudentRoute>} />
+        <Route path="/dashboard/quizzes" element={<StudentRoute><StudentQuizzes /></StudentRoute>} />
         <Route path="/dashboard/assignments" element={<StudentRoute><Assignments /></StudentRoute>} />
         <Route path="/dashboard/assignment/:id" element={<StudentRoute><Assignment /></StudentRoute>} />
         <Route path="/dashboard/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />

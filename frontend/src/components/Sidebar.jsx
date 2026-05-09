@@ -41,7 +41,7 @@ const Sidebar = () => {
 
       <div className="sidebar-course-wrapper px-3 mb-5">
         <Link
-          to="/courses"
+          to={role?.toLowerCase() === 'instructor' ? '/instructor/create-course' : '/courses'}
           className="nav-menu-item active d-flex align-items-center gap-3 p-2 px-3 rounded-4 text-decoration-none transition-all"
           style={{
             background: 'linear-gradient(135deg, #31506a 0%, #4a6b82 100%)',
@@ -60,7 +60,9 @@ const Sidebar = () => {
           <div className="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{ width: '26px', height: '26px', color: 'white' }}>
             <i className="fas fa-plus" style={{ fontSize: '12px' }}></i>
           </div>
-          <span className="fw-bold" style={{ fontSize: '13px', letterSpacing: '0.5px', color: 'white' }}>COURSES</span>
+          <span className="fw-bold" style={{ fontSize: '13px', letterSpacing: '0.5px', color: 'white' }}>
+            {role?.toLowerCase() === 'instructor' ? 'NEW COURSE' : 'COURSES'}
+          </span>
         </Link>
       </div>
 
@@ -212,7 +214,7 @@ const Sidebar = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${location.pathname.startsWith('/dashboard/quiz') ? 'active' : ''}`}>
+                <Link to="/dashboard/quizzes" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${location.pathname.startsWith('/dashboard/quiz') ? 'active' : ''}`}>
                   <i className="fas fa-vial"></i> <span>Quiz</span>
                 </Link>
               </li>
