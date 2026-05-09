@@ -11,6 +11,7 @@ const QuizDetails = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [alreadyAttempted, setAlreadyAttempted] = useState(false);
   const [quizInfo, setQuizInfo] = useState({
     title: "Loading...",
     duration: "N/A",
@@ -51,6 +52,11 @@ const QuizDetails = () => {
             score: fetchedQuiz.score_per_question || 1
           });
           
+          // If student already attempted → go straight to review
+          if (fetchedQuiz.attempted) {
+            setAlreadyAttempted(true);
+          }
+
           if (Array.isArray(qs) && qs.length > 0) {
             setQuestions(qs);
           }
@@ -83,6 +89,32 @@ const QuizDetails = () => {
           <button className="btn btn-dark rounded-pill px-4" onClick={() => navigate(-1)}>
             <i className="fas fa-arrow-left me-2"></i>Go Back
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (alreadyAttempted) {
+    return (
+      <div className="dashboard-page d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+        <div className="text-center p-5 bg-white rounded-4 shadow-sm" style={{ maxWidth: '480px' }}>
+          <div className="mb-4" style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #31506a, #4a6b82)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+            <i className="fas fa-check-double fa-2x text-white"></i>
+          </div>
+          <h5 className="fw-bold mb-2">Already Completed!</h5>
+          <p className="text-muted mb-4">You have already submitted this quiz. You can review your answers below.</p>
+          <div className="d-flex flex-column gap-2">
+            <button
+              className="btn text-white fw-bold px-4 py-2 rounded-pill"
+              style={{ backgroundColor: '#31506a' }}
+              onClick={() => navigate(`/dashboard/quiz/review/${id}`)}
+            >
+              <i className="fas fa-file-signature me-2"></i>Review My Answers
+            </button>
+            <button className="btn btn-outline-secondary rounded-pill px-4 py-2" onClick={() => navigate(-1)}>
+              <i className="fas fa-arrow-left me-2"></i>Go Back
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -262,12 +294,17 @@ const QuizDetails = () => {
                         setResultScore(res.data?.data?.score || 0);
                       } catch (err) {
                         console.error(err);
-                        Swal.fire({
-                          icon: 'error',
-                          title: 'Submission Failed',
-                          text: 'Failed to submit quiz. Please check your connection and try again.',
-                          confirmButtonColor: '#31506a'
-                        });
+                        // 403 = already attempted → go to review
+                        if (err?.response?.status === 403) {
+                          navigate(`/dashboard/quiz/review/${id}`);
+                        } else {
+                          Swal.fire({
+                            icon: 'error',
+                            title: 'Submission Failed',
+                            text: err?.response?.data?.message || 'Failed to submit quiz. Please try again.',
+                            confirmButtonColor: '#31506a'
+                          });
+                        }
                       } finally {
                         setSubmitting(false);
                       }
