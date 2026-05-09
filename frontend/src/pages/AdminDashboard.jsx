@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
+import MobileNavbar from '../components/MobileNavbar';
 import { useAuth } from '../contexts/AuthContext';
 import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
@@ -336,6 +337,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="dashboard-page">
+      <MobileNavbar />
       <div className="dashboard-layout">
         <Sidebar activePath={path} />
 

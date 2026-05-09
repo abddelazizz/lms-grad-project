@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
+import MobileNavbar from '../components/MobileNavbar';
 import { courseService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
 import '../styles/Dashboard.css';
@@ -56,6 +57,7 @@ const StudentQuizzes = () => {
 
   return (
     <div className="dashboard-page">
+      <MobileNavbar placeholder="Search quizzes..." />
       <div className="dashboard-layout">
         <Sidebar activePath="/dashboard/quizzes" />
 

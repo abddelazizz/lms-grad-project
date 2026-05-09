@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
+import MobileNavbar from '../components/MobileNavbar';
 import { instructorService, courseService, lessonService, sectionService } from '../services/apiService';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -113,7 +114,7 @@ const InstructorDashboard = () => {
           });
           return;
         }
-      } catch (e) {}
+      } catch (e) { }
       toast.error(err.response?.data?.message || `Failed to set status to ${newStatus}`);
     } finally {
       setLoading(false);
@@ -301,15 +302,7 @@ const InstructorDashboard = () => {
 
   return (
     <div className="dashboard-page">
-      <Toaster 
-        position="top-center" 
-        containerStyle={{ zIndex: 100000 }} 
-        toastOptions={{
-          style: {
-            zIndex: 100001,
-          },
-        }}
-      />
+      <MobileNavbar value={searchTerm} onChange={setSearchTerm} placeholder="Search curriculum..." />
       <div className="dashboard-layout">
         <Sidebar activePath={courseId ? "/instructor/my-courses" : "/dashboard"} />
 
@@ -317,7 +310,7 @@ const InstructorDashboard = () => {
           {courseId ? (
             // Course Management UI
             <div className="container-fluid pt-5 mt-4 px-4 mx-auto" style={{ maxWidth: '1200px' }}>
-              <div className="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+              <div className="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3 instructor-header-mobile">
                 <div>
                   <nav aria-label="breadcrumb">
                     <ol className="breadcrumb mb-2" style={{ fontSize: '12px' }}>
@@ -375,11 +368,11 @@ const InstructorDashboard = () => {
 
               {/* Tab Navigation */}
               <div className="d-flex gap-5 mb-4 border-bottom px-2 bg-white rounded-top-4">
-                <button 
+                <button
                   className={`btn px-0 py-3 fw-bold transition-all shadow-none border-0 ${activeTab === 'curriculum' ? 'text-primary-custom' : 'text-muted opacity-75'}`}
-                  style={{ 
-                    borderRadius: 0, 
-                    marginBottom: '-2px', 
+                  style={{
+                    borderRadius: 0,
+                    marginBottom: '-2px',
                     fontSize: '15px',
                     borderBottom: activeTab === 'curriculum' ? '3px solid #31506a !important' : '3px solid transparent !important',
                     outline: 'none',
@@ -390,11 +383,11 @@ const InstructorDashboard = () => {
                 >
                   <i className="fas fa-layer-group me-2"></i>Curriculum Builder
                 </button>
-                <button 
+                <button
                   className={`btn px-0 py-3 fw-bold transition-all shadow-none border-0 ${activeTab === 'students' ? 'text-primary-custom' : 'text-muted opacity-75'}`}
-                  style={{ 
-                    borderRadius: 0, 
-                    marginBottom: '-2px', 
+                  style={{
+                    borderRadius: 0,
+                    marginBottom: '-2px',
                     fontSize: '15px',
                     borderBottom: activeTab === 'students' ? '3px solid #31506a !important' : '3px solid transparent !important',
                     outline: 'none',
@@ -433,7 +426,7 @@ const InstructorDashboard = () => {
                         <div className="d-flex justify-content-between">
                           <span className="text-muted">Avg. Rating</span>
                           <span className="fw-bold text-warning">
-                            {courseData?.course?.reviews?.length > 0 
+                            {courseData?.course?.reviews?.length > 0
                               ? (courseData.course.reviews.reduce((sum, r) => sum + r.rating, 0) / courseData.course.reviews.length).toFixed(1)
                               : '0.0'} ⭐
                           </span>
@@ -547,7 +540,7 @@ const InstructorDashboard = () => {
                                             <div className="fw-bold text-dark mb-0" style={{ fontSize: '14px' }}>{lesson.title}</div>
                                             <div className="d-flex align-items-center gap-2">
                                               <span className="text-muted text-uppercase fw-bold" style={{ fontSize: '9px', letterSpacing: '0.5px' }}>Video Lesson</span>
-                                              {lesson.duration && <span className="text-muted small">· {Math.floor(lesson.duration/60)}m {lesson.duration%60 > 0 ? `${lesson.duration%60}s` : ''}</span>}
+                                              {lesson.duration && <span className="text-muted small">· {Math.floor(lesson.duration / 60)}m {lesson.duration % 60 > 0 ? `${lesson.duration % 60}s` : ''}</span>}
                                             </div>
                                           </div>
                                         </div>
@@ -710,9 +703,9 @@ const InstructorDashboard = () => {
                                   <td className="py-4 ps-4">
                                     <div className="d-flex align-items-center gap-3">
                                       <div className="avatar-wrapper rounded-circle overflow-hidden shadow-sm" style={{ width: '48px', height: '48px', border: '2px solid #fff' }}>
-                                        <img 
-                                          src={enrollment.student?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(enrollment.student?.name || 'User')}&background=random`} 
-                                          alt={enrollment.student?.name} 
+                                        <img
+                                          src={enrollment.student?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(enrollment.student?.name || 'User')}&background=random`}
+                                          alt={enrollment.student?.name}
                                           className="w-100 h-100 object-fit-cover"
                                         />
                                       </div>
@@ -759,20 +752,10 @@ const InstructorDashboard = () => {
           ) : (
             // Overall Stats UI (Fallback or generic dashboard)
             <div className="container-fluid pt-5 mt-4 mx-auto" style={{ maxWidth: '1200px' }}>
-              <div className="d-flex justify-content-between align-items-center mb-5">
+              <div className="d-flex justify-content-between align-items-center mb-5 instructor-header-mobile">
                 <div>
                   <h2 className="fw-bold text-dark m-0">Dashboard</h2>
                   <p className="text-muted small m-0">Welcome back, {user?.name || 'Instructor'}!</p>
-                </div>
-                <div className="search-bar-wrapper m-0" style={{ maxWidth: '400px', flex: 1 }}>
-                  <i className="fas fa-search search-icon"></i>
-                  <input
-                    type="text"
-                    className="search-input py-2"
-                    placeholder="Search anything..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
                 </div>
               </div>
 
@@ -788,17 +771,17 @@ const InstructorDashboard = () => {
                           <div className="d-flex align-items-center gap-1"><span className="rounded-circle" style={{ width: '8px', height: '8px', background: '#31506a' }}></span> Enrollments</div>
                         </div>
                       </div>
-                      
+
                       <div className="position-relative" style={{ height: '300px' }}>
                         <div className="d-flex align-items-end justify-content-between h-100 px-3 pb-4">
                           {stats?.monthly_enrollments && Object.keys(stats.monthly_enrollments).length > 0 ? (
                             Object.entries(stats.monthly_enrollments).slice(-6).map(([month, count], i) => (
                               <div key={i} className="flex-grow-1 mx-3 position-relative" style={{ height: '100%' }}>
-                                <div className="rounded-2 position-absolute bottom-0 w-100" 
-                                  style={{ 
-                                    height: `${Math.min(count * 10, 100)}%`, 
-                                    background: i % 2 === 0 ? '#31506a' : '#4a6b82', 
-                                    transition: 'height 1s ease' 
+                                <div className="rounded-2 position-absolute bottom-0 w-100"
+                                  style={{
+                                    height: `${Math.min(count * 10, 100)}%`,
+                                    background: i % 2 === 0 ? '#31506a' : '#4a6b82',
+                                    transition: 'height 1s ease'
                                   }}
                                   title={`${count} students`}
                                 ></div>
@@ -822,7 +805,7 @@ const InstructorDashboard = () => {
                         <h6 className="fw-bold m-0">Pending Submissions</h6>
                         <Link to="/dashboard/inbox" className="btn btn-link btn-sm text-primary-custom text-decoration-none fw-bold p-0">See all</Link>
                       </div>
-                      
+
                       <div className="vstack gap-3">
                         {stats?.pending_assignments?.length > 0 ? stats.pending_assignments.map((act, i) => (
                           <div key={i} className="d-flex align-items-center gap-4 p-3 rounded-4 bg-light bg-opacity-50 border-0 transition-all hover-shadow-sm">
@@ -865,9 +848,9 @@ const InstructorDashboard = () => {
                             <div className="position-relative d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px', flexShrink: 0 }}>
                               <svg width="60" height="60" viewBox="0 0 60 60">
                                 <circle cx="30" cy="30" r="25" fill="none" stroke="#e2e8f0" strokeWidth="5" />
-                                <circle cx="30" cy="30" r="25" fill="none" stroke="#31506a" strokeWidth="5" 
-                                  strokeDasharray={`${(progress / 100) * 157} 157`} 
-                                  strokeLinecap="round" transform="rotate(-90 30 30)" 
+                                <circle cx="30" cy="30" r="25" fill="none" stroke="#31506a" strokeWidth="5"
+                                  strokeDasharray={`${(progress / 100) * 157} 157`}
+                                  strokeLinecap="round" transform="rotate(-90 30 30)"
                                 />
                               </svg>
                               <span className="position-absolute fw-bold" style={{ fontSize: '11px' }}>{progress}%</span>

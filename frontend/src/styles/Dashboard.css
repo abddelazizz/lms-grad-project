@@ -51,10 +51,16 @@
 
 .dashboard-layout {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr) 320px;
+  grid-template-columns: auto 1fr auto;
   min-height: 100vh;
   gap: 0;
   align-items: start;
+  transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Toggle Button Visibility Logic - GLOBAL HIDE */
+.toggle-btn {
+  display: none !important;
 }
 
 /* Sidebar Shared Styles */
@@ -65,23 +71,99 @@
   display: flex;
   flex-direction: column;
   position: sticky !important;
-  top: 5px;
-  width: 100%;
+  top: 0;
+  width: 320px;
   min-width: 0;
-  height: calc(100vh - 10px);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(241, 241, 243, 0.6);
+  height: 100vh;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
   z-index: 100;
-  align-self: start;
+  align-self: stretch;
   box-sizing: border-box;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease, margin 0.4s ease;
 }
 
-.sidebar-left { margin: 15px 0 5px 20px; }
-.sidebar-right-profile { margin: 15px 20px 5px 0; }
+@media (max-width: 1200px) and (min-width: 992px) {
+  .toggle-btn {
+    display: flex !important;
+  }
+
+  .dashboard-layout {
+    grid-template-columns: auto 1fr auto;
+    transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .sidebar-left,
+  .sidebar-right-profile {
+    width: 280px;
+    margin: 15px 10px;
+    padding: 25px 20px;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease;
+  }
+
+  .sidebar-left.collapsed {
+    width: 90px;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-left: 0;
+  }
+
+  /* Internal Dashboard Content Stacking */
+  .main-dashboard-content .row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  .main-dashboard-content .col-lg-4,
+  .main-dashboard-content .col-lg-8,
+  .main-dashboard-content .col-lg-6,
+  .main-dashboard-content .col-lg-3 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .sidebar-right-profile.collapsed {
+    width: 90px;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-right: 0;
+  }
+
+  .sidebar-left.collapsed span,
+  .sidebar-left.collapsed .nav-section-title,
+  .sidebar-left.collapsed .sidebar-brand-logo img:not(.mini-logo),
+  .sidebar-left.collapsed .sidebar-footer .overflow-hidden,
+  .sidebar-left.collapsed .sidebar-footer button:not(.toggle-btn),
+  .sidebar-left.collapsed .sidebar-course-wrapper span,
+  .sidebar-left.collapsed .dropdown,
+  .sidebar-right-profile.collapsed .profile-content-to-hide {
+    display: none !important;
+  }
+
+  .sidebar-left.collapsed .sidebar-brand-logo,
+  .sidebar-left.collapsed .nav-menu-item {
+    justify-content: center;
+  }
+
+  .sidebar-left.collapsed .nav-menu-item i {
+    margin: 0 !important;
+    font-size: 20px;
+  }
+}
+
+.sidebar-left {
+  margin: 0;
+}
+
+.sidebar-right-profile {
+  margin: 0;
+}
 
 .sidebar-left::-webkit-scrollbar,
 .sidebar-right-profile::-webkit-scrollbar {
@@ -753,11 +835,12 @@
 
 
 /* Responsive */
+/*
 @media (max-width: 1400px) {
   .dashboard-layout {
     grid-template-columns: 80px 1fr 280px;
   }
-}
+}*/
 
 /* --- Quiz Result Summary Styles --- */
 .quiz-result-container {
@@ -937,20 +1020,22 @@
 
 @media (max-width: 1200px) {
   .dashboard-layout {
-    grid-template-columns: 80px 1fr 280px;
-    gap: 10px;
+    /*grid-template-columns: 280px 1fr 280px;*/
+    gap: 15px;
   }
 
-  .sidebar-left span,
-  .nav-section-title {
-    display: none;
+  .sidebar-left,
+  .sidebar-right-profile {
+    width: 100%;
+    margin: 15px 10px;
+    padding: 25px 20px;
   }
+}
 
-  .sidebar-left {
-    margin: 10px;
-    padding: 20px 10px;
-    width: 70px;
-  }
+/* Hide mobile elements on large screens */
+.mobile-dashboard-navbar,
+.sidebar-close-btn {
+  display: none !important;
 }
 
 @media (max-width: 992px) {
@@ -958,34 +1043,273 @@
     grid-template-columns: 1fr;
     height: auto;
     min-height: 100vh;
-    padding: 10px;
-    gap: 20px;
+    padding: 0;
+    gap: 0;
   }
 
+  /* Mobile Sidebars Matched to Desktop */
   .sidebar-left,
   .sidebar-right-profile {
-    height: auto;
-    position: relative;
+    position: fixed !important;
     top: 0;
-    margin: 0;
-    border-radius: 16px;
-    padding: 20px;
-    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    width: 320px;
+    max-width: 85vw;
+    z-index: 2100 !important;
+    margin: 0 !important;
+    border-radius: 0;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+    display: flex;
+    flex-direction: column;
+    padding: 35px 30px !important;
+    border: none !important;
+    overflow-y: auto;
   }
 
-  .sidebar-left span,
-  .nav-section-title {
-    display: inline;
+  .sidebar-left {
+    left: 0;
+    transform: translateX(-105%) !important;
+    visibility: hidden;
+    border-right: 1px solid rgba(241, 241, 243, 0.6) !important;
   }
 
+  .sidebar-right-profile {
+    right: 0;
+    transform: translateX(105%) !important;
+    visibility: hidden;
+    border-left: 1px solid rgba(241, 241, 243, 0.6) !important;
+  }
+
+  .sidebar-left.show-mobile,
+  .sidebar-right-profile.show-mobile {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+  }
+
+  /* Internal Content Matching Desktop */
   .sidebar-brand-logo {
-    margin-bottom: 20px;
+    margin-bottom: 60px !important;
+    text-align: center !important;
+    padding: 0 !important;
   }
 
-  .sidebar-course-btn {
-    margin-bottom: 20px;
+  .nav-section {
+    padding: 0 !important;
+    margin-bottom: 40px !important;
+  }
+
+  .nav-section-title {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    color: #59595a !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    margin-bottom: 24px !important;
+    padding-left: 12px !important;
+  }
+
+  .sidebar-left .nav-link span,
+  .sidebar-left .nav-menu-item span,
+  .nav-section-title {
+    display: block !important;
+  }
+
+  .sidebar-left .nav-link,
+  .nav-menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 14px 20px !important;
+    border-radius: 12px !important;
+    color: #59595a !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    background-color: transparent !important;
+    transition: all 0.2s !important;
+    text-decoration: none !important;
+    border: none !important;
+  }
+
+  .nav-menu-item i {
+    font-size: 1.1rem !important;
+    width: 24px !important;
+    text-align: center !important;
+  }
+
+  .nav-menu-item.active {
+    background-color: transparent !important;
+    color: #31506a !important;
+    font-weight: 700 !important;
+    border: none !important;
+  }
+
+  .nav-menu-item.active i {
+    color: #31506a !important;
+  }
+
+  /* Close Button for Mobile Drawer */
+  .sidebar-close-btn {
+    display: flex !important;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 50%;
+    color: #64748b;
+    border: none;
+    z-index: 101;
+  }
+
+  /* Overlay backdrop */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    display: none;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  /* Floating Combined Search & Controls Bar - Refined Performance */
+  .mobile-dashboard-navbar {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 15px;
+    background: transparent !important;
+    position: sticky;
+    top: 0;
+    z-index: 1800;
+    /* Below sidebar, above content */
+    gap: 12px;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+  }
+
+  .mobile-nav-btn {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 50% !important;
+    color: #31506a !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: transform 0.2s active;
+  }
+
+  .mobile-search-pill-container {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 50px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 46px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .mobile-search-pill-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 15px;
+    outline: none;
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .mobile-nav-btn i {
+    font-size: 20px;
+    color: #31506a !important;
+  }
+
+
+  .sidebar-close-btn {
+    display: flex !important;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 50%;
+    color: #64748b;
+    border: none;
+    z-index: 10;
+  }
+
+  .dashboard-search-topbar {
+    display: none !important;
+  }
+
+  /* Instructor Page Mobile Refinements */
+  .instructor-header-mobile {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+    margin-bottom: 30px !important;
+  }
+
+  .instructor-header-mobile h2 {
+    font-size: 1.8rem !important;
+  }
+
+  .instructor-header-mobile .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .course-card-refined {
+    margin-bottom: 10px;
+  }
+
+  .sidebar-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.5);
+    margin-top: auto;
+  }
+
+  .btn-soft-danger {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+  }
+
+  .extra-small {
+    font-size: 10px;
+    line-height: 1.2;
   }
 }
+
+
 
 .bg-primary-custom {
   background-color: #31506a !important;

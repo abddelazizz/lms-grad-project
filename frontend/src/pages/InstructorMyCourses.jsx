@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
+import MobileNavbar from '../components/MobileNavbar';
 import { instructorService, courseService } from '../services/apiService';
 import toast, { Toaster } from 'react-hot-toast';
 import '../styles/Dashboard.css';
@@ -69,23 +70,14 @@ const InstructorMyCourses = () => {
   return (
     <div className="dashboard-page">
       <Toaster position="top-center" />
+      <MobileNavbar value={searchQuery} onChange={setSearchQuery} placeholder="Search your courses..." />
+
       <div className="dashboard-layout">
         <Sidebar activePath="/instructor/my-courses" />
 
         <main className="main-dashboard-content">
-          <div className="search-bar-wrapper">
-            <i className="fas fa-search search-icon"></i>
-            <input 
-              type="text" 
-              className="search-input" 
-              placeholder="Search your courses by title..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
           <div className="container-fluid max-width-custom pt-5 mt-4 mx-auto pb-5">
-            <div className="d-flex justify-content-between align-items-end mb-5">
+            <div className="d-flex justify-content-between align-items-end mb-5 instructor-header-mobile">
               <div>
                 <h2 className="fw-bold mb-1" style={{ color: '#1a1d20', fontSize: '2.5rem' }}>My Courses</h2>
                 <p className="text-muted mb-0">Manage and track your curriculum performance</p>

@@ -7,6 +7,10 @@ const Sidebar = () => {
   const { user, logout, api } = useAuth();
   const role = user?.role;
   const [activeCourse, setActiveCourse] = useState(null);
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 1200);
+
+  // Toggle collapse state
+  const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
   // Extract courseId from URL (either as /manage-course/:id or ?courseId=id)
   const courseIdFromUrl = location.pathname.split('/').includes('manage-course')
@@ -34,7 +38,33 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="sidebar-left">
+    <aside className={`sidebar-left ${isCollapsed ? 'collapsed' : ''}`}>
+      <button className="toggle-btn shadow-sm align-items-center justify-content-center" 
+        onClick={toggleCollapse}
+        style={{
+          position: 'absolute',
+          top: '25px',
+          right: isCollapsed ? '30px' : '20px',
+          width: '30px',
+          height: '30px',
+          borderRadius: '8px',
+          background: '#fff',
+          border: '1px solid #eee',
+          zIndex: 10,
+          cursor: 'pointer',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        <i className={`fas fa-chevron-${isCollapsed ? 'right' : 'left'}`} style={{ fontSize: '11px', color: '#31506a' }}></i>
+      </button>
+
+      <button className="sidebar-close-btn" onClick={() => {
+        document.querySelector('.sidebar-left').classList.remove('show-mobile');
+        document.querySelector('.sidebar-overlay').classList.remove('show');
+      }}>
+        <i className="fas fa-times"></i>
+      </button>
+
       <div className="sidebar-brand-logo mb-5">
         <Link to="/"><img src="/images/logo.png" alt="Recode" height="50" /></Link>
       </div>
@@ -223,23 +253,27 @@ const Sidebar = () => {
         </ul>
       </div>
 
-      <div className="nav-section">
-        <h3 className="nav-section-title">Settings</h3>
-        <ul className="nav-menu-list">
-          <li>
-            <Link to="/dashboard/settings" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/settings')}`}>
-              <i className="fas fa-user-cog"></i> <span>Settings</span>
-            </Link>
-          </li>
-          <li>
-            <button
-              onClick={async () => { await logout(); window.location.href = '/login'; }}
-              className="nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-danger border-0 bg-transparent w-100 text-start"
-            >
-              <i className="fas fa-power-off"></i> <span>Logout</span>
-            </button>
-          </li>
-        </ul>
+      <div className="sidebar-footer mt-auto p-3">
+        <div className="bg-light bg-opacity-50 p-3 rounded-4 d-flex align-items-center gap-3">
+          <img 
+            src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}`} 
+            className="rounded-circle" 
+            width="40" 
+            height="40" 
+            alt="profile" 
+          />
+          <div className="overflow-hidden">
+            <div className="fw-bold text-dark text-truncate small" style={{ fontSize: '13px' }}>{user?.name}</div>
+            <div className="text-muted text-truncate" style={{ fontSize: '10px' }}>{user?.email}</div>
+          </div>
+          <button
+            onClick={async () => { await logout(); window.location.href = '/login'; }}
+            className="btn btn-sm btn-outline-danger rounded-circle ms-auto p-0 d-flex align-items-center justify-content-center"
+            style={{ width: '32px', height: '32px' }}
+          >
+            <i className="fas fa-power-off" style={{ fontSize: '12px' }}></i>
+          </button>
+        </div>
       </div>
     </aside>
   );
