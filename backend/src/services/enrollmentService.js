@@ -155,9 +155,9 @@ const recalculateEnrollmentProgress = async (enrollment, courseId, studentId) =>
 
   if (sectionIds.length === 0) return;
 
-  // Count total lessons across all sections
+  // Count total video lessons across all sections (only videos can be marked complete)
   const totalLessons = await LessonContent.count({
-    where: { section_id: sectionIds },
+    where: { section_id: sectionIds, content_type: "video" },
   });
 
   if (totalLessons === 0) return;
@@ -167,7 +167,7 @@ const recalculateEnrollmentProgress = async (enrollment, courseId, studentId) =>
     where: {
       student_id: studentId,
       lesson_id: (await LessonContent.findAll({
-        where: { section_id: sectionIds },
+        where: { section_id: sectionIds, content_type: "video" },
         attributes: ["content_id"],
       })).map((l) => l.content_id),
       status: "completed",

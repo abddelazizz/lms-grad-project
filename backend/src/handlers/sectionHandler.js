@@ -14,3 +14,14 @@ export const createSection = catchAsync(async (req, res) => {
 
   res.status(201).json({ status: "success", data: { section } });
 });
+
+// DELETE /api/courses/:courseId/sections/:sectionId
+export const deleteSection = catchAsync(async (req, res) => {
+  await sectionService.deleteSection(
+    req.params.sectionId,
+    req.user.user_id,
+    req.user.role
+  );
+
+  res.status(204).json({ status: "success", data: null });
+});

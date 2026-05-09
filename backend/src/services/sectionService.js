@@ -49,4 +49,26 @@ export const createSection = async (courseId, instructorId, role, title) => {
   return section;
 };
 
+export const deleteSection = async (sectionId, instructorId, role) => {
+  const section = await verifySectionOwnership(sectionId, instructorId, role);
+  
+  // Optional: reorder remaining sections
+  const courseId = section.course_id;
+  const orderIndex = section.order_index;
+  
+  await section.destroy();
+
+  // Reorder the rest
+  const remaining = await CourseSection.findAll({
+    where: { course_id: courseId },
+    order: [['order_index', 'ASC']]
+  });
+  
+  for (let i = 0; i < remaining.length; i++) {
+    if (remaining[i].order_index !== i + 1) {
+      await remaining[i].update({ order_index: i + 1 });
+    }
+  }
+};
+
 export { verifyCourseOwnership, verifySectionOwnership };

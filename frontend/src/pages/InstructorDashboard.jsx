@@ -262,7 +262,13 @@ const InstructorDashboard = () => {
     });
 
     if (result.isConfirmed) {
-      toast.info("Delete section logic pending API implementation");
+      try {
+        await sectionService.deleteSection(courseId, sectionId);
+        toast.success("Section deleted successfully");
+        fetchData();
+      } catch (err) {
+        toast.error("Failed to delete section");
+      }
     }
   };
 

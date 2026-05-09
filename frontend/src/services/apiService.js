@@ -130,6 +130,7 @@ export const lessonService = {
 
 export const sectionService = {
   createSection: (courseId, data) => api.post(`/courses/${courseId}/sections`, data),
+  deleteSection: (courseId, sectionId) => api.delete(`/courses/${courseId}/sections/${sectionId}`),
 };
 
 export const enrollmentService = {
