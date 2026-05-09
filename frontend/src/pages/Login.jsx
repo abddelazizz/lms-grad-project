@@ -190,7 +190,7 @@ const Login = () => {
           <button
             type="button"
             className="btn btn-social-login w-100 py-2 rounded-2 d-flex align-items-center justify-content-center gap-2 mb-4 mb-md-5 fs-7 border border-light-subtle"
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/google`}
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'https://learn.evolvesight.com'}/api/auth/google`}
           >
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18" height="18" alt="Google" />
             <span className="fw-medium text-dark">Login with Google</span>

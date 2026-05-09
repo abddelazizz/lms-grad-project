@@ -16,7 +16,7 @@ const app = express();
 configurePassport();
 
 // ─── Security Headers ─────────────────────────────────────────
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://learn.evolvesight.com";
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -34,7 +34,7 @@ app.use(helmet({
 
 // ─── CORS ─────────────────────────────────────────────────────
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || "http://localhost:5173", "http://localhost:5173", "http://localhost:3000"],
+  origin: [process.env.FRONTEND_URL || "https://learn.evolvesight.com"],
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,

@@ -1,0 +1,51 @@
+  /* Floating Combined Search & Controls Bar - Refined Performance */
+  .mobile-dashboard-navbar {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 15px;
+    background: transparent !important;
+    position: sticky;
+    top: 0;
+    z-index: 1800;
+    /* Below sidebar, above content */
+    gap: 12px;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+  }
+
+  .mobile-nav-btn {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 50% !important;
+    color: #31506a !important;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: transform 0.2s active;
+  }
+
+  .mobile-nav-btn:active {
+    transform: scale(0.9);
+  }
+
+  .mobile-search-pill-container {
+    flex: 1;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: 1px solid rgba(49, 80, 106, 0.15);
+    border-radius: 50px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 46px;
+    box-shadow: none !important;
+  }

@@ -36,7 +36,7 @@ const signup = catchAsync(async (req, res) => {
 
 const verifyEmail = async (req, res, next) => {
   const { token } = req.query;
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const frontendUrl = process.env.FRONTEND_URL || "https://learn.evolvesight.com";
 
   if (!token) {
     return res.redirect(`${frontendUrl}/login?error=missing_token`);
@@ -170,10 +170,10 @@ const googleAuthCallback = catchAsync(async (req, res) => {
   const context = req.user;
 
   if (!context || !context.user || !context.token) {
-    return res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/login?error=google_auth_failed`);
+    return res.redirect(`${process.env.FRONTEND_URL || "https://learn.evolvesight.com"}/login?error=google_auth_failed`);
   }
 
-  res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/google/success?token=${context.token}`);
+  res.redirect(`${process.env.FRONTEND_URL || "https://learn.evolvesight.com"}/auth/google/success?token=${context.token}`);
 });
 
 const getSessions = catchAsync(async (req, res) => {
