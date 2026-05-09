@@ -12,6 +12,7 @@ import {
   Student,
 } from "../models/index.js";
 import AppError from "../utils/AppError.js";
+import { recalculateEnrollmentProgress } from "./enrollmentService.js";
 
 // ─── Passing grade threshold ────────────────────────────────
 const PASSING_GRADE = 50;
@@ -226,11 +227,17 @@ export const reviewSubmission = async (submissionId, instructorId, { grade, feed
       }
 
       // Recalculate enrollment progress percentage
-      await recalculateEnrollmentProgress(
-        submission.student_id,
-        course.course_id,
-        t
-      );
+      const enrollment = await Enrollment.findOne({
+        where: { student_id: submission.student_id, course_id: course.course_id },
+        transaction: t,
+      });
+      if (enrollment) {
+        await recalculateEnrollmentProgress(
+          enrollment,
+          course.course_id,
+          submission.student_id
+        );
+      }
     }
 
     // Commit — the ledger is now permanent
@@ -320,48 +327,3 @@ export const deleteSubmission = async (submissionId, instructorId) => {
   return { message: "Submission and associated file deleted successfully." };
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Helper — recalculate enrollment progress percentage
-// ─────────────────────────────────────────────────────────────
-const recalculateEnrollmentProgress = async (studentId, courseId, transaction) => {
-  const enrollment = await Enrollment.findOne({
-    where: { student_id: studentId, course_id: courseId },
-    transaction,
-  });
-
-  if (!enrollment) return;
-
-  const sections = await CourseSection.findAll({
-    where: { course_id: courseId },
-    attributes: ["section_id"],
-    transaction,
-  });
-  const sectionIds = sections.map((s) => s.section_id);
-  if (sectionIds.length === 0) return;
-
-  const totalLessons = await LessonContent.count({
-    where: { section_id: sectionIds },
-    transaction,
-  });
-  if (totalLessons === 0) return;
-
-  const lessonIds = (
-    await LessonContent.findAll({
-      where: { section_id: sectionIds },
-      attributes: ["content_id"],
-      transaction,
-    })
-  ).map((l) => l.content_id);
-
-  const completedLessons = await LessonProgress.count({
-    where: {
-      student_id: studentId,
-      lesson_id: lessonIds,
-      status: "completed",
-    },
-    transaction,
-  });
-
-  const percentage = ((completedLessons / totalLessons) * 100).toFixed(2);
-  await enrollment.update({ progress_percentage: percentage }, { transaction });
-};

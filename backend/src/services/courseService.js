@@ -9,6 +9,7 @@ import {
   Quiz
 } from "../models/index.js";
 import AppError from "../utils/AppError.js";
+import { recalculateEnrollmentProgress } from "./enrollmentService.js";
 
 export const createCourse = async (courseData, instructorId) => {
   const course = await Course.create({
@@ -119,6 +120,12 @@ export const getEnrolledCourses = async (studentId) => {
     ],
     order: [["enrolled_at", "DESC"]],
   });
+
+  // Self-healing: Recalculate progress for each enrollment to ensure dashboard is accurate
+  for (const e of enrollments) {
+    await recalculateEnrollmentProgress(e, e.course_id, studentId);
+  }
+
   return enrollments.map((e) => {
     const courseData = e.course.toJSON();
     const total_sections = courseData.sections?.length || 0;

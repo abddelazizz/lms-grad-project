@@ -3,6 +3,8 @@ import CourseSection from "../models/CourseSection.js";
 import Enrollment from "../models/Enrollment.js";
 import LessonContent from "../models/LessonContent.js";
 import LessonProgress from "../models/LessonProgress.js";
+import Quiz from "../models/Quiz.js";
+import QuizAttempt from "../models/QuizAttempt.js";
 import AppError from "../utils/AppError.js";
 
 /**
@@ -143,10 +145,11 @@ export const updateLessonProgress = async (lessonId, studentId, data) => {
 
 /**
  * Recalculates progress_percentage on the Enrollment record.
- * progress_percentage = (completed lessons / total lessons) * 100
+ * progress_percentage = (completed items / total items) * 100
+ * Items include: Video Lessons, PDF Assignments, and Quizzes.
  */
-const recalculateEnrollmentProgress = async (enrollment, courseId, studentId) => {
-  // Get all sections for this course
+export const recalculateEnrollmentProgress = async (enrollment, courseId, studentId) => {
+  // 1. Get all sections for this course
   const sections = await CourseSection.findAll({
     where: { course_id: courseId },
     attributes: ["section_id"],
@@ -155,26 +158,53 @@ const recalculateEnrollmentProgress = async (enrollment, courseId, studentId) =>
 
   if (sectionIds.length === 0) return;
 
-  // Count total video lessons across all sections (only videos can be marked complete)
+  // 2. Count Total Trackable Items
+  // Lessons (Videos + Assignments)
   const totalLessons = await LessonContent.count({
-    where: { section_id: sectionIds, content_type: "video" },
+    where: { 
+      section_id: sectionIds, 
+      content_type: ["video", "pdf_assignment"] 
+    },
   });
 
-  if (totalLessons === 0) return;
+  // Quizzes
+  const totalQuizzes = await Quiz.count({
+    where: { section_id: sectionIds, status: "published" },
+  });
 
-  // Count completed lessons for this student
+  const totalItems = totalLessons + totalQuizzes;
+  if (totalItems === 0) {
+    await enrollment.update({ progress_percentage: 0 });
+    return;
+  }
+
+  // 3. Count Completed Items
+  // Completed Lessons (marked 'completed' in LessonProgress)
   const completedLessons = await LessonProgress.count({
     where: {
       student_id: studentId,
       lesson_id: (await LessonContent.findAll({
-        where: { section_id: sectionIds, content_type: "video" },
+        where: { section_id: sectionIds, content_type: ["video", "pdf_assignment"] },
         attributes: ["content_id"],
       })).map((l) => l.content_id),
       status: "completed",
     },
   });
 
-  const percentage = ((completedLessons / totalLessons) * 100).toFixed(2);
+  // Completed Quizzes (at least one attempt exists)
+  const completedQuizzes = await Quiz.count({
+    distinct: true,
+    include: [{
+      model: QuizAttempt,
+      as: 'attempts',
+      where: { student_id: studentId },
+      required: true
+    }],
+    where: { section_id: sectionIds }
+  });
+
+  const completedItems = completedLessons + completedQuizzes;
+  const percentage = Math.min(((completedItems / totalItems) * 100), 100).toFixed(2);
 
   await enrollment.update({ progress_percentage: percentage });
 };
