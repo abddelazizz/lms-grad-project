@@ -33,10 +33,19 @@ const Hero = () => {
         </div>
 
         <div className="hero-video-wrapper position-relative mx-auto mt-2 shadow-soft p-4">
-          <img src="/images/hero.jpg" alt="Students learning" className="img-fluid w-100 object-fit-cover video-img" />
-          <div className="play-btn-overlay position-absolute top-50 start-50 translate-middle rounded-circle d-flex justify-content-center align-items-center">
-            <i className="fa-solid fa-play text-white fs-3"></i>
-          </div>
+          <video 
+            src="/videos/home-video.mp4" 
+            className="img-fluid w-100 object-fit-cover video-img rounded-4" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+          />
+          {!false && ( // Logic to hide overlay if needed, for now we keep it as requested or keep it visual
+            <div className="play-btn-overlay position-absolute top-50 start-50 translate-middle rounded-circle d-flex justify-content-center align-items-center">
+              <i className="fa-solid fa-play text-white fs-3"></i>
+            </div>
+          )}
         </div>
 
       </div>
