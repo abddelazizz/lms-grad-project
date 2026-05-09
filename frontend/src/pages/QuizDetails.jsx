@@ -10,11 +10,12 @@ const QuizDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [quizInfo, setQuizInfo] = useState({
     title: "Loading...",
     duration: "N/A",
     count: 0,
-    score: 0
+    score: 1
   });
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -36,34 +37,27 @@ const QuizDetails = () => {
         if (!id) return;
         
         const response = await quizService.getQuiz(id);
+        // Backend returns: { status, data: { quiz: { quiz_id, title, duration, questions, ... } } }
         const fetchedQuiz = response.data?.data?.quiz;
         
         if (fetchedQuiz) {
-          let numQuestions = 0;
-          try {
-            const qs = typeof fetchedQuiz.questions_json === 'string' 
-              ? JSON.parse(fetchedQuiz.questions_json) 
-              : fetchedQuiz.questions_json;
-            if (Array.isArray(qs)) numQuestions = qs.length;
-          } catch(e) {}
+          // Backend returns `questions` array directly (not questions_json)
+          const qs = fetchedQuiz.questions || [];
           
           setQuizInfo({
             title: fetchedQuiz.title || "Untitled Quiz",
-            duration: fetchedQuiz.duration ? `${fetchedQuiz.duration} Mins` : "Self-Paced", 
-            count: numQuestions || 0,
+            duration: fetchedQuiz.duration ? `${fetchedQuiz.duration} Mins` : "Self-Paced",
+            count: Array.isArray(qs) ? qs.length : (fetchedQuiz.num_questions || 0),
             score: fetchedQuiz.score_per_question || 1
           });
           
-          if (Array.isArray(fetchedQuiz.questions_json)) {
-            setQuestions(fetchedQuiz.questions_json);
-          } else if (typeof fetchedQuiz.questions_json === 'string') {
-            try {
-              setQuestions(JSON.parse(fetchedQuiz.questions_json));
-            } catch(e) {}
+          if (Array.isArray(qs) && qs.length > 0) {
+            setQuestions(qs);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch live quiz from server", error);
+        console.error("Failed to fetch quiz from server", error);
+        setError(error?.response?.data?.message || "Quiz not found or not available.");
       } finally {
         setLoading(false);
       }
@@ -71,10 +65,25 @@ const QuizDetails = () => {
     fetchQuiz();
   }, [id]);
 
-  if (loading && id) {
+  if (loading) {
     return (
       <div className="dashboard-page d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
         <div className="spinner-border text-primary" role="status"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-page d-flex justify-content-center align-items-center" style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+        <div className="text-center p-5 bg-white rounded-4 shadow-sm" style={{ maxWidth: '450px' }}>
+          <i className="fas fa-exclamation-circle fa-3x mb-3" style={{ color: '#ef4444' }}></i>
+          <h5 className="fw-bold mb-2">Quiz Unavailable</h5>
+          <p className="text-muted mb-4">{error}</p>
+          <button className="btn btn-dark rounded-pill px-4" onClick={() => navigate(-1)}>
+            <i className="fas fa-arrow-left me-2"></i>Go Back
+          </button>
+        </div>
       </div>
     );
   }
@@ -152,12 +161,17 @@ const QuizDetails = () => {
                       <i className="fas fa-angles-right" style={{ fontSize: '10px', color: '#31506a' }}></i>
                    </div>
 
-                   <div className="result-score-circle">
-                      <div className="percentage">{Math.round((resultScore / (questions.length * quizInfo.score)) * 100)}%</div>
-                      <div className="score-text">
-                        {resultScore / quizInfo.score} / {questions.length} CORRECT
-                      </div>
-                   </div>
+                    <div className="result-score-circle">
+                       <div className="percentage">
+                         {(() => {
+                           const totalPossible = questions.length * (quizInfo.score || 1);
+                           return totalPossible > 0 ? Math.round((resultScore / totalPossible) * 100) : 0;
+                         })()}%
+                       </div>
+                       <div className="score-text">
+                         {quizInfo.score > 0 ? Math.round(resultScore / quizInfo.score) : 0} / {questions.length} CORRECT
+                       </div>
+                    </div>
 
                    <h3 className="fw-bold mb-2">Well done!</h3>
                    <p className="text-muted mb-5">You've successfully completed the quiz.</p>
@@ -188,7 +202,7 @@ const QuizDetails = () => {
                          </div>
                          <div className="result-card-info text-start">
                             <div className="label">CORRECT</div>
-                            <div className="value">{resultScore / quizInfo.score} Questions</div>
+                            <div className="value">{quizInfo.score > 0 ? Math.round(resultScore / quizInfo.score) : 0} Questions</div>
                          </div>
                       </div>
 
@@ -198,7 +212,7 @@ const QuizDetails = () => {
                          </div>
                          <div className="result-card-info text-start">
                             <div className="label">INCORRECT</div>
-                            <div className="value">{questions.length - (resultScore / quizInfo.score)} Questions</div>
+                            <div className="value">{questions.length - (quizInfo.score > 0 ? Math.round(resultScore / quizInfo.score) : 0)} Questions</div>
                          </div>
                       </div>
 
