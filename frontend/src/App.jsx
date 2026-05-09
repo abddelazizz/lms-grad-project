@@ -95,7 +95,7 @@ function AppContent() {
         <Route path="/admin/security-audit" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/messages" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         
-        <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
+        <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-reset-otp" element={<VerifyResetOTP />} />

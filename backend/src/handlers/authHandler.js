@@ -180,7 +180,7 @@ const googleAuthCallback = catchAsync(async (req, res) => {
 
   res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
 
-  res.redirect(`${process.env.FRONTEND_URL || "https://learn.evolvesight.com"}/auth/google/success?token=${context.token}`);
+  res.redirect(`${process.env.FRONTEND_URL || "https://learn.evolvesight.com"}/google-auth-success?token=${context.token}`);
 });
 
 const getSessions = catchAsync(async (req, res) => {
