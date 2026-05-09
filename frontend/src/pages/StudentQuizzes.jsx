@@ -86,15 +86,20 @@ const StudentQuizzes = () => {
                 Loading quizzes...
               </div>
             ) : quizzes.length === 0 ? (
-              <div className="text-center p-5 border rounded-4 bg-white shadow-sm">
-                <i className="fas fa-vial mb-3 fs-2" style={{ color: '#ccc' }}></i>
-                <p className="fw-bold mb-1 mt-2">No Quizzes Available</p>
-                <p className="text-muted small">Enroll in courses to see their quizzes here.</p>
+              <div className="d-flex flex-column align-items-center justify-content-center p-5 bg-white rounded-5 shadow-sm border-0" style={{ minHeight: '400px' }}>
+                <div className="bg-light rounded-circle d-flex align-items-center justify-content-center mb-4" style={{ width: '100px', height: '100px' }}>
+                  <i className="fas fa-tasks text-muted opacity-50" style={{ fontSize: '40px' }}></i>
+                </div>
+                <h4 className="fw-bold text-dark mb-2">No Quizzes Available Yet</h4>
+                <p className="text-muted text-center mx-auto mb-4" style={{ maxWidth: '400px', fontSize: '15px' }}>
+                  You don't have any pending quizzes at the moment. Enroll in more courses or check back later when your instructors publish new quizzes.
+                </p>
                 <button
-                  className="btn btn-outline-secondary rounded-pill px-4 mt-2"
+                  className="btn btn-primary-custom rounded-pill px-5 py-3 fw-bold shadow-sm transition-all"
                   onClick={() => navigate('/courses')}
+                  style={{ letterSpacing: '0.5px' }}
                 >
-                  Browse Courses
+                  <i className="fas fa-search me-2"></i>Explore New Courses
                 </button>
               </div>
             ) : (
