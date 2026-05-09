@@ -39,7 +39,7 @@ const Sidebar = () => {
 
   return (
     <aside className={`sidebar-left ${isCollapsed ? 'collapsed' : ''}`}>
-      <button className="toggle-btn shadow-sm align-items-center justify-content-center" 
+      <button className="toggle-btn shadow-sm align-items-center justify-content-center"
         onClick={toggleCollapse}
         style={{
           position: 'absolute',
@@ -114,7 +114,11 @@ const Sidebar = () => {
               <i className="fas fa-comments"></i> <span>Chat</span>
             </Link>
           </li>
-
+          <li>
+            <Link to="/dashboard/settings" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/settings')}`}>
+              <i className="fas fa-cog"></i> <span>Settings</span>
+            </Link>
+          </li>
           {role?.toLowerCase() === 'admin' && (
             <>
               <li>
@@ -147,6 +151,7 @@ const Sidebar = () => {
                   <i className="fas fa-fingerprint"></i> <span>Security Center</span>
                 </Link>
               </li>
+
             </>
           )}
 
@@ -164,8 +169,8 @@ const Sidebar = () => {
                     Managing: {activeCourse.title}
                   </div>
                   <div className="dropdown px-2 mb-3">
-                    <button 
-                      className="btn btn-light-gray w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 border-0" 
+                    <button
+                      className="btn btn-light-gray w-100 text-start d-flex align-items-center justify-content-between p-2 rounded-3 border-0"
                       type="button"
                       data-bs-toggle="dropdown"
                       style={{ fontSize: '12px' }}
@@ -255,12 +260,12 @@ const Sidebar = () => {
 
       <div className="sidebar-footer mt-auto p-3">
         <div className="bg-light bg-opacity-50 p-3 rounded-4 d-flex align-items-center gap-3">
-          <img 
-            src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}`} 
-            className="rounded-circle" 
-            width="40" 
-            height="40" 
-            alt="profile" 
+          <img
+            src={user?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}`}
+            className="rounded-circle"
+            width="40"
+            height="40"
+            alt="profile"
           />
           <div className="overflow-hidden">
             <div className="fw-bold text-dark text-truncate small" style={{ fontSize: '13px' }}>{user?.name}</div>

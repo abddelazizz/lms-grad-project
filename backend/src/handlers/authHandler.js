@@ -173,6 +173,13 @@ const googleAuthCallback = catchAsync(async (req, res) => {
     return res.redirect(`${process.env.FRONTEND_URL || "https://learn.evolvesight.com"}/login?error=google_auth_failed`);
   }
 
+  const deviceInfo = { userAgent: req.headers["user-agent"] };
+  const ipAddress = req.ip || req.connection.remoteAddress;
+
+  const refreshToken = await generateRefreshToken(context.user, deviceInfo, ipAddress);
+
+  res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
+
   res.redirect(`${process.env.FRONTEND_URL || "https://learn.evolvesight.com"}/auth/google/success?token=${context.token}`);
 });
 
