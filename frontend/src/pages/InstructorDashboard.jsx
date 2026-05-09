@@ -658,7 +658,7 @@ const InstructorDashboard = () => {
                                           </li>
                                           <li><hr className="dropdown-divider mx-2 opacity-50" /></li>
                                           <li>
-                                            <button className="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-3 transition-all" onClick={() => handleAddQuiz(section.section_id)}>
+                                            <button className="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center gap-3 transition-all" onClick={() => navigate(`/instructor/quiz-generator?courseId=${courseId}&sectionId=${section.section_id}`)}>
                                               <div className="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
                                                 <i className="fas fa-magic small"></i>
                                               </div>
