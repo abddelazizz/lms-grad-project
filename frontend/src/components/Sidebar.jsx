@@ -212,7 +212,7 @@ const Sidebar = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard/quiz" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/quiz')}`}>
+                <Link to="/dashboard" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${location.pathname.startsWith('/dashboard/quiz') ? 'active' : ''}`}>
                   <i className="fas fa-vial"></i> <span>Quiz</span>
                 </Link>
               </li>

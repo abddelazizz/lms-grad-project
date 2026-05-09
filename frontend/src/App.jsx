@@ -65,7 +65,7 @@ function AppContent() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/quiz" element={<StudentRoute><QuizDetails /></StudentRoute>} />
+        <Route path="/dashboard/quiz/:id" element={<StudentRoute><QuizDetails /></StudentRoute>} />
         <Route path="/dashboard/quiz/review/:id" element={<StudentRoute><QuizReview /></StudentRoute>} />
         <Route path="/dashboard/assignments" element={<StudentRoute><Assignments /></StudentRoute>} />
         <Route path="/dashboard/assignment/:id" element={<StudentRoute><Assignment /></StudentRoute>} />

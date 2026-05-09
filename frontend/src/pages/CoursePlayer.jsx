@@ -333,10 +333,18 @@ const CoursePlayer = () => {
                       <h6>{i + 1}. {a.title}</h6>
                       <p>Download the assignment file, complete it, and submit your work when ready.</p>
                     </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <a href={a.file_url} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 btn-sm fw-bold">
-                        <i className="fas fa-download me-2"></i>View Assignment
-                      </a>
+                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <div className="d-flex gap-2 flex-wrap">
+                        <a href={a.file_url} target="_blank" rel="noreferrer" className="btn btn-outline-dark rounded-pill px-4 btn-sm fw-bold">
+                          <i className="fas fa-download me-2"></i>View Assignment
+                        </a>
+                        <button
+                          className="btn btn-primary rounded-pill px-4 btn-sm fw-bold"
+                          onClick={() => navigate(`/dashboard/assignment/${a.content_id}`)}
+                        >
+                          <i className="fas fa-upload me-2"></i>Submit
+                        </button>
+                      </div>
                       <div className="assignment-meta-refined">
                         <span>{a.submissions?.length ? 'Submitted' : 'Not Submitted'}</span>
                         <span className="d-flex align-items-center gap-2">
@@ -369,7 +377,7 @@ const CoursePlayer = () => {
                     </div>
                     <button
                       className="btn btn-primary rounded-pill px-4 btn-sm fw-bold"
-                      onClick={() => navigate(`/dashboard/quiz?quizId=${quiz.quiz_id}`)}
+                      onClick={() => navigate(`/dashboard/quiz/${quiz.quiz_id}`)}
                     >
                       <i className="fas fa-play me-2"></i>Start Quiz
                     </button>

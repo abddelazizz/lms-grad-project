@@ -40,7 +40,7 @@ const QuizReview = () => {
           <div className="container-fluid max-width-custom pt-5 mt-4 mx-auto">
             {/* Breadcrumb Area */}
             <div className="d-flex align-items-center gap-2 mb-5" style={{ color: '#555', fontSize: '14px' }}>
-              <span style={{ cursor: 'pointer' }} onClick={() => navigate('/dashboard/quiz')}>Quiz Details</span>
+              <span style={{ cursor: 'pointer' }} onClick={() => navigate(-1)}>Quiz Details</span>
               <i className="fas fa-angles-right" style={{ fontSize: '10px', color: '#31506a' }}></i>
               <span className="fw-bold" style={{ color: '#1a1d20' }}>Review answer</span>
             </div>
