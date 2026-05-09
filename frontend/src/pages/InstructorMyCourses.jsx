@@ -108,7 +108,7 @@ const InstructorMyCourses = () => {
             ) : (
               <div className="row g-4">
                 {filteredCourses.length > 0 ? filteredCourses.map((course, i) => (
-                  <div key={course.course_id || i} className="col-xl-3 col-lg-4 col-md-6">
+                  <div key={course.course_id || i} className="col-md-6">
                     <div 
                       className="card border-0 rounded-4 shadow-sm h-100 overflow-hidden course-card-refined"
                       style={{ transition: 'all 0.3s ease' }}
