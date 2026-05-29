@@ -282,7 +282,11 @@ export const getCourseDetails = async (courseId, userId = null, role = null) => 
       isEnrolled = true;
     } else {
       const enrollment = await Enrollment.findOne({
-        where: { student_id: userId, course_id: courseId },
+        where: { 
+          student_id: userId, 
+          course_id: courseId,
+          status: ["active", "completed"]
+        },
       });
       isEnrolled = !!enrollment;
     }

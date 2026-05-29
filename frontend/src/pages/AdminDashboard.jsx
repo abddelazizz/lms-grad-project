@@ -543,74 +543,76 @@ const AdminDashboard = () => {
                 {loading ? (
                   <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>
                 ) : (
-                  <table className="table table-hover align-middle mb-0" style={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
-                    <thead>
-                      <tr className="text-secondary text-uppercase border-bottom-0" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
-                        <th className="fw-bold px-4 border-0 pb-3">{isTeachersList ? 'Teacher Details' : 'Student Details'}</th>
-                        <th className="fw-bold px-4 border-0 pb-3">{isTeachersList ? 'Specialization' : 'Grade Level'}</th>
-                        <th className="fw-bold px-4 border-0 pb-3">Phone Number</th>
-                        <th className="fw-bold px-4 border-0 pb-3 text-end">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(isTeachersList ? teachers : students).map((user, i) => {
-                        const displayName = user.name || user.User?.name;
-                        const displayEmail = user.email || user.User?.email;
-                        const displayPicture = user.picture || user.User?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.User?.name || 'User')}&background=e0e7ff&color=31506a`;
+                  <div className="table-responsive border-0">
+                    <table className="table table-hover align-middle mb-0" style={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                      <thead>
+                        <tr className="text-secondary text-uppercase border-bottom-0" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
+                          <th className="fw-bold px-4 border-0 pb-3">{isTeachersList ? 'Teacher Details' : 'Student Details'}</th>
+                          <th className="fw-bold px-4 border-0 pb-3">{isTeachersList ? 'Specialization' : 'Grade Level'}</th>
+                          <th className="fw-bold px-4 border-0 pb-3">Phone Number</th>
+                          <th className="fw-bold px-4 border-0 pb-3 text-end">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(isTeachersList ? teachers : students).map((user, i) => {
+                          const displayName = user.name || user.User?.name;
+                          const displayEmail = user.email || user.User?.email;
+                          const displayPicture = user.picture || user.User?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.User?.name || 'User')}&background=e0e7ff&color=31506a`;
 
-                        return (
-                          <tr key={user.user_id || user.id || i} className="bg-white shadow-sm" style={{ transition: 'all 0.2s ease', borderRadius: '12px' }}>
-                            <td className="py-3 px-4" style={{ borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderLeft: '1px solid #f1f3f5' }}>
-                              <div className="d-flex align-items-center gap-3">
-                                <img src={displayPicture} className="rounded-circle shadow-sm" width="42" height="42" alt={displayName} style={{ objectFit: 'cover' }} />
-                                <div className="d-flex flex-column">
-                                  <span className="fw-bold text-dark fs-6">{displayName}</span>
-                                  <span className="text-secondary mt-1" style={{ fontSize: '12px' }}>{displayEmail}</span>
+                          return (
+                            <tr key={user.user_id || user.id || i} className="bg-white shadow-sm" style={{ transition: 'all 0.2s ease', borderRadius: '12px' }}>
+                              <td className="py-3 px-4" style={{ borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderLeft: '1px solid #f1f3f5' }}>
+                                <div className="d-flex align-items-center gap-3">
+                                  <img src={displayPicture} className="rounded-circle shadow-sm" width="42" height="42" alt={displayName} style={{ objectFit: 'cover' }} />
+                                  <div className="d-flex flex-column">
+                                    <span className="fw-bold text-dark fs-6">{displayName}</span>
+                                    <span className="text-secondary mt-1" style={{ fontSize: '12px' }}>{displayEmail}</span>
+                                  </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 text-secondary fw-medium" style={{ borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5' }}>
-                              {isTeachersList
-                                ? (user.instructorProfile?.specialization || user.Instructor?.specialization || 'General')
-                                : <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold border border-primary-subtle">{user.studentProfile?.grade_level || user.Student?.grade_level || user.grade_level || 'N/A'}</span>
-                              }
-                            </td>
-                            <td className="py-3 px-4 text-secondary fw-medium" style={{ borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5' }}>
-                              {user.phone_number || user.User?.phone_number || <span className="text-muted fst-italic">Not provided</span>}
-                            </td>
-                            <td className="py-3 px-4 text-end" style={{ borderTopRightRadius: '12px', borderBottomRightRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderRight: '1px solid #f1f3f5' }}>
-                              <div className="d-flex gap-2 justify-content-end">
-                                <button
-                                  className="btn btn-sm btn-action text-primary bg-primary bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all"
-                                  style={{ fontSize: '13px' }}
-                                  title="View"
-                                  onClick={() => handleViewDetails(user.user_id || user.id, isTeachersList)}
-                                >
-                                  <i className="fas fa-eye me-1"></i> View Details
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-action text-danger bg-danger bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all"
-                                  style={{ fontSize: '13px' }}
-                                  onClick={() => isTeachersList ? handleDeleteTeacher(user.user_id || user.id) : handleDeleteStudent(user.user_id || user.id)}
-                                  title="Remove"
-                                >
-                                  <i className="fas fa-trash me-1"></i> Remove
-                                </button>
-                              </div>
+                              </td>
+                              <td className="py-3 px-4 text-secondary fw-medium" style={{ borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5' }}>
+                                {isTeachersList
+                                  ? (user.instructorProfile?.specialization || user.Instructor?.specialization || 'General')
+                                  : <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold border border-primary-subtle">{user.studentProfile?.grade_level || user.Student?.grade_level || user.grade_level || 'N/A'}</span>
+                                }
+                              </td>
+                              <td className="py-3 px-4 text-secondary fw-medium" style={{ borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5' }}>
+                                {user.phone_number || user.User?.phone_number || <span className="text-muted fst-italic">Not provided</span>}
+                              </td>
+                              <td className="py-3 px-4 text-end" style={{ borderTopRightRadius: '12px', borderBottomRightRadius: '12px', borderTop: '1px solid #f1f3f5', borderBottom: '1px solid #f1f3f5', borderRight: '1px solid #f1f3f5' }}>
+                                <div className="d-flex gap-2 justify-content-end">
+                                  <button
+                                    className="btn btn-sm btn-action text-primary bg-primary bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all"
+                                    style={{ fontSize: '13px' }}
+                                    title="View"
+                                    onClick={() => handleViewDetails(user.user_id || user.id, isTeachersList)}
+                                  >
+                                    <i className="fas fa-eye me-1"></i> View Details
+                                  </button>
+                                  <button
+                                    className="btn btn-sm btn-action text-danger bg-danger bg-opacity-10 rounded-3 px-3 py-2 border-0 fw-bold transition-all"
+                                    style={{ fontSize: '13px' }}
+                                    onClick={() => isTeachersList ? handleDeleteTeacher(user.user_id || user.id) : handleDeleteStudent(user.user_id || user.id)}
+                                    title="Remove"
+                                  >
+                                    <i className="fas fa-trash me-1"></i> Remove
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                        {(isTeachersList ? teachers : students).length === 0 && (
+                          <tr>
+                            <td colSpan="4" className="text-center p-5 text-muted border border-light rounded-4 bg-light">
+                              <i className="fas fa-box-open fs-2 mb-3 text-secondary opacity-50 d-block"></i>
+                              No records found.
                             </td>
                           </tr>
-                        )
-                      })}
-                      {(isTeachersList ? teachers : students).length === 0 && (
-                        <tr>
-                          <td colSpan="4" className="text-center p-5 text-muted border border-light rounded-4 bg-light">
-                            <i className="fas fa-box-open fs-2 mb-3 text-secondary opacity-50 d-block"></i>
-                            No records found.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
             </div>
@@ -622,6 +624,7 @@ const AdminDashboard = () => {
                   {loading ? (
                     <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>
                   ) : (
+                  <div className="table-responsive border-0">
                     <table className="table table-hover align-middle mb-0">
                       <thead>
                         <tr className="text-secondary text-uppercase" style={{ fontSize: '11px' }}>
@@ -652,6 +655,7 @@ const AdminDashboard = () => {
                         ))}
                       </tbody>
                     </table>
+                  </div>
                   )}
                 </div>
               </div>
@@ -664,6 +668,7 @@ const AdminDashboard = () => {
                   {loading ? (
                     <div className="text-center p-5"><div className="spinner-border text-primary"></div></div>
                   ) : (
+                  <div className="table-responsive border-0">
                     <table className="table table-hover align-middle mb-0">
                       <thead>
                         <tr className="text-secondary text-uppercase" style={{ fontSize: '11px' }}>
@@ -691,6 +696,7 @@ const AdminDashboard = () => {
                         )}
                       </tbody>
                     </table>
+                  </div>
                   )}
                 </div>
               </div>

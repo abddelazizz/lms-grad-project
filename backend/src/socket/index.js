@@ -17,7 +17,9 @@ const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
       origin: [
-        process.env.FRONTEND_URL || "https://learn.evolvesight.com",
+        process.env.FRONTEND_URL || "http://localhost:5173",
+        "http://localhost:5173",
+        "http://localhost:3000",
       ],
       methods: ["GET", "POST"],
       credentials: true,
@@ -64,7 +66,7 @@ const initializeSocket = (server) => {
   });
 
   const redisSubscriber = redis.duplicate();
-  redisSubscriber.psubscribe("token_revoked:*").catch(() => {});
+  redisSubscriber.psubscribe("token_revoked:*").catch(() => { });
   redisSubscriber.on("pmessage", (pattern, channel, message) => {
     if (channel.startsWith("token_revoked:")) {
       const userId = channel.replace("token_revoked:", "");
@@ -107,7 +109,7 @@ const initializeSocket = (server) => {
         for (const pId of participantIds) {
           io.to(`user_${pId}`).emit("online_status", { userId, isOnline: true });
         }
-      } catch {}
+      } catch { }
     })();
 
     // ─── Join a conversation room ────────────────────────────
@@ -232,7 +234,7 @@ const initializeSocket = (server) => {
           conversationId,
           userId,
         });
-      } catch {}
+      } catch { }
     });
 
     // ─── Stop typing indicator ────────────────────────────────
@@ -246,7 +248,7 @@ const initializeSocket = (server) => {
           conversationId,
           userId,
         });
-      } catch {}
+      } catch { }
     });
 
     // ─── Mark messages as read ───────────────────────────────
@@ -289,7 +291,7 @@ const initializeSocket = (server) => {
             for (const pId of participantIds) {
               io.to(`user_${pId}`).emit("online_status", { userId, isOnline: false });
             }
-          } catch {}
+          } catch { }
         }
       }
     });

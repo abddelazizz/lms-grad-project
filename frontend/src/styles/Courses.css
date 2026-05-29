@@ -223,6 +223,102 @@
 }
 
 @media (max-width: 768px) {
-  .section-title-wrapper h1 { font-size: 2.5rem; }
-  .courses-grid { grid-template-columns: 1fr; }
+  .courses-page {
+    padding: 30px 0 60px;
+  }
+
+  .container-custom {
+    padding: 0 16px;
+  }
+
+  .section-title-wrapper {
+    margin-bottom: 30px;
+  }
+
+  .section-title-wrapper h1 {
+    font-size: 1.8rem !important;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+
+  .section-title-wrapper p {
+    font-size: 0.9rem !important;
+    line-height: 1.5;
+  }
+
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: 16px !important;
+  }
+
+  .course-card-premium {
+    border-radius: 20px !important;
+  }
+
+  .card-image-wrapper {
+    height: 160px !important; /* Reduce thumbnail height on mobile */
+  }
+
+  .price-tag {
+    top: 10px !important;
+    right: 10px !important;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: 8px !important;
+  }
+
+  .level-badge {
+    top: 10px !important;
+    left: 10px !important;
+    padding: 4px 10px !important;
+    font-size: 0.65rem !important;
+    border-radius: 8px !important;
+  }
+
+  .card-content-refined {
+    padding: 16px !important; /* Reduce excessive padding */
+  }
+
+  .instructor-info {
+    margin-bottom: 10px !important;
+    gap: 8px !important;
+  }
+
+  .instructor-avatar {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .instructor-name {
+    font-size: 0.75rem !important;
+  }
+
+  .card-content-refined h3 {
+    font-size: 1.05rem !important;
+    margin-bottom: 8px !important;
+    min-height: auto !important; /* Remove fixed min-height to save space */
+  }
+
+  .card-content-refined p {
+    font-size: 0.85rem !important;
+    margin-bottom: 16px !important;
+    line-height: 1.5 !important;
+  }
+
+  .meta-stats {
+    margin-bottom: 16px !important;
+    padding-top: 12px !important;
+    gap: 12px !important;
+  }
+
+  .stat-item {
+    font-size: 0.75rem !important;
+    gap: 6px !important;
+  }
+
+  .btn-premium-action {
+    padding: 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: 12px !important;
+  }
 }

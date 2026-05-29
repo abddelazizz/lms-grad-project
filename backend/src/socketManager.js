@@ -5,7 +5,7 @@ import * as chatService from "./services/chatService.js";
 const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: [process.env.FRONTEND_URL || "https://learn.evolvesight.com"],
+      origin: [process.env.FRONTEND_URL || "http://localhost:3000", "http://localhost:5173"],
       methods: ["GET", "POST"],
     },
   });
@@ -37,7 +37,7 @@ const initializeSocket = (server) => {
     // Listen for private messages
     socket.on("send_message", async (data) => {
       const { receiverId, message } = data;
-      
+
       // Save to DB
       const savedMsg = await chatService.saveMessage(userId, receiverId, message);
 

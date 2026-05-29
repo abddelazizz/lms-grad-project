@@ -379,6 +379,118 @@ const StudentDashboardContent = ({ searchTerm = '' }) => {
           background-color: #ffffff !important;
           opacity: 1 !important;
         }
+
+        /* Mobile Responsive Styles for Student Dashboard */
+        @media (max-width: 768px) {
+          .student-dashboard-content {
+            padding: 10px 5px !important;
+          }
+          .welcome-hero-card {
+            padding: 24px 20px !important;
+            border-radius: 24px !important;
+            margin-bottom: 24px !important;
+          }
+          .welcome-hero-card h1.display-6 {
+            font-size: 1.5rem !important;
+          }
+          .welcome-hero-card p.fs-5 {
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
+            margin-bottom: 16px !important;
+          }
+          .welcome-hero-card .badge {
+            font-size: 0.7rem !important;
+            padding: 4px 10px !important;
+          }
+          .welcome-hero-card .btn {
+            font-size: 0.85rem !important;
+            padding: 8px 16px !important;
+          }
+
+          /* Analytics Cards */
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 {
+            padding: 16px 12px !important;
+            border-radius: 24px !important;
+            margin-bottom: 0px !important;
+            gap: 8px;
+          }
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 .px-4 {
+            padding-left: 6px !important;
+            padding-right: 6px !important;
+            flex: 1;
+            min-width: 70px;
+          }
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 .vr {
+            display: none !important;
+          }
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 h3 {
+            font-size: 1.15rem !important;
+          }
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 .text-muted.small {
+            font-size: 0.65rem !important;
+          }
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 .rounded-circle {
+            width: 36px !important;
+            height: 36px !important;
+          }
+          .student-dashboard-content .row.g-4.mb-5 .bg-white.p-4 i {
+            font-size: 0.85rem !important;
+          }
+
+          /* Header Section */
+          .student-dashboard-content .d-flex.align-items-center.justify-content-between.mb-4 {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            margin-bottom: 20px !important;
+          }
+          .student-dashboard-content h4 {
+            font-size: 1.1rem !important;
+          }
+          .student-dashboard-content h4 span {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 8px !important;
+          }
+
+          /* Course Cards */
+          .student-dashboard-content .col-md-6.col-xl-4 {
+            margin-bottom: 8px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden {
+            border-radius: 24px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden .position-relative {
+            height: 140px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden .p-4 {
+            padding: 16px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden h5 {
+            font-size: 0.95rem !important;
+            height: auto !important;
+            min-height: auto !important;
+            margin-bottom: 10px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden .d-flex.align-items-center.gap-2.mb-4 {
+            margin-bottom: 12px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden .mb-4 {
+            margin-bottom: 12px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden .progress {
+            height: 6px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden .btn {
+            font-size: 0.85rem !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+          }
+          .student-dashboard-content .bg-white.rounded-5.overflow-hidden button.rounded-circle {
+            width: 34px !important;
+            height: 34px !important;
+          }
+        }
       `}</style>
     </div>
   );

@@ -7,23 +7,24 @@
   display: flex;
   gap: 40px;
   background-color: #fff;
-  border: 1px solid #f1f1f3;
-  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px;
   overflow: hidden;
-  padding: 80px; /* مساحة واسعة زي الديزاين */
+  padding: 60px; /* adjusted slightly for premium density */
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
 }
 
 /* Form Section (Left) */
 .contact-form-side {
   flex: 2;
-  border-right: 1px solid #f1f1f3;
+  border-right: 1px solid #f1f5f9;
   padding-right: 60px;
 }
 
 .contact-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
+  gap: 24px;
 }
 
 .form-group-full {
@@ -32,47 +33,59 @@
 
 .form-label {
   display: block;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 12px;
-  color: #262626;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .form-input {
   width: 100%;
-  padding: 16px 20px;
-  background-color: #fcfcfd;
-  border: 1px solid #f1f1f3;
-  border-radius: 8px;
+  padding: 14px 18px;
+  background-color: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 0.95rem;
-  color: #59595a;
+  color: #1e293b;
   outline: none;
-  transition: border-color 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-input:focus {
-  border-color: #4a6b82;
+  border-color: #31506a;
+  box-shadow: 0 0 0 4px rgba(49, 80, 106, 0.1);
+  background-color: #ffffff;
 }
 
 textarea.form-input {
-  min-height: 150px;
+  min-height: 140px;
   resize: vertical;
 }
 
 .btn-send-message {
-  margin-top: 40px;
-  background-color: #4a6b82;
+  margin-top: 30px;
+  background: linear-gradient(135deg, #31506a 0%, #4a6b82 100%);
   color: #fff;
   border: none;
-  padding: 16px 32px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 16px 40px;
+  border-radius: 12px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.3s;
+  box-shadow: 0 8px 16px rgba(49, 80, 106, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
 }
 
 .btn-send-message:hover {
-  background-color: #3b5668;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(49, 80, 106, 0.25);
+  background: linear-gradient(135deg, #3b5e7c 0%, #567c96 100%);
+}
+
+.btn-send-message:active {
+  transform: translateY(0);
 }
 
 /* Sidebar Info (Right) */
@@ -171,5 +184,89 @@ textarea.form-input {
   }
   .contact-form-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 40px 0 !important;
+  }
+  
+  .container-custom {
+    padding: 0 16px !important;
+  }
+
+  .section-title-wrapper {
+    margin-bottom: 30px !important;
+  }
+
+  .section-title-wrapper h1 {
+    font-size: 1.8rem !important;
+    margin-bottom: 12px !important;
+  }
+
+  .section-title-wrapper p {
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .contact-wrapper {
+    padding: 20px 16px !important;
+    border-radius: 16px !important;
+    gap: 24px !important;
+  }
+
+  .contact-form-side {
+    margin-bottom: 24px !important;
+  }
+
+  .contact-form-grid {
+    gap: 16px !important;
+  }
+
+  .form-label {
+    font-size: 0.85rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .form-input {
+    padding: 12px 16px !important;
+    font-size: 0.85rem !important;
+  }
+
+  textarea.form-input {
+    min-height: 120px !important;
+  }
+
+  .btn-send-message {
+    margin-top: 20px !important;
+    padding: 12px 24px !important;
+    font-size: 0.9rem !important;
+    width: 100% !important; /* Make the button full width on mobile for better ergonomics */
+  }
+
+  .contact-info-side {
+    gap: 16px !important;
+  }
+
+  .info-card {
+    padding: 20px 16px !important;
+    border-radius: 12px !important;
+    gap: 10px !important;
+  }
+
+  .info-icon-wrapper {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1rem !important;
+  }
+
+  .info-text {
+    font-size: 0.8rem !important;
+  }
+
+  .social-icon-btn {
+    width: 38px !important;
+    height: 38px !important;
   }
 }

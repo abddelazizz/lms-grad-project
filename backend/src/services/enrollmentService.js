@@ -26,6 +26,12 @@ export const enrollStudent = async (courseId, studentId) => {
     where: { student_id: studentId, course_id: courseId },
   });
   if (existing) {
+    if (existing.status === 'dropped') {
+      existing.status = 'active';
+      existing.enrolled_at = new Date();
+      await existing.save();
+      return existing;
+    }
     throw new AppError("You are already enrolled in this course", 409);
   }
 

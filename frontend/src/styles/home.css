@@ -186,3 +186,130 @@
   background-color: #e9ecef;
   transform: translateY(-3px);
 }
+
+/* Mobile Responsive Adjustments for Homepage */
+@media (max-width: 768px) {
+  .container-custom {
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+  }
+
+  .main-title-box {
+    font-size: 0.95rem !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px 12px !important;
+    gap: 6px !important;
+  }
+
+  .main-title-box .icon-box {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .main-title-box .icon-box i {
+    font-size: 0.85rem !important;
+  }
+
+  .hero-section {
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 20px !important;
+  }
+
+  .hero-section h2 {
+    font-size: 1.2rem !important;
+    margin-top: 15px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .hero-section p.fs-5 {
+    font-size: 0.85rem !important;
+    margin-bottom: 24px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .hero-section .btn-primary-custom {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .video-img {
+    height: auto !important;
+    max-height: 250px !important;
+  }
+
+  .hero-video-wrapper {
+    padding: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  /* Benefits Section */
+  .card-number {
+    font-size: 2.5rem !important;
+  }
+
+  .benefit-card-custom {
+    padding: 24px 20px !important;
+  }
+
+  .benefit-card-custom h3 {
+    font-size: 1.2rem !important;
+  }
+
+  .benefit-card-custom p {
+    font-size: 0.85rem !important;
+  }
+
+  /* Courses Section */
+  .courses .d-flex.justify-content-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .courses h2.display-6 {
+    font-size: 1.6rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .courses-desc {
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .course-card-custom {
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .course-card-custom .img-container {
+    height: 180px !important; /* Make card image heights much smaller and responsive on mobile */
+    margin-bottom: 16px !important;
+  }
+
+  .course-card-custom h3 {
+    font-size: 1.1rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .course-card-custom p {
+    font-size: 0.8rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 16px !important;
+    max-height: 48px !important;
+  }
+
+  .course-card-custom .badge {
+    font-size: 0.75rem !important;
+    padding: 6px 12px !important;
+  }
+
+  .course-card-custom .btn-primary-custom {
+    padding: 10px !important;
+    font-size: 0.9rem !important;
+  }
+}
+

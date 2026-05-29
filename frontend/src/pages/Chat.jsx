@@ -23,7 +23,7 @@ const Chat = () => {
   const [searching, setSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [modalSearchTerm, setModalSearchTerm] = useState('');
-  
+
   const socketRef = useRef();
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef();
@@ -31,8 +31,8 @@ const Chat = () => {
   // 1. Initialize Socket.io
   useEffect(() => {
     if (!accessToken) return;
-    const API_BASE = import.meta.env.VITE_API_URL || 'https://learn.evolvesight.com';
-    
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     socketRef.current = io(API_BASE, {
       auth: { token: accessToken },
       withCredentials: true
@@ -162,7 +162,7 @@ const Chat = () => {
       const res = await chatService.createConversation(otherUserId);
       const data = res.data?.data || res.data;
       const conversation = data?.conversation;
-      
+
       if (conversation) {
         console.log("Conversation obtained:", conversation.conversation_id);
         // Add otherUser info to the conversation object for consistency if missing
@@ -227,7 +227,7 @@ const Chat = () => {
   const handleStartTyping = () => {
     if (!selectedConv) return;
     socketRef.current.emit('typing', { conversationId: selectedConv.conversation_id });
-    
+
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(handleStopTyping, 3000);
   };
@@ -237,11 +237,11 @@ const Chat = () => {
     socketRef.current.emit('stop_typing', { conversationId: selectedConv.conversation_id });
   };
 
-  const filteredConversations = conversations.filter(c => 
+  const filteredConversations = conversations.filter(c =>
     c.otherUser?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredUsers = availableUsers.filter(u => 
+  const filteredUsers = availableUsers.filter(u =>
     (u.name || u.User?.name || '').toLowerCase().includes(modalSearchTerm.toLowerCase())
   );
 
@@ -265,16 +265,16 @@ const Chat = () => {
                 <div className="p-3 bg-white border-bottom">
                   <div className="input-group input-group-sm bg-light rounded-pill px-2">
                     <span className="input-group-text bg-transparent border-0"><i className="fas fa-search text-muted"></i></span>
-                    <input 
-                      type="text" 
-                      className="form-control border-0 bg-transparent shadow-none" 
-                      placeholder="Search messages..." 
+                    <input
+                      type="text"
+                      className="form-control border-0 bg-transparent shadow-none"
+                      placeholder="Search messages..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex-grow-1 overflow-auto">
                   {loading ? (
                     <div className="text-center p-5"><i className="fas fa-circle-notch fa-spin text-muted"></i></div>
@@ -327,10 +327,10 @@ const Chat = () => {
                     <div className="p-3 border-bottom d-flex align-items-center justify-content-between bg-white">
                       <div className="d-flex align-items-center gap-3">
                         <div className="position-relative">
-                           <img src={selectedConv.otherUser.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedConv.otherUser.name)}&background=random`} className="rounded-circle" style={{ width: '45px', height: '45px', objectFit: 'cover' }} alt="" />
-                           {onlineUsers.has(selectedConv.otherUser.user_id) && (
-                             <span className="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle"></span>
-                           )}
+                          <img src={selectedConv.otherUser.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedConv.otherUser.name)}&background=random`} className="rounded-circle" style={{ width: '45px', height: '45px', objectFit: 'cover' }} alt="" />
+                          {onlineUsers.has(selectedConv.otherUser.user_id) && (
+                            <span className="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle"></span>
+                          )}
                         </div>
                         <div>
                           <div className="fw-bold small">{selectedConv.otherUser.name}</div>
@@ -353,21 +353,21 @@ const Chat = () => {
                         {messages.map((m, i) => (
                           <div key={m.message_id || i} className={`d-flex ${m.sender_id === user.user_id ? 'justify-content-end' : 'justify-content-start'}`}>
                             <div className="d-flex flex-column" style={{ maxWidth: '75%' }}>
-                               <div
-                                 className={`p-3 rounded-4 shadow-sm ${m.sender_id === user.user_id ? 'bg-primary-custom text-white' : 'bg-white text-dark'}`}
-                                 style={{
-                                   fontSize: '14px',
-                                   borderRadius: m.sender_id === user.user_id ? '18px 18px 2px 18px' : '18px 18px 18px 2px'
-                                 }}
-                               >
-                                 {m.content}
-                               </div>
-                               <div className={`d-flex align-items-center gap-1 mt-1 ${m.sender_id === user.user_id ? 'justify-content-end' : 'justify-content-start'}`} style={{ fontSize: '10px', opacity: 0.6 }}>
-                                 {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                 {m.sender_id === user.user_id && (
-                                   <i className={`fas fa-check-double ${m.is_read ? 'text-info' : ''}`}></i>
-                                 )}
-                               </div>
+                              <div
+                                className={`p-3 rounded-4 shadow-sm ${m.sender_id === user.user_id ? 'bg-primary-custom text-white' : 'bg-white text-dark'}`}
+                                style={{
+                                  fontSize: '14px',
+                                  borderRadius: m.sender_id === user.user_id ? '18px 18px 2px 18px' : '18px 18px 18px 2px'
+                                }}
+                              >
+                                {m.content}
+                              </div>
+                              <div className={`d-flex align-items-center gap-1 mt-1 ${m.sender_id === user.user_id ? 'justify-content-end' : 'justify-content-start'}`} style={{ fontSize: '10px', opacity: 0.6 }}>
+                                {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {m.sender_id === user.user_id && (
+                                  <i className={`fas fa-check-double ${m.is_read ? 'text-info' : ''}`}></i>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -392,7 +392,7 @@ const Chat = () => {
                             }
                           }}
                         />
-                        <button 
+                        <button
                           className="btn btn-primary-custom rounded-circle p-0 d-flex align-items-center justify-content-center shadow"
                           style={{ width: '45px', height: '45px' }}
                           onClick={handleSend}
@@ -429,23 +429,23 @@ const Chat = () => {
 
             <div className="input-group bg-light rounded-pill px-3 mb-4">
               <span className="input-group-text bg-transparent border-0"><i className="fas fa-search text-muted"></i></span>
-              <input 
-                type="text" 
-                className="form-control border-0 bg-transparent shadow-none" 
-                placeholder="Search students..." 
+              <input
+                type="text"
+                className="form-control border-0 bg-transparent shadow-none"
+                placeholder="Search students..."
                 value={modalSearchTerm}
                 onChange={(e) => setModalSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div className="vstack gap-2 mt-2" style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {searching ? (
                 <div className="text-center p-4"><div className="spinner-border text-primary"></div></div>
               ) : filteredUsers.length === 0 ? (
                 <div className="text-center p-4 text-muted">No students found.</div>
               ) : filteredUsers.map(u => (
-                <div 
-                  key={u.user_id || u.id} 
+                <div
+                  key={u.user_id || u.id}
                   className="d-flex align-items-center gap-3 p-3 border rounded-3 hover-bg-gray cursor-pointer"
                   onClick={() => handleCreateChat(u.user_id || u.id)}
                 >
