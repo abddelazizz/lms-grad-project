@@ -186,3 +186,38 @@
   background-color: #e9ecef;
   transform: translateY(-3px);
 }
+
+@media (max-width: 768px) {
+  .container-custom {
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+  }
+  .main-title-box {
+    font-size: 0.95rem !important;
+    flex-wrap: wrap !important;
+  }
+  .main-title-box .icon-box {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+  .video-img {
+    height: auto !important;
+    max-height: 250px !important;
+  }
+  .card-number {
+    font-size: 2.5rem !important;
+  }
+  .benefit-card-custom {
+    padding: 20px !important;
+  }
+  .course-card-custom {
+    padding: 16px !important;
+  }
+  .course-card-custom .img-container {
+    height: 180px !important;
+  }
+  .course-card-custom h3 {
+    font-size: 1.1rem !important;
+  }
+}

@@ -32,26 +32,30 @@
 
 .form-label {
   display: block;
-  font-weight: 600;
-  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8rem;
   margin-bottom: 12px;
-  color: #262626;
+  letter-spacing: 0.5px;
+  color: #1e293b;
 }
 
 .form-input {
   width: 100%;
   padding: 16px 20px;
-  background-color: #fcfcfd;
-  border: 1px solid #f1f1f3;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 0.95rem;
   color: #59595a;
   outline: none;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
 }
 
 .form-input:focus {
-  border-color: #4a6b82;
+  border-color: #1e293b;
+  box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.15);
+  background-color: #ffffff;
 }
 
 textarea.form-input {
@@ -61,18 +65,21 @@ textarea.form-input {
 
 .btn-send-message {
   margin-top: 40px;
-  background-color: #4a6b82;
+  background: linear-gradient(135deg, #31506a 0%, #4a6b82 100%);
+  box-shadow: 0 4px 10px rgba(49, 80, 106, 0.2);
   color: #fff;
   border: none;
   padding: 16px 32px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-send-message:hover {
-  background-color: #3b5668;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(49, 80, 106, 0.35);
+  background: linear-gradient(135deg, #243e53 0%, #3d5a70 100%);
 }
 
 /* Sidebar Info (Right) */
@@ -171,5 +178,14 @@ textarea.form-input {
   }
   .contact-form-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-wrapper {
+    padding: 20px 16px !important;
+  }
+  .btn-send-message {
+    width: 100% !important;
   }
 }

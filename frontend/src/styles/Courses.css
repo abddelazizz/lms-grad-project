@@ -223,6 +223,29 @@
 }
 
 @media (max-width: 768px) {
-  .section-title-wrapper h1 { font-size: 2.5rem; }
-  .courses-grid { grid-template-columns: 1fr; }
+  .section-title-wrapper h1 {
+    font-size: 1.8rem !important;
+  }
+  .courses-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .card-image-wrapper {
+    height: 160px !important;
+  }
+  .price-tag {
+    top: 10px !important;
+    right: 10px !important;
+  }
+  .level-badge {
+    top: 10px !important;
+    left: 10px !important;
+  }
+  .card-content-refined {
+    padding: 16px !important;
+  }
+  .card-content-refined h3 {
+    font-size: 1.05rem !important;
+    min-height: auto !important;
+  }
 }

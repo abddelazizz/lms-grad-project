@@ -177,7 +177,7 @@ const StudentDashboardContent = ({ searchTerm = '' }) => {
               onClick={() => openCourseDetails(course)}>
 
               {/* Card Header/Thumbnail */}
-              <div className="position-relative overflow-hidden" style={{ height: '180px' }}>
+              <div className="course-thumb-container position-relative overflow-hidden" style={{ height: '180px' }}>
                 {course.image ? (
                   <img src={course.image} alt={course.title} className="w-100 h-100 object-fit-cover transition-transform group-hover-scale" />
                 ) : (
@@ -343,6 +343,51 @@ const StudentDashboardContent = ({ searchTerm = '' }) => {
         @keyframes zoomIn {
           from { opacity: 0; transform: scale(0.8); }
           to { opacity: 1; transform: scale(1); }
+        }
+        @media (max-width: 768px) {
+          .welcome-hero-card {
+            padding: 24px 20px !important;
+          }
+          .welcome-hero-card h1.display-6 {
+            font-size: 1.6rem !important;
+          }
+          .welcome-hero-card p.fs-5 {
+            font-size: 0.95rem !important;
+            margin-bottom: 16px !important;
+          }
+          .welcome-hero-card .btn {
+            font-size: 0.85rem !important;
+            padding: 8px 16px !important;
+          }
+          .student-dashboard-content .vr {
+            display: none !important;
+          }
+          .student-dashboard-content .justify-content-around {
+            flex-direction: column !important;
+            gap: 20px !important;
+            align-items: center !important;
+          }
+          .student-dashboard-content .justify-content-around > div {
+            width: 100% !important;
+          }
+          .student-dashboard-content .justify-content-around .rounded-circle {
+            width: 40px !important;
+            height: 40px !important;
+          }
+          .student-dashboard-content .justify-content-around .rounded-circle i {
+            font-size: 14px !important;
+          }
+          .course-thumb-container {
+            height: 140px !important;
+          }
+          .student-dashboard-content .col-md-6.col-xl-4 .p-4 {
+            padding: 16px !important;
+          }
+          .student-dashboard-content .col-md-6.col-xl-4 h5.fw-bold {
+            font-size: 0.95rem !important;
+            height: auto !important;
+            margin-bottom: 8px !important;
+          }
         }
         .animate-fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn {

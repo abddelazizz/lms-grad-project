@@ -1056,7 +1056,7 @@
     height: 100dvh;
     width: 320px;
     max-width: 85vw;
-    z-index: 2100 !important;
+    z-index: 9999 !important;
     margin: 0 !important;
     border-radius: 0;
     background-color: #ffffff !important;
@@ -1177,7 +1177,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1999;
+    z-index: 9998 !important;
     display: none;
   }
 

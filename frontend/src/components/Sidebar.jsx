@@ -114,11 +114,7 @@ const Sidebar = () => {
               <i className="fas fa-comments"></i> <span>Chat</span>
             </Link>
           </li>
-          <li>
-            <Link to="/dashboard/settings" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/settings')}`}>
-              <i className="fas fa-cog"></i> <span>Settings</span>
-            </Link>
-          </li>
+
           {role?.toLowerCase() === 'admin' && (
             <>
               <li>
@@ -255,6 +251,11 @@ const Sidebar = () => {
               </li>
             </>
           )}
+          <li>
+            <Link to="/dashboard/settings" className={`nav-menu-item d-flex align-items-center gap-3 p-3 rounded-3 text-decoration-none ${getActiveState('/dashboard/settings')}`}>
+              <i className="fas fa-cog"></i> <span>Settings</span>
+            </Link>
+          </li>
         </ul>
       </div>
 

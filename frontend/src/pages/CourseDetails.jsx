@@ -17,7 +17,7 @@ const formatDuration = (seconds) => {
 
 const CourseDetails = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,11 @@ const CourseDetails = () => {
     }
   };
 
-  useEffect(() => { fetchCourse(); }, [id]);
+  useEffect(() => {
+    if (!authLoading) {
+      fetchCourse();
+    }
+  }, [id, authLoading]);
 
   const handleEnroll = async () => {
     if (!user) {
