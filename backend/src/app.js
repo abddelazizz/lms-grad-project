@@ -4,7 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import { testRoutes, authRoutes, courseRoutes, adminRoutes, studentRoutes, instructorRoutes, contactRoutes, quizRoutes, assignmentRoutes, sectionRoutes, lessonRoutes, enrollmentRoutes, notificationRoutes, chatRoutes, mfaRoutes } from "./routes/index.js";
+import { testRoutes, authRoutes, courseRoutes, adminRoutes, studentRoutes, instructorRoutes, contactRoutes, quizRoutes, assignmentRoutes, sectionRoutes, lessonRoutes, enrollmentRoutes, notificationRoutes, chatRoutes, mfaRoutes, assistantRoutes } from "./routes/index.js";
 import { notFound, globalErrorHandler } from "./middlewares/index.js";
 import { globalLimiter, authLimiter } from "./middlewares/rateLimiter.js";
 import { configurePassport } from "./config/index.js";
@@ -73,6 +73,7 @@ app.use("/api/assignments", assignmentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/mfa", mfaRoutes);
+app.use("/api/assistant", assistantRoutes);
 
 // ─── New Guide Routes (Phases 3-6) ───────────────────────────
 app.use("/api", sectionRoutes);        // /api/courses/:courseId/sections, /api/sections/:sectionId/lessons/text

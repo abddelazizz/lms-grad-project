@@ -13,3 +13,4 @@ export { default as enrollmentRoutes } from "./enrollmentRoutes.js";
 export { default as notificationRoutes } from "./notificationRoutes.js";
 export { default as chatRoutes } from "./chatRoutes.js";
 export { default as mfaRoutes } from "./mfaRoutes.js";
+export { default as assistantRoutes } from "./assistantRoutes.js";
