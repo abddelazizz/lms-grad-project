@@ -108,6 +108,7 @@ function AppContent() {
 
       <AIAssistantWidget />
       <Footer />
+      <AIAssistantWidget />
     </div>
   );
 }
