@@ -39,7 +39,6 @@ const Signup = () => {
     setShowResend(false);
 
     try {
-      // Send only necessary data to the backend
       const { name, username, email, password } = formData;
       const payload = {
         name,

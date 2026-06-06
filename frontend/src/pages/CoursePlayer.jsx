@@ -341,6 +341,9 @@ const CoursePlayer = () => {
             <button className={`player-tab-btn ${activeTab === 'quiz' ? 'active' : ''}`} onClick={() => setActiveTab('quiz')}>
               <i className="fas fa-question-circle me-2"></i>Quiz
             </button>
+            <button className={`player-tab-btn ${activeTab === 'ask-ai' ? 'active' : ''}`} onClick={() => setActiveTab('ask-ai')}>
+              <i className="fas fa-robot me-2"></i>Ask AI
+            </button>
           </div>
 
           {/* Tab Content */}
@@ -424,6 +427,31 @@ const CoursePlayer = () => {
                     <p className="text-muted mb-0">No quizzes for this section.</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Ask AI Tab */}
+            {activeTab === 'ask-ai' && (
+              <div className="p-4" style={{ background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div className="d-flex align-items-center mb-3">
+                  <div className="bg-primary text-white p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style={{ width: '50px', height: '50px' }}>
+                    <i className="fas fa-robot fa-lg"></i>
+                  </div>
+                  <div>
+                    <h5 className="mb-1 fw-bold text-dark">AI Teaching Assistant</h5>
+                    <p className="text-muted mb-0 small">Get instant help with this lesson</p>
+                  </div>
+                </div>
+                <div className="alert alert-info border-0 rounded-3 text-start" style={{ background: '#eff6ff', color: '#1e40af' }}>
+                  <i className="fas fa-lightbulb me-2"></i>
+                  Use the floating AI Tutor icon on the bottom right of your screen to chat with your assistant at any time. It has context about your courses and can explain difficult concepts!
+                </div>
+                <button 
+                  className="btn btn-primary rounded-pill mt-2 fw-bold px-4 shadow-sm"
+                  onClick={() => document.querySelector('.ai-assistant-toggle')?.click()}
+                >
+                  <i className="fas fa-comments me-2"></i>Open AI Chat
+                </button>
               </div>
             )}
           </div>

@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import Hero from './sections/Hero';
 import Benefits from './sections/Benefits';
 import CoursesSection from './sections/Courses';
+import TrainingSection from './sections/Training';
 import CoursesPage from './pages/Courses';
 import CourseDetails from './pages/CourseDetails';
 import Contact from './pages/Contact';
@@ -19,6 +20,7 @@ import Assignment from './pages/Assignment';
 import Assignments from './pages/Assignments';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import TrainingForm from './pages/TrainingForm';
 import VerifyResetOTP from './pages/VerifyResetOTP';
 import Inbox from './pages/Inbox';
 import Chat from './pages/Chat';
@@ -41,6 +43,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './styles/global.css';
 import './styles/home.css';
 
+import AIAssistantWidget from './components/AIAssistantWidget';
+
 function AppContent() {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/instructor') || location.pathname.startsWith('/admin');
@@ -57,8 +61,10 @@ function AppContent() {
             <Hero />
             <Benefits />
             <CoursesSection />
+            <TrainingSection />
           </main>
         } />
+        <Route path="/training/apply/:companyId" element={<TrainingForm />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
         <Route path="/about" element={<About />} />
@@ -101,6 +107,7 @@ function AppContent() {
         <Route path="/verify-reset-otp" element={<VerifyResetOTP />} />
       </Routes>
 
+      <AIAssistantWidget />
       <Footer />
     </div>
   );

@@ -7,10 +7,7 @@ import Quiz from "../models/Quiz.js";
 import QuizAttempt from "../models/QuizAttempt.js";
 import AppError from "../utils/AppError.js";
 
-/**
- * POST /api/courses/:courseId/enroll
- * Enrolls a student in a published course.
- */
+
 export const enrollStudent = async (courseId, studentId) => {
   const course = await Course.findByPk(courseId);
   if (!course) {
@@ -21,7 +18,7 @@ export const enrollStudent = async (courseId, studentId) => {
     throw new AppError("Cannot enroll in an unpublished course", 400);
   }
 
-  // Check if already enrolled
+ 
   const existing = await Enrollment.findOne({
     where: { student_id: studentId, course_id: courseId },
   });
@@ -100,17 +97,13 @@ export const accessLessonContent = async (lessonId, userId) => {
   };
 };
 
-/**
- * PATCH /api/progress/lessons/:lessonId
- * Updates (or creates) LessonProgress. If completed, recalculates enrollment %.
- */
+
 export const updateLessonProgress = async (lessonId, studentId, data) => {
   const lesson = await LessonContent.findByPk(lessonId);
   if (!lesson) {
     throw new AppError("Lesson not found", 404);
   }
 
-  // Verify enrollment
   const section = await CourseSection.findByPk(lesson.section_id);
   if (!section) {
     throw new AppError("Section not found", 404);
