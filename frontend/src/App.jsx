@@ -37,6 +37,7 @@ import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import UnifiedUpload from './pages/UnifiedUpload';
 import StudentQuizzes from './pages/StudentQuizzes';
 import ProtectedRoute, { AdminRoute, InstructorRoute, StudentRoute } from './components/ProtectedRoute';
+import AIAssistantWidget from './components/AIAssistantWidget';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -105,6 +106,7 @@ function AppContent() {
         <Route path="/verify-reset-otp" element={<VerifyResetOTP />} />
       </Routes>
 
+      <AIAssistantWidget />
       <Footer />
     </div>
   );
