@@ -7,8 +7,10 @@ import Footer from './components/Footer';
 import Hero from './sections/Hero';
 import Benefits from './sections/Benefits';
 import CoursesSection from './sections/Courses';
+import Training from './sections/Training';
 import CoursesPage from './pages/Courses';
 import CourseDetails from './pages/CourseDetails';
+import TrainingForm from './pages/TrainingForm';
 import Contact from './pages/Contact';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
@@ -57,8 +59,10 @@ function AppContent() {
             <Hero />
             <Benefits />
             <CoursesSection />
+            <Training />
           </main>
         } />
+        <Route path="/training/apply/:companyId" element={<TrainingForm />} />
         <Route path="/courses" element={<CoursesPage />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
         <Route path="/about" element={<About />} />
