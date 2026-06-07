@@ -3,6 +3,7 @@ import { Bot, X, Send, Trash2, Loader2, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { sendMessage, clearHistory } from '../services/assistantService';
 import { useAuth } from '../contexts/AuthContext';
+import Swal from 'sweetalert2';
 import '../styles/AIAssistantWidget.css';
 
 const AIAssistantWidget = () => {
@@ -54,12 +55,36 @@ const AIAssistantWidget = () => {
   };
 
   const handleClearHistory = async () => {
-    if (window.confirm('Are you sure you want to clear the conversation history?')) {
+    const result = await Swal.fire({
+      title: 'Clear History?',
+      text: 'Are you sure you want to clear the conversation history?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, clear it',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
       try {
         await clearHistory();
         setMessages([]);
+        Swal.fire({
+          title: 'Cleared!',
+          text: 'Conversation history has been cleared.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
       } catch (error) {
         console.error('Failed to clear history:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to clear history. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#4f46e5'
+        });
       }
     }
   };
